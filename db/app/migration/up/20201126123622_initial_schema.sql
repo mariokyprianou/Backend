@@ -1,3 +1,4 @@
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "postgis";
 
@@ -71,7 +72,7 @@ CREATE TABLE trainer_tr (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON trainer_tr FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE TYPE publish_status_enum AS TYPE ('PUBLISHED', 'DRAFT');
+CREATE TYPE publish_status_enum AS ENUM ('PUBLISHED', 'DRAFT');
 
 CREATE TYPE training_programme_environment AS ENUM ('HOME', 'GYM');
 CREATE TABLE training_programme (
@@ -116,8 +117,6 @@ CREATE TYPE intesity_enum AS ENUM ('LOW', 'MOD', 'HIGH');
 CREATE TABLE workout (
   id uuid CONSTRAINT pk_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
   training_programme_id uuid NOT NULL,
-  week_number INTEGER NOT NULL,
-  -- order_index int not null default 0,
   overview_image_key text NULL,
   intesity intesity_enum NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
@@ -138,30 +137,15 @@ CREATE TABLE workout_tr (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON workout_tr FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-{
-  programmes: [{
-    trainer,
-    environment,
-    programmeWeek: [{
-      week: 1
-      workouts: [{
-        week: 1,
-        exercises: [{
-        }]
-      }]
-    }]
-  }]
-}
-
 CREATE TABLE training_programme_workout (
   id uuid CONSTRAINT pk_training_programme_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
-  training_programme_id NOT NULL,
+  training_programme_id uuid NOT NULL,
   week_number integer NOT NULL,
   order_index integer NOT NULL,
   workout_id uuid NOT NULL,
-  CONSTRAINT uq_training_programme_workout_workout (workout_id),
+  CONSTRAINT uq_training_programme_workout_workout UNIQUE (workout_id),
   CONSTRAINT uq_training_programme_workout_week_order UNIQUE (training_programme_id, week_number, order_index),
-  CONSTRAINT fk_training_programme_workout_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
+  CONSTRAINT fk_training_programme_workout_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id),
   CONSTRAINT fk_training_programme_workout_workout FOREIGN KEY (workout_id) REFERENCES workout (id)
 );
 
@@ -286,7 +270,7 @@ CREATE TABLE challenge_tr (
   field_title text NOT NULL,
   field_description text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW()
+	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_challenge_tr_challenge FOREIGN KEY (challenge_id) REFERENCES challenge (id),
   CONSTRAINT uq_challenge_tr_challenge_language UNIQUE (challenge_id, language)
 );
@@ -327,10 +311,9 @@ CREATE TABLE account (
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_account_cognito_username UNIQUE (cognito_username),
-  CONSTRAINT fk_account_training_programme FOREIGN KEY training_programme_id REFERENCES training_programme (id)
+  CONSTRAINT fk_account_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON account FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
 --
 
 CREATE TABLE user_training_programme (
@@ -338,8 +321,8 @@ CREATE TABLE user_training_programme (
   training_programme_id uuid NOT NULL,
   start_date timestamptz NOT NULL DEFAULT NOW(),
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW(),
-)
+	updated_at timestamptz NOT NULL DEFAULT NOW()
+);
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_training_programme FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE user_category_history (
@@ -347,30 +330,30 @@ CREATE TABLE user_category_history (
   account_id uuid NOT NULL,
   exercise_category_id uuid NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW(),
+	updated_at timestamptz NOT NULL DEFAULT NOW()
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_category_history FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 
 CREATE TABLE user_category_history_set (
-  id uuid CONSTRAINT pk_user_category_history PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid CONSTRAINT pk_user_category_history_set PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_category_history_id uuid NOT NULL,
   set_number INT NOT NULL,
   amount DECIMAL NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW(),
+	updated_at timestamptz NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_category_history FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_category_history_set FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE TABLE account_exercise_note (
+CREATE TABLE user_exercise_note (
   id uuid CONSTRAINT pk_user_exercise_note PRIMARY KEY DEFAULT uuid_generate_v4(),
   account_id uuid NOT NULL,
   exercise_id uuid NOT NULL,
   note text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_user_exercise_note_account FOREIGN KEY account_id REFERENCES account (id),
-  CONSTRAINT fk_user_exercise_note_exercise FOREIGN KEY exercise_id REFERENCES exercise (id),
+  CONSTRAINT fk_user_exercise_note_account FOREIGN KEY (account_id) REFERENCES account (id),
+  CONSTRAINT fk_user_exercise_note_exercise FOREIGN KEY (exercise_id) REFERENCES exercise (id),
   CONSTRAINT uq_user_exercise_note_account_exercise UNIQUE (account_id, exercise_id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_exercise_note FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -382,8 +365,8 @@ CREATE TABLE user_workout_week (
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_user_training_programme FOREIGN KEY user_training_programme_id REFERENCES user_training_programme (id)
-)
+  CONSTRAINT fk_user_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
+);
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout_week FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE user_workout (
@@ -394,6 +377,28 @@ CREATE TABLE user_workout (
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_user_workout_week FOREIGN KEY user_workout_week_id REFERENCES user_training_programme (id)
-)
+  CONSTRAINT fk_user_workout_week FOREIGN KEY (user_workout_week_id) REFERENCES user_workout_week (id)
+);
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE transformation_image (
+  id uuid CONSTRAINT pk_transformation_image PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id uuid NOT NULL,
+  image_key text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+	updated_at timestamptz NOT NULL DEFAULT NOW(),
+  CONSTRAINT fk_transformation_image FOREIGN KEY (account_id) REFERENCES account (id)
+);
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON transformation_image FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE challenge_history (
+  id uuid CONSTRAINT pk_challenge_history PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id uuid NOT NULL,
+  challenge_id uuid NOT NULL,
+  quantity text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+	updated_at timestamptz NOT NULL DEFAULT NOW(),
+  CONSTRAINT fk_challenge_history_account FOREIGN KEY (account_id) REFERENCES account (id),
+  CONSTRAINT fk_challenge_history_challenge FOREIGN KEY (challenge_id) REFERENCES challenge (id)
+);
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON challenge_history FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
