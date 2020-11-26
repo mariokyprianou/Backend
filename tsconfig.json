@@ -13,10 +13,26 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "@lib/common": ["libs/common/src"],
-      "@lib/common/*": ["libs/common/src/*"],
-      "@lib/database": ["libs/database/src"],
-      "@lib/database/*": ["libs/database/src/*"]
+      "@lib/common": [
+        "libs/common/src"
+      ],
+      "@lib/common/*": [
+        "libs/common/src/*"
+      ],
+      "@lib/database": [
+        "libs/database/src"
+      ],
+      "@lib/database/*": [
+        "libs/database/src/*"
+      ],
+      "@lib/power": [
+        "libs/database/src",
+        "libs/power/src"
+      ],
+      "@lib/power/*": [
+        "libs/database/src/*",
+        "libs/power/src/*"
+      ]
     }
   }
 }

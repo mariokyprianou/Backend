@@ -19,6 +19,7 @@ module.exports = {
     alias: {
       '@lib/common': path.resolve(__dirname, 'libs/common/src'),
       '@lib/database': path.resolve(__dirname, 'libs/database/src'),
+      '@lib/power': path.resolve(__dirname, 'libs/power/src'),
     },
   },
   output: {

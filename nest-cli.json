@@ -40,6 +40,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
+    },
+    "power": {
+      "type": "library",
+      "root": "libs/power",
+      "entryFile": "index",
+      "sourceRoot": "libs/power/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/power/tsconfig.lib.json"
+      }
     }
   }
 }

@@ -12,12 +12,15 @@ const baseConfig: Pick<InfraStackProps, 'project'> &
   project: packageJson.name,
   env: {
     account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEPLOY_REGION || process.env.CDK_DEFAULT_REGION,
+    region: 'ap-south-1',
   },
   vpc: {
     natGateways: 0,
+    maxAzs: 3
   },
   database: {},
+  userPool: {},
+  cmsUserPool: {},
 };
 
 const devConfig: InfraStackProps = {

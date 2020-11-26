@@ -9,14 +9,14 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "diff:dev": "cdk diff --region eu-west-1",
-    "diff:qa": "",
-    "diff:uat": "",
-    "diff:prod": "",
-    "deploy:dev": "cdk diff --region eu-west-1",
-    "deploy:qa": "",
-    "deploy:uat": "",
-    "deploy:prod": ""
+    "diff:dev": "cdk diff --region ap-south-1 --profile power dev-infra",
+    "diff:qa": "cdk diff --region ap-south-1 --profile power qa-infra",
+    "diff:uat": "cdk diff --region ap-south-1 --profile power uat-infra",
+    "diff:prod": "cdk diff --region ap-south-1 --profile power prod-infra",
+    "deploy:dev": "cdk deploy --region ap-south-1 --profile power dev-infra",
+    "deploy:qa": "cdk diff --region ap-south-1 --profile power qa-infra",
+    "deploy:uat": "cdk diff --region ap-south-1 --profile power uat-infra",
+    "deploy:prod": "cdk diff --region ap-south-1 --profile power prod-infra"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.75.0",
@@ -32,6 +32,7 @@
     "@aws-cdk/aws-cognito": "^1.75.0",
     "@aws-cdk/aws-ec2": "^1.75.0",
     "@aws-cdk/aws-rds": "^1.75.0",
+    "@aws-cdk/aws-s3": "^1.75.0",
     "@aws-cdk/core": "1.75.0",
     "envalid": "^6.0.2",
     "source-map-support": "^0.5.16"

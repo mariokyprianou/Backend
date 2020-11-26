@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "commonjs",
-    "lib": ["es2018"],
+    "lib": [
+      "es2018"
+    ],
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -18,7 +20,20 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@lib/power": [
+        "libs/power/src"
+      ],
+      "@lib/power/*": [
+        "libs/power/src/*"
+      ]
+    }
   },
-  "exclude": ["cdk.out"]
+  "exclude": [
+    "cdk.out"
+  ]
 }
