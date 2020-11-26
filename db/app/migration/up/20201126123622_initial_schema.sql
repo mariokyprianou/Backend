@@ -255,10 +255,12 @@ CREATE TYPE challenge_type_enum AS enum ('COUNTDOWN', 'STOPWATCH', 'OTHER');
 
 CREATE TABLE challenge (
   id uuid CONSTRAINT pk_challenge PRIMARY KEY DEFAULT uuid_generate_v4(),
+  training_programme_id uuid NOT NULL,
   type challenge_type_enum NOT NULL,
   duration INTEGER DEFAULT NULL CHECK (duration IS NULL OR (duration IS NOT NULL AND type = 'COUNTDOWN')),
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW()
+	updated_at timestamptz NOT NULL DEFAULT NOW(),
+  CONSTRAINT fk_challenge_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id),
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON challenge FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
