@@ -1,0 +1,60 @@
+service: the-core-boilerplate-aws
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: eu-west-2
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'development'}
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_PORT: ${env:DB_PORT, '5432'}
+    DB_USER: ${env:DB_USER}
+  httpApi:
+    payload: '1.0'
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-prune-plugin
+  - serverless-webpack
+  - serverless-offline
+
+functions:
+  app:
+    handler: apps/app/src/handler.default
+    events:
+      - httpApi:
+          method: GET
+          path: /graphql
+      - httpApi:
+          method: POST
+          path: /graphql
+
+  cms:
+    handler: apps/cms/src/handler.default
+    events:
+      - httpApi:
+          method: GET
+          path: /cms
+      - httpApi:
+          method: POST
+          path: /cms
+
+custom:
+  serverless-offline:
+    allowCache: true
+    noPrependStageInUrl: true
+  webpack:
+    includeModules:
+      # Include dynamically imported modules
+      forceInclude:
+        - 'pg'
+        - 'apollo-server-express'
+        - '@nestjs/platform-express'
+        - 'class-validator'
+        - 'class-transformer'
+      forceExclude:
+        - aws-sdk # available in lambda env by default
+    packager: npm
