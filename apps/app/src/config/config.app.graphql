@@ -1,0 +1,8 @@
+type Configuration {
+  termsAndConditions: String!
+  privacyPolicy: String!
+}
+
+extend type Query {
+  configuration: Configuration!
+}
