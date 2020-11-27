@@ -1,0 +1,10 @@
+type Onboarding {
+  orderIndex: Int!
+  title: String!
+  description: String!
+  image: String!
+}
+
+extend type Query {
+  onboardingScreens: [Onboarding!]!
+}
