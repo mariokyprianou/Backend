@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { CommonModule } from '../../common/common.module';
 import scalars from '../../common/scalars';
+import { createContext } from './createContext';
 
 import { OnboardingAppModule } from './onboarding/onboarding.module';
 
@@ -24,6 +25,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
       resolvers: {
         ...scalars,
       },
+      context: createContext,
     };
   },
 });

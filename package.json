@@ -10,6 +10,7 @@
     "@nestjs/graphql": "^7.8.2",
     "@nestjs/platform-express": "^7.0.0",
     "@willsoto/nestjs-objection": "^4.0.2",
+    "accept-language": "^3.0.18",
     "apollo-server-express": "^2.19.0",
     "aws-sdk": "^2.798.0",
     "aws-serverless-express": "^3.3.8",
