@@ -1,0 +1,50 @@
+type Configuration {
+  id: ID!
+  localisations: [ConfigurationLocalisation!]!
+}
+
+type ConfigurationLocalisation {
+  locale: Locale
+  termsAndConditions: String!
+  privacyPolicy: String!
+  onboarding: [OnboardingConfig!]!
+  notifications: [PushNotificationConfig!]!
+}
+
+type OnboardingConfig {
+  title: String!
+  description: String!
+  image: URL!
+}
+
+type PushNotificationConfig {
+  type: PushNotificationType!
+  title: String!
+  body: String!
+}
+
+input OnboardingInput {
+  title: String!
+  description: String!
+  image: String!
+}
+
+input NotificationsInput {
+  fieldName: String!
+}
+
+input ConfigurationInput {
+  locale: Locale
+  termsAndConditions: String!
+  privacyPolicy: String!
+  onboarding: [OnboardingInput!]
+  notifications: [NotificationInput!]
+}
+
+extend type Query {
+  Configuration: Configuration
+}
+
+extend type Mutation {
+  updateConfiguration: Configuration
+}

@@ -38,6 +38,10 @@ scalar JSONObject
 scalar Byte
 scalar Void
 
+type Locale {
+  language: String!
+}
+
 type Query {
   ping: String!
 }
