@@ -1,0 +1,38 @@
+type Trainer {
+  id: ID!
+  localisations: [TrainerLocalisation!]!
+}
+
+type TrainerLocalisation {
+  language: String!
+  name: String!
+}
+
+input TrainerLocalisationInput {
+  language: String!
+  name: String!
+}
+
+input TrainerFilter {
+  id: ID
+  ids: [ID]
+  name: String
+}
+
+extend type Query {
+  Trainer(id: ID!): Trainer
+  allTrainers(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: TrainerFilter
+  ): [Trainer]
+  _allTrainersMeta(filter: TrainerFilter): ListMetadata
+}
+
+extend type Mutation {
+  createTrainer(localisations: [TrainerLocalisationInput!]): Trainer
+  updateTrainer(id: ID!, localisations: [TrainerLocalisationInput!]): Trainer
+  deleteTrainer(id: ID!): Trainer
+}

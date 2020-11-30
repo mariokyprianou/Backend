@@ -38,10 +38,21 @@ scalar JSONObject
 scalar Byte
 scalar Void
 
-type Locale {
-  language: String!
+scalar Locale
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+type ListMetadata {
+  count: Int!
 }
 
 type Query {
+  ping: String!
+}
+
+type Mutation {
   ping: String!
 }
