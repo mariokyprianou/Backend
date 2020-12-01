@@ -1,0 +1,99 @@
+type Programme {
+  id: ID!
+  trainer: Trainer
+  environment: ProgrammeEnvironment!
+  subscribers: Int!
+  images: [ProgrammeImage]!
+  # shareMediaImages: [ProgrammeSharedImage]
+  localisations: [ProgrammeLocalisation]
+  status: PublishStatus!
+  fatLoss: Int!
+  fitness: Int!
+  muscle: Int!
+}
+
+input ProgrammeInput {
+  trainerId: ID!
+  fatLoss: Int!
+  fitness: Int!
+  muscle: Int!
+  environment: ProgrammeEnvironment!
+  images: [ProgrammeImageInput]
+  localisations: [ProgrammeLocalisationInput]
+  status: PublishStatus
+}
+
+input ProgrammeImageInput {
+  imageKey: String!
+  orderIndex: Int!
+}
+
+type ProgrammeImage {
+  url: URL!
+  orderIndex: Int!
+}
+
+type ProgrammeLocalisation {
+  language: ISOLanguage!
+  description: String!
+}
+
+input ProgrammeLocalisationInput {
+  language: ISOLanguage!
+  description: String!
+}
+
+input ProgrammeFilter {
+  id: ID
+  ids: [ID]
+  trainerId: ID
+  environment: ProgrammeEnvironment
+}
+
+extend type Query {
+  _allProgrammesMeta(filter: ProgrammeFilter): ListMetadata!
+  allProgrammes(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: ProgrammeFilter
+  ): [Programme!]
+  Programme(id: ID!): Programme!
+}
+
+extend type Mutation {
+  createProgramme(programme: ProgrammeInput!): Programme!
+  updateProgramme(id: ID!, programme: ProgrammeInput): Programme!
+  deleteProgramme(id: ID!): Programme!
+}
+
+# enum ProgrammeSharedImageType {
+#   PROGRAMME_START
+#   WEEK_COMPLETE
+#   CHALLENGE_COMPLETE
+#   PROGRESS
+# }
+
+# type ProgrammeSharedImage {
+#   id: ID!
+#   type: ProgrammeSharedImageType!
+#   url: URL!
+#   textColour: String!
+# }
+
+# extend type Query {
+#   Programme(id: ID!): Programme
+#   allProgrammes: [Programme!]!
+#   _allProgrammesMeta: ListMetadata
+# }
+
+# extend type Mutation {
+#   createProgramme: Programme
+#   updateProgramme: Programme
+#   deleteProgramme: Programme
+# }
+
+# type Image {
+#   url: URL!
+# }

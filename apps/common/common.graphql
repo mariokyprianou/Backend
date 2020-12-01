@@ -51,7 +51,7 @@ enum ProgrammeEnvironment {
   HOME
 }
 
-enum ProgrammeStatus {
+enum PublishStatus {
   PUBLISHED
   DRAFT
 }

@@ -26,3 +26,34 @@ export interface Filter {
 export interface ListMetadata {
   count: number;
 }
+
+export enum ProgrammeEnvironment {
+  GYM,
+  HOME
+}
+
+export interface IProgramme {
+  trainerId: string,
+  fatLoss: number,
+  fitness: number,
+  muscle: number,
+  environment: ProgrammeEnvironment,
+  status: PublishStatus,
+  images: ProgrammeImages[]
+  localisations: ProgrammeLocalisation[]
+}
+
+export interface ProgrammeLocalisation {
+  language: string,
+  description: string
+}
+
+export interface ProgrammeImages {
+  imageKey: string,
+  orderIndex: number
+}
+
+export enum PublishStatus {
+  DRAFT,
+  PUBLISHED
+}

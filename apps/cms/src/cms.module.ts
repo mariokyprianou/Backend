@@ -8,6 +8,7 @@ import { TrainerCMSModule } from './trainer/trainer.module';
 import scalars from '../../common/scalars';
 import { ExerciseCMSModule } from './exercise/exercise.module';
 import { ExerciseCategoryCMSModule } from './exercise-category/exercise-category.module';
+import { ProgrammeCMSModule } from './programme/programme.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -21,6 +22,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         TrainerCMSModule,
         ExerciseCMSModule,
         ExerciseCategoryCMSModule,
+        ProgrammeCMSModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -45,6 +47,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ExerciseCMSModule,
     TrainerCMSModule,
     ExerciseCategoryCMSModule,
+    ProgrammeCMSModule,
     GraphQLProvider,
   ],
 })
