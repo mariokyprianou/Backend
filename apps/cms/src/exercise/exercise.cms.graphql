@@ -48,7 +48,7 @@ extend type Query {
     perPage: Int
     sortField: String
     sortOrder: SortOrder
-    filter: TrainerFilter
+    filter: ExerciseFilter
   ): [Exercise!]!
   _allExercisesMeta(filter: ExerciseFilter): ListMetadata!
 }

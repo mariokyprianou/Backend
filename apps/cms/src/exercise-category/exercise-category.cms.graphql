@@ -1,0 +1,28 @@
+type ExerciseCategory {
+  id: ID
+  name: String
+}
+
+input ExerciseCategoryFilter {
+  id: ID
+  ids: [ID]
+  name: String
+}
+
+extend type Query {
+  ExerciseCategory(id: ID!): ExerciseCategory
+  allExerciseCategories(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: ExerciseCategoryFilter
+  ): [ExerciseCategory]
+  _allExerciseCategoriesMeta(filter: ExerciseCategoryFilter): ListMetadata
+}
+
+extend type Mutation {
+  createExerciseCategory(name: String!): ExerciseCategory
+  updateExerciseCategory(id: ID!, name: String!): ExerciseCategory
+  deleteExerciseCategory(id: ID!): ExerciseCategory
+}

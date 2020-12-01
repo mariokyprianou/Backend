@@ -7,6 +7,7 @@ import { CommonModule } from '../../common/common.module';
 import { TrainerCMSModule } from './trainer/trainer.module';
 import scalars from '../../common/scalars';
 import { ExerciseCMSModule } from './exercise/exercise.module';
+import { ExerciseCategoryCMSModule } from './exercise-category/exercise-category.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -15,7 +16,12 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     return {
       debug: configService.get('isDevelopment'),
       playground: configService.get('isDevelopment'),
-      include: [CommonModule, TrainerCMSModule, ExerciseCMSModule],
+      include: [
+        CommonModule,
+        TrainerCMSModule,
+        ExerciseCMSModule,
+        ExerciseCategoryCMSModule,
+      ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
         './apps/common/common.graphql',
@@ -38,6 +44,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     DatabaseModule,
     ExerciseCMSModule,
     TrainerCMSModule,
+    ExerciseCategoryCMSModule,
     GraphQLProvider,
   ],
 })
