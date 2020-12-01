@@ -6,6 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { CommonModule } from '../../common/common.module';
 import { TrainerCMSModule } from './trainer/trainer.module';
 import scalars from '../../common/scalars';
+import { ExerciseCMSModule } from './exercise/exercise.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -14,7 +15,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     return {
       debug: configService.get('isDevelopment'),
       playground: configService.get('isDevelopment'),
-      include: [CommonModule, TrainerCMSModule],
+      include: [CommonModule, TrainerCMSModule, ExerciseCMSModule],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
         './apps/common/common.graphql',
@@ -35,6 +36,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     }),
     CommonModule,
     DatabaseModule,
+    ExerciseCMSModule,
     TrainerCMSModule,
     GraphQLProvider,
   ],
