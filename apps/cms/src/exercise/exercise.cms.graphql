@@ -1,0 +1,68 @@
+type Exercise {
+  id: ID!
+  localisations: [ExerciseLocalisations!]!
+  weight: Boolean!
+  video: URL!
+  videoEasy: URL
+  videoEasiest: URL
+  category: ExerciseCategory
+}
+
+type ExerciseLocalisations {
+  language: String!
+  name: String!
+  coachingTips: String
+}
+
+input ExerciseLocalisationInput {
+  language: String!
+  name: String!
+  coachingTips: String
+}
+
+input ExerciseInput {
+  weight: Boolean!
+  trainerId: ID!
+  videoKey: String!
+  videoKeyEasy: String
+  videoKeyEasiest: String
+  categoryId: ID
+}
+
+input ExerciseFilter {
+  id: ID
+  ids: [ID]
+  name: String
+  trainer: ID
+}
+
+type ExerciseCategory {
+  id: ID!
+  name: String!
+}
+
+extend type Query {
+  Exercise(id: ID!): Exercise
+  allExercises(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: TrainerFilter
+  ): [Exercise!]!
+  _allExercisesMeta(filter: ExerciseFilter): ListMetadata!
+}
+
+extend type Mutation {
+  createExercise(
+    exercise: ExerciseInput!
+    localisations: [ExerciseLocalisationInput!]
+  ): Exercise
+  updateExercise(
+    id: ID!
+    exercise: ExerciseInput!
+    localisations: [ExerciseLocalisationInput!]
+  ): Exercise
+  deleteExercise(id: ID!): Exercise
+  requestVideoUpload: VideoUpload!
+}

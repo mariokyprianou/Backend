@@ -39,10 +39,21 @@ scalar Byte
 scalar Void
 
 scalar Locale
+scalar ISOLanguage
 
 enum SortOrder {
   ASC
   DESC
+}
+
+enum ProgrammeEnvironment {
+  GYM
+  HOME
+}
+
+enum ProgrammeStatus {
+  PUBLISHED
+  DRAFT
 }
 
 type ListMetadata {
@@ -55,4 +66,9 @@ type Query {
 
 type Mutation {
   ping: String!
+}
+
+type VideoUpload {
+  key: String!
+  url: URL!
 }

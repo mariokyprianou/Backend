@@ -38,6 +38,7 @@ import {
   ObjectIDResolver,
   ByteResolver,
 } from 'graphql-scalars';
+import { ISOLanguageResolver } from './ISOLanguage';
 
 export default {
   ObjectID: ObjectIDResolver,
@@ -86,4 +87,6 @@ export default {
   JSON: JSONResolver,
   JSONObject: JSONObjectResolver,
   Byte: ByteResolver,
+
+  ISOLanguage: ISOLanguageResolver,
 };
