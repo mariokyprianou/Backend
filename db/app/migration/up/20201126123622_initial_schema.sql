@@ -118,7 +118,8 @@ CREATE TABLE workout (
   id uuid CONSTRAINT pk_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
   training_programme_id uuid NOT NULL,
   overview_image_key text NULL,
-  intesity intesity_enum NOT NULL,
+  intensity intesity_enum NOT NULL,
+  duration int NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_workout_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
@@ -165,6 +166,7 @@ CREATE TABLE exercise (
   video_key text NOT NULL,
   video_key_easy text NULL,
   video_key_easiest text NULL,
+  delete boolean DEFAULT FALSE,
   category_id uuid NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
