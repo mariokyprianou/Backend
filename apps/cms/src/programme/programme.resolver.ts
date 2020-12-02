@@ -7,7 +7,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { constructLimits } from '../constructLimits';
-import { Filter, ListMetadata } from '@lib/power/types';
+import { Filter, IShareMedia, ListMetadata } from '@lib/power/types';
 import { Programme } from '@lib/power/programme';
 import { ProgrammeService } from '@lib/power/programme/programme.service';
 import { IProgramme } from '../../../../libs/power/src/types';
@@ -60,6 +60,29 @@ export class ProgrammeResolver {
     return this.trainer.findById(programme.trainerId);
   }
 
+  @ResolveField('shareMediaImages')
+  async getShareMediaImages(@Parent() programme: Programme) {
+    console.log(programme.shareMediaImages);
+    return Promise.all(
+      programme.shareMediaImages.map(async (each) => ({
+        id: each.id,
+        type: each.type,
+        localisations: await Promise.all(
+          each.localisations.map(async (locale) => ({
+            language: locale.language,
+            url: await this.common.getPresignedUrl(
+              locale.imageKey,
+              this.common.env().FILES_BUCKET,
+              'getObject',
+              5,
+            ),
+            colour: locale.colour,
+          })),
+        ),
+      })),
+    );
+  }
+
   @ResolveField('images')
   async getImages(@Parent() programme: Programme) {
     return Promise.all(
@@ -108,26 +131,41 @@ export class ProgrammeResolver {
     );
   }
 
-    @Query('Programme')
-    async Programme(@Args('id') id: string): Promise<Programme> {
-      return this.service.findById(id);
-    }
+  @Query('Programme')
+  async Programme(@Args('id') id: string): Promise<Programme> {
+    return this.service.findById(id);
+  }
 
-    @Mutation('updateProgramme')
-    async updateProgramme(
-      @Args('id') id: string,
-      @Args('programme') programme: IProgramme,
-    ): Promise<Programme> {
-      return this.service.update(id, programme);
-    }
+  @Mutation('updateProgramme')
+  async updateProgramme(
+    @Args('id') id: string,
+    @Args('programme') programme: IProgramme,
+  ): Promise<Programme> {
+    return this.service.update(id, programme);
+  }
 
-    @Mutation('deleteProgramme')
-    async deleteProgramme(
-      @Args('id') id: string,
-    ): Promise<Programme> {
-      const ProgrammeToDelete = await this.service.findById(id);
-      await this.service.delete(id);
+  @Mutation('deleteProgramme')
+  async deleteProgramme(@Args('id') id: string): Promise<Programme> {
+    const ProgrammeToDelete = await this.service.findById(id);
+    await this.service.delete(id);
 
-      return ProgrammeToDelete;
-    }
+    return ProgrammeToDelete;
+  }
+
+  @Mutation('createShareImage')
+  async createShareImage(
+    @Args('programme') programme: string,
+    @Args('media') media: IShareMedia,
+  ): Promise<Programme> {
+    return this.service.createShareMedia(programme, media);
+  }
+
+  @Mutation('updateShareImage')
+  async updateShareImage(
+    @Args('programme') programme: string,
+    @Args('id') id: string,
+    @Args('media') media: IShareMedia,
+  ): Promise<Programme> {
+    return this.service.updateShareMedia(programme, id, media);
+  }
 }

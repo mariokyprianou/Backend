@@ -4,7 +4,7 @@ type Programme {
   environment: ProgrammeEnvironment!
   subscribers: Int!
   images: [ProgrammeImage]!
-  # shareMediaImages: [ProgrammeSharedImage]
+  shareMediaImages: [ProgrammeSharedImage]
   localisations: [ProgrammeLocalisation]
   status: PublishStatus!
   fatLoss: Int!
@@ -66,34 +66,40 @@ extend type Mutation {
   createProgramme(programme: ProgrammeInput!): Programme!
   updateProgramme(id: ID!, programme: ProgrammeInput): Programme!
   deleteProgramme(id: ID!): Programme!
+  createShareImage(programme: ID!, media: ProgrammeSharedImageInput): Programme!
+  updateShareImage(
+    programme: ID!
+    id: ID!
+    media: ProgrammeSharedImageInput
+  ): Programme!
 }
 
-# enum ProgrammeSharedImageType {
-#   PROGRAMME_START
-#   WEEK_COMPLETE
-#   CHALLENGE_COMPLETE
-#   PROGRESS
-# }
+enum ProgrammeSharedImageType {
+  PROGRAMME_START
+  WEEK_COMPLETE
+  CHALLENGE_COMPLETE
+  PROGRESS
+}
 
-# type ProgrammeSharedImage {
-#   id: ID!
-#   type: ProgrammeSharedImageType!
-#   url: URL!
-#   textColour: String!
-# }
+type ProgrammeSharedImage {
+  id: ID!
+  type: ProgrammeSharedImageType!
+  localisations: [ProgrammeSharedLocalisation!]
+}
 
-# extend type Query {
-#   Programme(id: ID!): Programme
-#   allProgrammes: [Programme!]!
-#   _allProgrammesMeta: ListMetadata
-# }
+type ProgrammeSharedLocalisation {
+  language: ISOLanguage!
+  url: URL!
+  colour: String!
+}
 
-# extend type Mutation {
-#   createProgramme: Programme
-#   updateProgramme: Programme
-#   deleteProgramme: Programme
-# }
+input ProgrammeSharedLocalisationInput {
+  language: ISOLanguage!
+  imageKey: String!
+  colour: String!
+}
 
-# type Image {
-#   url: URL!
-# }
+input ProgrammeSharedImageInput {
+  type: ProgrammeSharedImageType!
+  localisations: [ProgrammeSharedLocalisationInput!]
+}

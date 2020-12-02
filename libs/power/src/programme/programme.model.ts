@@ -5,6 +5,7 @@ import { ProgrammeTranslation } from './programme-tr.model';
 import { ProgrammeImage } from './programme-image.model';
 import { ProgrammeEnvironment, PublishStatus } from '../types';
 import { Trainer } from '../trainer';
+import { ShareMedia } from './share-media.model';
 
 export class Programme extends BaseModel {
   static tableName = 'training_programme';
@@ -25,6 +26,7 @@ export class Programme extends BaseModel {
 
   localisations: ProgrammeTranslation[];
   images: ProgrammeImage[];
+  shareMediaImages: ShareMedia[];
 
   public getTranslation(language: string) {
     return (this.localisations ?? []).find((tr) => tr.language === language);
@@ -37,6 +39,14 @@ export class Programme extends BaseModel {
       join: {
         from: 'training_programme.id',
         to: 'training_programme_tr.training_programme_id',
+      },
+    },
+    shareMediaImages: {
+      relation: Model.HasManyRelation,
+      modelClass: ShareMedia,
+      join: {
+        from: 'training_programme.id',
+        to: 'share_media_image.training_programme_id',
       },
     },
     images: {

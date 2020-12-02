@@ -29,31 +29,48 @@ export interface ListMetadata {
 
 export enum ProgrammeEnvironment {
   GYM,
-  HOME
+  HOME,
 }
 
 export interface IProgramme {
-  trainerId: string,
-  fatLoss: number,
-  fitness: number,
-  muscle: number,
-  environment: ProgrammeEnvironment,
-  status: PublishStatus,
-  images: ProgrammeImages[]
-  localisations: ProgrammeLocalisation[]
+  trainerId: string;
+  fatLoss: number;
+  fitness: number;
+  muscle: number;
+  environment: ProgrammeEnvironment;
+  status: PublishStatus;
+  images: ProgrammeImages[];
+  localisations: ProgrammeLocalisation[];
 }
 
 export interface ProgrammeLocalisation {
-  language: string,
-  description: string
+  language: string;
+  description: string;
 }
 
 export interface ProgrammeImages {
-  imageKey: string,
-  orderIndex: number
+  imageKey: string;
+  orderIndex: number;
 }
 
 export enum PublishStatus {
   DRAFT,
-  PUBLISHED
+  PUBLISHED,
+}
+
+export interface IShareMedia {
+  type: ShareMediaType;
+  localisations: ShareMediaLocalisations[];
+}
+
+export interface ShareMediaLocalisations {
+  imageKey: string;
+  colour: string;
+}
+
+export enum ShareMediaType {
+  PROGRAMME_START,
+  WEEK_COMPLETE,
+  CHALLENGE_COMPLETE,
+  PROGRESS,
 }
