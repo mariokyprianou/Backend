@@ -1,10 +1,43 @@
 import { HmcQuestion, HmcQuestionService } from '@lib/power/hmc-question';
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 interface HmcQuestionGraphQlType {
   id: string;
-  localisations: any[];
-  trainerScores: any[];
+  orderIndex: number;
+  localisations: HmcQuestionLocalisationGraphQlType[];
+  programmeScores: HmcProgrammeScoreGraphQlType[];
+}
+
+// TODO: move to common
+export interface HmcQuestionGraphQlInput {
+  orderIndex: number;
+  localisations: HmcQuestionLocalisationGraphQlType[];
+  programmeScores: HmcProgrammeScoreGraphQlInput[];
+}
+
+interface HmcQuestionLocalisationGraphQlType {
+  language: string;
+  question: string;
+  answer1: string;
+  answer2: string;
+  answer3: string;
+  answer4: string;
+}
+
+interface HmcProgrammeScoreGraphQlType {
+  program: any; // TODO
+  answer1: number;
+  answer2: number;
+  answer3: number;
+  answer4: number;
+}
+
+interface HmcProgrammeScoreGraphQlInput {
+  programmeId: string;
+  answer1: number;
+  answer2: number;
+  answer3: number;
+  answer4: number;
 }
 
 @Resolver('HmcQuestion')
@@ -17,14 +50,28 @@ export class HmcQuestionResolver {
       hmcQuestionModelToHmcQuestionGraphQL,
     );
   }
+
+  @Mutation('createHmcQuestion')
+  async createHmcQuestion(
+    @Args('input') input: HmcQuestionGraphQlInput,
+  ): Promise<HmcQuestionGraphQlType> {
+    const hmcQuestion = await this.service.create(input);
+
+    console.log(hmcQuestion);
+
+    return hmcQuestion
+      ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
+      : null;
+  }
 }
 
 const hmcQuestionModelToHmcQuestionGraphQL = (
-  hmcQuestionService: HmcQuestion,
+  hmcQuestionModel: HmcQuestion,
 ): HmcQuestionGraphQlType => {
   return {
-    id: hmcQuestionService.id,
+    id: hmcQuestionModel.id,
+    orderIndex: hmcQuestionModel.orderIndex,
     localisations: [],
-    trainerScores: [],
+    programmeScores: [],
   };
 };

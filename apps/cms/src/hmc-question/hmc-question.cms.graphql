@@ -5,24 +5,49 @@
 
 type HmcQuestion {
   id: ID!
+  orderIndex: Int!
   localisations: [HmcQuestionLocalisation!]!
-  trainerScores: [HmcTrainerScore!]!
+  programmeScores: [HmcProgrammeScore!]!
 }
 
-type HmcTrainerScore {
-  trainer: Trainer
+input HmcQuestionInput {
+  orderIndex: Int!
+  localisations: [HmcQuestionLocalisationInput!]!
+  programmeScores: [HmcProgrammeScoreInput!]!
+}
+
+type HmcQuestionLocalisation {
+  language: ISOLanguage!
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}
+
+input HmcQuestionLocalisationInput {
+  language: ISOLanguage!
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}
+
+type HmcProgrammeScore {
+  program: Programme!
   answer1: Int!
   answer2: Int!
   answer3: Int!
   answer4: Int!
 }
 
-type HmcQuestionLocalisation {
-  question: String!
-  answer1: String!
-  answer2: String!
-  answer3: String!
-  answer4: String!
+input HmcProgrammeScoreInput {
+  programmeId: ID!
+  answer1: Int!
+  answer2: Int!
+  answer3: Int!
+  answer4: Int!
 }
 
 extend type Query {
@@ -31,8 +56,8 @@ extend type Query {
   #   _allHmcsMeta(id: ID!): ListMetadata
 }
 
-# extend type Mutation {
-#   createHmc(id: ID!): Hmc
-#   updateHmc(id: ID!): Hmc
-#   deleteHmc(id: ID!): Hmc
-# }
+extend type Mutation {
+  createHmcQuestion(input: HmcQuestionInput!): HmcQuestion
+  #   updateHmc(id: ID!): Hmc
+  #   deleteHmc(id: ID!): Hmc
+}
