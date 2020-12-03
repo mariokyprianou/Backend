@@ -49,21 +49,6 @@ export class HmcQuestionResolver {
   }
 }
 
-const hmcQuestionModelToHmcQuestionGraphQL = (
-  hmcQuestionModel: HmcQuestion,
-): HmcQuestionGraphQlType => {
-  return {
-    id: hmcQuestionModel.id,
-    orderIndex: hmcQuestionModel.orderIndex,
-    localisations: hmcQuestionModel.translations.map(
-      hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType,
-    ),
-    programmeScores: hmcQuestionModel.scores.map(
-      hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType,
-    ),
-  };
-};
-
 const hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType = (
   hmcQuestionTranslationModel: HmcQuestionTranslation,
 ): HmcQuestionLocalisationGraphQlType => {
@@ -74,18 +59,6 @@ const hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType = (
     answer2: hmcQuestionTranslationModel.answer2,
     answer3: hmcQuestionTranslationModel.answer3,
     answer4: hmcQuestionTranslationModel.answer4,
-  };
-};
-
-const hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType = (
-  hmcQuestionScoreModel: HmcQuestionScore,
-): HmcProgrammeScoreGraphQlType => {
-  return {
-    programId: hmcQuestionScoreModel.trainingProgrammeId,
-    answer1: hmcQuestionScoreModel.answer1Score,
-    answer2: hmcQuestionScoreModel.answer2Score,
-    answer3: hmcQuestionScoreModel.answer3Score,
-    answer4: hmcQuestionScoreModel.answer4Score,
   };
 };
 
@@ -102,6 +75,33 @@ const applyFilter = (
   }
 
   return hmcQuestionQuery;
+};
+
+const hmcQuestionModelToHmcQuestionGraphQL = (
+  hmcQuestionModel: HmcQuestion,
+): HmcQuestionGraphQlType => {
+  return {
+    id: hmcQuestionModel.id,
+    orderIndex: hmcQuestionModel.orderIndex,
+    localisations: hmcQuestionModel.translations.map(
+      hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType,
+    ),
+    programmeScores: hmcQuestionModel.scores.map(
+      hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType,
+    ),
+  };
+};
+
+const hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType = (
+  hmcQuestionScoreModel: HmcQuestionScore,
+): HmcProgrammeScoreGraphQlType => {
+  return {
+    programId: hmcQuestionScoreModel.trainingProgrammeId,
+    answer1: hmcQuestionScoreModel.answer1Score,
+    answer2: hmcQuestionScoreModel.answer2Score,
+    answer3: hmcQuestionScoreModel.answer3Score,
+    answer4: hmcQuestionScoreModel.answer4Score,
+  };
 };
 
 interface HmcQuestionGraphQlType {
