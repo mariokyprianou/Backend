@@ -58,6 +58,8 @@ export class ExerciseResolver {
     return this.common.getPresignedUrl(
       exercise.videoKey,
       this.common.env().VIDEO_BUCKET_DESTINATION,
+      'getObject',
+      'us-east-1',
     );
   }
   @ResolveField('videoEasy')
@@ -68,6 +70,8 @@ export class ExerciseResolver {
     return this.common.getPresignedUrl(
       exercise.videoKeyEasy,
       this.common.env().VIDEO_BUCKET_DESTINATION,
+      'getObject',
+      'us-east-1',
     );
   }
   @ResolveField('videoEasiest')
@@ -78,6 +82,8 @@ export class ExerciseResolver {
     return this.common.getPresignedUrl(
       exercise.videoKeyEasiest,
       this.common.env().VIDEO_BUCKET_DESTINATION,
+      'getObject',
+      'us-east-1',
     );
   }
 
@@ -154,6 +160,7 @@ export class ExerciseResolver {
       `assets01/${key}`,
       this.common.env().VIDEO_BUCKET_SOURCE,
       'putObject',
+      'us-east-1',
     );
 
     return {
