@@ -19,7 +19,7 @@ export class HmcQuestion extends BaseModel {
   translations: HmcQuestionTranslation[];
   scores: HmcQuestionScore[];
 
-  static relationMappings = {
+  static relationMappings = () => ({
     translations: {
       relation: Model.HasManyRelation,
       modelClass: HmcQuestionTranslation,
@@ -36,5 +36,5 @@ export class HmcQuestion extends BaseModel {
         to: 'hmc_question_score.hmc_question_id',
       },
     },
-  };
+  });
 }

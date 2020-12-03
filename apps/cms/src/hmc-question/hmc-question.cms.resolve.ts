@@ -56,6 +56,17 @@ export class HmcQuestionResolver {
       ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
       : null;
   }
+
+  @Mutation('deleteHmcQuestion')
+  async deleteHmcQuestion(
+    @Args('id') id: string,
+  ): Promise<HmcQuestionGraphQlType> {
+    const hmcQuestion = await this.service.delete(id);
+
+    return hmcQuestion
+      ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
+      : null;
+  }
 }
 
 const hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType = (

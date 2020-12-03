@@ -76,5 +76,5 @@ extend type Query {
 extend type Mutation {
   createHmcQuestion(input: HmcQuestionInput!): HmcQuestion
   #   updateHmc(id: ID!): Hmc
-  #   deleteHmc(id: ID!): Hmc
+  deleteHmcQuestion(id: ID!): HmcQuestion
 }
