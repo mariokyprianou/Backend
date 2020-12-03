@@ -48,9 +48,20 @@ export class HmcQuestionResolver {
 
   @Mutation('createHmcQuestion')
   async createHmcQuestion(
-    @Args('input') input: HmcQuestionGraphQlInput,
+    @Args('input') input: CreateHmcQuestionGraphQlInput,
   ): Promise<HmcQuestionGraphQlType> {
     const hmcQuestion = await this.service.create(input);
+
+    return hmcQuestion
+      ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
+      : null;
+  }
+
+  @Mutation('updateHmcQuestion')
+  async updateHmcQuestion(
+    @Args('input') input: UpdateHmcQuestionGraphQlInput,
+  ): Promise<HmcQuestionGraphQlType> {
+    const hmcQuestion = await this.service.update(input);
 
     return hmcQuestion
       ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
@@ -132,10 +143,15 @@ interface HmcQuestionGraphQlType {
 }
 
 // TODO: move to common?
-export interface HmcQuestionGraphQlInput {
+export interface CreateHmcQuestionGraphQlInput {
   orderIndex: number;
   localisations: HmcQuestionLocalisationGraphQlType[];
   programmeScores: HmcProgrammeScoreGraphQlInput[];
+}
+
+export interface UpdateHmcQuestionGraphQlInput
+  extends CreateHmcQuestionGraphQlInput {
+  id: string;
 }
 
 interface HmcQuestionLocalisationGraphQlType {

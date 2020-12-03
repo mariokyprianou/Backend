@@ -10,7 +10,7 @@ export class HmcQuestionTranslation extends BaseModel {
   }
 
   id: string;
-  hmcQuestionId: number;
+  hmcQuestionId: string;
   language: string;
   question: string;
   answer1: string;

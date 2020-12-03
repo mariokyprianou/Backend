@@ -11,7 +11,7 @@ export class HmcQuestionScore extends BaseModel {
   }
 
   id: string;
-  hmcQuestionId: number;
+  hmcQuestionId: string;
   trainingProgrammeId: string;
   answer1Score: number;
   answer2Score: number;

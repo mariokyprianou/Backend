@@ -1,8 +1,3 @@
-# type Hmc {
-#   id: ID!
-#   questions: [HmcQuestion!]!
-# }
-
 type HmcQuestion {
   id: ID!
   orderIndex: Int!
@@ -10,7 +5,14 @@ type HmcQuestion {
   programmeScores: [HmcProgrammeScore!]!
 }
 
-input HmcQuestionInput {
+input CreateHmcQuestionInput {
+  orderIndex: Int!
+  localisations: [HmcQuestionLocalisationInput!]!
+  programmeScores: [HmcProgrammeScoreInput!]!
+}
+
+input UpdateHmcQuestionInput {
+  id: ID!
   orderIndex: Int!
   localisations: [HmcQuestionLocalisationInput!]!
   programmeScores: [HmcProgrammeScoreInput!]!
@@ -74,7 +76,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  createHmcQuestion(input: HmcQuestionInput!): HmcQuestion
-  #   updateHmc(id: ID!): Hmc
+  createHmcQuestion(input: CreateHmcQuestionInput!): HmcQuestion
+  updateHmcQuestion(input: UpdateHmcQuestionInput!): HmcQuestion
   deleteHmcQuestion(id: ID!): HmcQuestion
 }
