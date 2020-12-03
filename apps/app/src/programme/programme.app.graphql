@@ -1,0 +1,21 @@
+interface Programme {
+  id: ID!
+  trainer: Trainer
+  environment: ProgrammeEnvironment!
+  fatLoss: Int!
+  fitness: Int!
+  muscle: Int!
+  description: String!
+}
+
+type ProgrammeOverview implements Programme {
+  id: ID!
+  trainer: Trainer
+  environment: ProgrammeEnvironment!
+  fatLoss: Int!
+  fitness: Int!
+  muscle: Int!
+  description: String!
+  progressStartShareMediaImage: ProgrammeImage
+  firstWeek: [WorkoutWeek]!
+}

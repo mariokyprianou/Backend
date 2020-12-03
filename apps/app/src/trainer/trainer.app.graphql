@@ -1,0 +1,9 @@
+type Trainer {
+  id: ID!
+  name: String!
+  programmes: [ProgrammeOverview]
+}
+
+extend type Query {
+  getTrainers: [Trainer]!
+}
