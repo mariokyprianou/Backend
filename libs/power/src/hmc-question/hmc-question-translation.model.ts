@@ -13,10 +13,10 @@ export class HmcQuestionTranslation extends BaseModel {
   hmcQuestionId: number;
   language: string;
   question: string;
-  answer_1: string;
-  answer_2: string;
-  answer_3: string;
-  answer_4: string;
+  answer1: string;
+  answer2: string;
+  answer3: string;
+  answer4: string;
   createdAt: Date;
   updatedAt: Date;
 

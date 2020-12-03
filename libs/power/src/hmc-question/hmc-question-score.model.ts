@@ -12,11 +12,11 @@ export class HmcQuestionScore extends BaseModel {
 
   id: string;
   hmcQuestionId: number;
-  trainingProgrammeID: string;
-  answer_1_score: number;
-  answer_2_score: number;
-  answer_3_score: number;
-  answer_4_score: number;
+  trainingProgrammeId: string;
+  answer1Score: number;
+  answer2Score: number;
+  answer3Score: number;
+  answer4Score: number;
   createdAt: Date;
   updatedAt: Date;
 
