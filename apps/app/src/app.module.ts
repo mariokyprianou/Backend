@@ -9,6 +9,7 @@ import { ConfigAppModule } from './config/config.module';
 import { createContext } from './createContext';
 
 import { OnboardingAppModule } from './onboarding/onboarding.module';
+import { TrainerAppModule } from './trainer/trainer.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -17,7 +18,12 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     return {
       debug: configService.get('isDevelopment'),
       playground: configService.get('isDevelopment'),
-      include: [CommonModule, OnboardingAppModule, ConfigAppModule],
+      include: [
+        CommonModule,
+        OnboardingAppModule,
+        ConfigAppModule,
+        TrainerAppModule,
+      ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
         './apps/common/common.graphql',
@@ -41,6 +47,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     DatabaseModule,
     OnboardingAppModule,
     ConfigAppModule,
+    TrainerAppModule,
     GraphQLProvider,
   ],
 })

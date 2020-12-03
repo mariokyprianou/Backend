@@ -1,8 +1,8 @@
-type Configuration {
+type Legals {
   termsAndConditions: String!
   privacyPolicy: String!
 }
 
 extend type Query {
-  getLegals: Configuration!
+  legals: Legals!
 }

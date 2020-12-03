@@ -28,11 +28,6 @@ input ProgrammeImageInput {
   orderIndex: Int!
 }
 
-type ProgrammeImage {
-  url: URL!
-  orderIndex: Int!
-}
-
 type ProgrammeLocalisation {
   language: ISOLanguage!
   description: String!

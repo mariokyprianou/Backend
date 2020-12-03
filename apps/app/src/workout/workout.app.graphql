@@ -1,0 +1,7 @@
+type Workout {
+    overviewImage: URL
+    intensity: IntensityEnum!
+    duration: Int!
+    name: String!
+    exercises: [WorkoutExercise]
+}

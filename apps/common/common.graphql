@@ -72,3 +72,39 @@ type VideoUpload {
   key: String!
   url: URL!
 }
+
+type ProgrammeImage {
+  url: URL!
+  orderIndex: Int!
+}
+
+type WorkoutWeek {
+  id: ID!
+  weekNumber: Int!
+  orderIndex: Int!
+  workout: Workout!
+}
+
+enum IntensityEnum {
+  LOW
+  MOD
+  HIGH
+}
+
+type WorkoutExercise {
+  setType: SetType!
+  sets: [WorkoutSet]
+  exercise: Exercise!
+  orderIndex: Int!
+}
+
+type WorkoutSet {
+  setNumber: Int!
+  quantity: Int!
+  restTime: Int!
+}
+
+enum SetType {
+  REPS
+  TIME
+}
