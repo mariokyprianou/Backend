@@ -1,0 +1,38 @@
+# type Hmc {
+#   id: ID!
+#   questions: [HmcQuestion!]!
+# }
+
+type HmcQuestion {
+  id: ID!
+  localisations: [HmcQuestionLocalisation!]!
+  trainerScores: [HmcTrainerScore!]!
+}
+
+type HmcTrainerScore {
+  trainer: Trainer
+  answer1: Int!
+  answer2: Int!
+  answer3: Int!
+  answer4: Int!
+}
+
+type HmcQuestionLocalisation {
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}
+
+extend type Query {
+  # Hmc(id: ID!): Hmc
+  allHmcQuestions: [HmcQuestion!]!
+  #   _allHmcsMeta(id: ID!): ListMetadata
+}
+
+# extend type Mutation {
+#   createHmc(id: ID!): Hmc
+#   updateHmc(id: ID!): Hmc
+#   deleteHmc(id: ID!): Hmc
+# }
