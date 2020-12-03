@@ -10,10 +10,6 @@ export class HmcQuestionService {
       .withGraphFetched('scores');
   }
 
-  // public count() {
-  //   return ExerciseCategory.query().count();
-  // }
-
   public findById(id: string) {
     return this.findAll().findById(id);
   }

@@ -12,6 +12,15 @@ import { ListMetadata } from '@lib/power/types';
 export class HmcQuestionResolver {
   constructor(private readonly service: HmcQuestionService) {}
 
+  @Query('HmcQuestion')
+  async HmcQuestion(@Args('id') id): Promise<HmcQuestionGraphQlType> {
+    const findByIdQuery = await this.service.findById(id);
+
+    return findByIdQuery
+      ? hmcQuestionModelToHmcQuestionGraphQL(findByIdQuery)
+      : null;
+  }
+
   @Query('allHmcQuestions')
   async allHmcQuestions(
     @Args('page') page = 0,
