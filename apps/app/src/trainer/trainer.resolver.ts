@@ -70,11 +70,13 @@ export class TrainerResolver {
             firstWeek.map(async (week) => ({
               ...week,
               workout: {
-                overviewImage: await this.common.getPresignedUrl(
-                  week.workout.overviewImageKey,
-                  this.common.env().FILES_BUCKET,
-                  'getObject',
-                ),
+                overviewImage:
+                  week.workout.overviewImageKey &&
+                  (await this.common.getPresignedUrl(
+                    week.workout.overviewImageKey,
+                    this.common.env().FILES_BUCKET,
+                    'getObject',
+                  )),
                 intensity: week.workout.intensity,
                 duration: week.workout.duration,
                 name: week.workout.getTranslation(language).name,
