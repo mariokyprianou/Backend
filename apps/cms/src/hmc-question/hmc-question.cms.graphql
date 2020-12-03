@@ -50,10 +50,27 @@ input HmcProgrammeScoreInput {
   answer4: Int!
 }
 
+input HmcQuestionFilter {
+  id: ID
+  ids: [ID!]
+}
+
 extend type Query {
   # Hmc(id: ID!): Hmc
-  allHmcQuestions: [HmcQuestion!]!
-  #   _allHmcsMeta(id: ID!): ListMetadata
+  allHmcQuestions(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: HmcQuestionFilter
+  ): [HmcQuestion!]!
+  _allHmcQuestionsMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: HmcQuestionFilter
+  ): ListMetadata
 }
 
 extend type Mutation {

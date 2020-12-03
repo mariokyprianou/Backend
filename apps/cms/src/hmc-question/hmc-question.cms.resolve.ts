@@ -1,20 +1,40 @@
+import Objection from 'objection';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
   HmcQuestion,
   HmcQuestionScore,
   HmcQuestionService,
   HmcQuestionTranslation,
 } from '@lib/power/hmc-question';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ListMetadata } from '@lib/power/types';
 
 @Resolver('HmcQuestion')
 export class HmcQuestionResolver {
   constructor(private readonly service: HmcQuestionService) {}
 
   @Query('allHmcQuestions')
-  async allHmcQuestions(): Promise<HmcQuestionGraphQlType[]> {
-    return (await this.service.findAll()).map(
-      hmcQuestionModelToHmcQuestionGraphQL,
-    );
+  async allHmcQuestions(
+    @Args('page') page = 0,
+    @Args('perPage') perPage = 25,
+    @Args('sortField') sortField = 'order_index',
+    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
+    @Args('filter') filter: HmcQuestionFilter = {},
+  ): Promise<HmcQuestionGraphQlType[]> {
+    const findAllQuery = applyFilter(this.service.findAll(), filter);
+
+    findAllQuery.limit(perPage).offset(perPage * page);
+    findAllQuery.orderBy(sortField, sortOrder);
+
+    return (await findAllQuery).map(hmcQuestionModelToHmcQuestionGraphQL);
+  }
+
+  @Query('_allHmcQuestionsMeta')
+  async _allHmcQuestionsMeta(
+    @Args('filter') filter: HmcQuestionFilter = {},
+  ): Promise<ListMetadata> {
+    return {
+      count: await applyFilter(this.service.findAll(), filter).resultSize(),
+    };
   }
 
   @Mutation('createHmcQuestion')
@@ -69,6 +89,21 @@ const hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType = (
   };
 };
 
+const applyFilter = (
+  hmcQuestionQuery: Objection.QueryBuilder<HmcQuestion, HmcQuestion[]>,
+  filter: HmcQuestionFilter,
+): Objection.QueryBuilder<HmcQuestion, HmcQuestion[]> => {
+  if (filter.id) {
+    hmcQuestionQuery.findByIds([filter.id]);
+  }
+
+  if (filter.ids) {
+    hmcQuestionQuery.findByIds(filter.ids);
+  }
+
+  return hmcQuestionQuery;
+};
+
 interface HmcQuestionGraphQlType {
   id: string;
   orderIndex: number;
@@ -106,4 +141,9 @@ interface HmcProgrammeScoreGraphQlInput {
   answer2: number;
   answer3: number;
   answer4: number;
+}
+
+interface HmcQuestionFilter {
+  id?: string;
+  ids?: string[];
 }
