@@ -62,7 +62,6 @@ export class ProgrammeResolver {
 
   @ResolveField('shareMediaImages')
   async getShareMediaImages(@Parent() programme: Programme) {
-    console.log(programme.shareMediaImages);
     return Promise.all(
       programme.shareMediaImages.map(async (each) => ({
         id: each.id,

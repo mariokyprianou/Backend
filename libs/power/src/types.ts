@@ -74,3 +74,43 @@ export enum ShareMediaType {
   CHALLENGE_COMPLETE,
   PROGRESS,
 }
+
+export enum IntensityEnum {
+  LOW,
+  MOD,
+  HIGH,
+}
+
+export enum SetType {
+  REPS,
+  TIME,
+}
+
+export interface IProgrammeWorkout {
+  weekNumber: number;
+  orderIndex: number;
+  programme: string;
+  localisations: ProgrammeWorkoutLocalisations[];
+  intensity: IntensityEnum;
+  overviewImageKey?: string;
+  duration: number;
+  exercises: WorkoutExercise[];
+}
+
+export interface ProgrammeWorkoutLocalisations {
+  language: string;
+  name: string;
+}
+
+export interface WorkoutExercise {
+  orderIndex: number;
+  setType: SetType;
+  sets: WorkoutSet[];
+  exercise: string;
+}
+
+export interface WorkoutSet {
+  setNumber: number;
+  quantity: number;
+  restTime: number;
+}

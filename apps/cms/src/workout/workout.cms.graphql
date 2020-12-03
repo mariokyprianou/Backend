@@ -1,0 +1,99 @@
+type WorkoutWeek {
+  id: ID!
+  weekNumber: Int!
+  orderIndex: Int!
+  workout: Workout!
+}
+
+type Workout {
+  overviewImage: URL
+  intensity: IntensityEnum!
+  duration: Int!
+  localisations: [WorkoutLocalisation]
+  exercises: [WorkoutExercise]
+}
+
+type WorkoutLocalisation {
+  language: ISOLanguage!
+  name: String!
+}
+
+enum IntensityEnum {
+  LOW
+  MOD
+  HIGH
+}
+
+type WorkoutExercise {
+  setType: SetType!
+  sets: [WorkoutSet]
+  exercise: Exercise!
+  orderIndex: Int!
+}
+
+type WorkoutSet {
+  setNumber: Int!
+  quantity: Int!
+  restTime: Int!
+}
+
+enum SetType {
+  REPS
+  TIME
+}
+
+input WorkoutSetInput {
+  setNumber: Int!
+  quantity: Int!
+  restTime: Int!
+}
+
+input WorkoutExerciseInput {
+  orderIndex: Int!
+  setType: SetType!
+  sets: [WorkoutSetInput]
+  exercise: ID!
+}
+
+input WorkoutInput {
+  weekNumber: Int!
+  orderIndex: Int!
+  programme: ID!
+  localisations: [WorkoutLocalisationInput]!
+  intensity: IntensityEnum!
+  overviewImageKey: String
+  duration: Int!
+  exercises: [WorkoutExerciseInput]
+}
+
+input WorkoutLocalisationInput {
+  language: ISOLanguage!
+  name: String!
+}
+
+# // TODO workout the filtering on this
+input WorkoutFilter {
+  id: ID
+  ids: [ID]
+  trainer: ID
+  programme: ID
+  name: String
+}
+
+extend type Mutation {
+  createWorkout(workout: WorkoutInput): WorkoutWeek!
+  updateWorkout(id: ID!, workout: WorkoutInput): WorkoutWeek!
+  deleteWorkout(id: ID!): WorkoutWeek!
+}
+
+extend type Query {
+  Workout(id: ID!): WorkoutWeek!
+  allWorkouts(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: WorkoutFilter
+  ): [WorkoutWeek!]!
+  _allWorkoutsMeta(filter: WorkoutFilter): ListMetadata!
+}

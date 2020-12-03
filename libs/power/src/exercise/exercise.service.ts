@@ -6,6 +6,8 @@ import { ExerciseLocalisation, IExercise } from '../types';
 @Injectable()
 export class ExerciseService {
   // FIND ALL Exercise
+
+  // TODO filter deleted 
   public findAll(language?: string) {
     return Exercise.query()
       .withGraphJoined('localisations')
