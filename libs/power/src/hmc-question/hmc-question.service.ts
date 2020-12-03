@@ -45,7 +45,7 @@ export class HmcQuestionService {
         }),
         scores: hmcQuestion.programmeScores.map((score) => {
           return {
-            trainingProgrammeID: score.programmeId,
+            trainingProgrammeId: score.programmeId,
             answer_1_score: score.answer1,
             answer_2_score: score.answer2,
             answer_3_score: score.answer3,

@@ -35,7 +35,7 @@ input HmcQuestionLocalisationInput {
 }
 
 type HmcProgrammeScore {
-  program: Programme!
+  programId: ID!
   answer1: Int!
   answer2: Int!
   answer3: Int!
