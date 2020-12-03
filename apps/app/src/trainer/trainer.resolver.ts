@@ -45,9 +45,9 @@ export class TrainerResolver {
     const res = await Promise.all(
       relatedProgrammes.map(async (programme) => {
         const images = programme.shareMediaImages.find(
-          (media) => media.type === ShareMediaType.PROGRAMME_START,
+          (media) => media.type.toString() === 'PROGRAMME_START',
         );
-        const imageKey = images && images.getTranslation(language).imageKey;
+        const image = images && images.getTranslation(language);
 
         const firstWeek = await this.workout.findAll().where('week_number', 1);
 
@@ -59,13 +59,16 @@ export class TrainerResolver {
           fitness: programme.fitness,
           muscle: programme.muscle,
           description: programme.getTranslation(language).description,
-          progressStartShareMediaImage:
-            imageKey &&
-            (await this.common.getPresignedUrl(
-              imageKey,
-              this.common.env().FILES_BUCKET,
-              'getObject',
-            )),
+          progressStartShareMediaImage: image && {
+            url:
+              image.imageKey &&
+              (await this.common.getPresignedUrl(
+                image.imageKey,
+                this.common.env().FILES_BUCKET,
+                'getObject',
+              )),
+            colour: image.colour,
+          },
           firstWeek: await Promise.all(
             firstWeek.map(async (week) => ({
               ...week,
