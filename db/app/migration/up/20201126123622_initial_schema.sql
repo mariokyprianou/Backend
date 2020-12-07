@@ -262,6 +262,7 @@ CREATE TABLE challenge (
   duration INTEGER DEFAULT NULL CHECK (duration IS NULL OR (duration IS NOT NULL AND type = 'COUNTDOWN')),
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
+  deleted_at timestamptz DEFAULT NULL,
   CONSTRAINT fk_challenge_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id),
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON challenge FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
