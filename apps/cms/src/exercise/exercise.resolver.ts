@@ -24,6 +24,10 @@ interface ExerciseFilter extends Filter {
   trainer: string;
 }
 
+function returnKey(key) {
+  return `${key}_1080.mp4`;
+}
+
 @Resolver('Exercise')
 export class ExerciseResolver {
   constructor(
@@ -56,8 +60,10 @@ export class ExerciseResolver {
   @ResolveField('video')
   async getVideo(@Parent() exercise: Exercise) {
     return this.common.getPresignedUrl(
-      exercise.videoKey,
+      returnKey(exercise.videoKey),
       this.common.env().VIDEO_BUCKET_DESTINATION,
+      'getObject',
+      'us-east-1',
     );
   }
   @ResolveField('videoEasy')
@@ -66,8 +72,10 @@ export class ExerciseResolver {
       return null;
     }
     return this.common.getPresignedUrl(
-      exercise.videoKeyEasy,
+      returnKey(exercise.videoKeyEasy),
       this.common.env().VIDEO_BUCKET_DESTINATION,
+      'getObject',
+      'us-east-1',
     );
   }
   @ResolveField('videoEasiest')
@@ -76,8 +84,10 @@ export class ExerciseResolver {
       return null;
     }
     return this.common.getPresignedUrl(
-      exercise.videoKeyEasiest,
+      returnKey(exercise.videoKeyEasiest),
       this.common.env().VIDEO_BUCKET_DESTINATION,
+      'getObject',
+      'us-east-1',
     );
   }
 
@@ -154,6 +164,7 @@ export class ExerciseResolver {
       `assets01/${key}`,
       this.common.env().VIDEO_BUCKET_SOURCE,
       'putObject',
+      'us-east-1',
     );
 
     return {

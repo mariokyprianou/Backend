@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { CommonService } from '@lib/common';
 import { Onboarding } from '@lib/power/onboarding';
 import {
   Context,
@@ -11,7 +12,10 @@ import { OnboardingService } from '../../../../libs/power/src/onboarding/onboard
 
 @Resolver('Onboarding')
 export class OnboardingResolver {
-  constructor(private onboardingService: OnboardingService) {}
+  constructor(
+    private onboardingService: OnboardingService,
+    private common: CommonService,
+  ) {}
 
   @Query('onboardingScreens')
   async getOnboarding(@Context('language') language: string) {
@@ -35,11 +39,18 @@ export class OnboardingResolver {
   }
 
   @ResolveField('image')
-  getImage(
+  async getImage(
     @Parent() onboarding: Onboarding,
     @Context('language') language: string,
   ) {
-    // TODO RESOLVE TO S3
-    return onboarding.getTranslation(language)?.imageKey;
+    const key = onboarding.getTranslation(language)?.imageKey;
+    return (
+      key &&
+      this.common.getPresignedUrl(
+        key,
+        this.common.env().FILES_BUCKET,
+        'getObject',
+      )
+    );
   }
 }

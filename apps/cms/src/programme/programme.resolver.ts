@@ -73,7 +73,6 @@ export class ProgrammeResolver {
               locale.imageKey,
               this.common.env().FILES_BUCKET,
               'getObject',
-              5,
             ),
             colour: locale.colour,
           })),

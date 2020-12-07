@@ -8,6 +8,11 @@ interface Programme {
   description: String!
 }
 
+type ProgrammeShareImage {
+  url: URL!
+  colour: String!
+}
+
 type ProgrammeOverview implements Programme {
   id: ID!
   trainer: Trainer
@@ -16,6 +21,6 @@ type ProgrammeOverview implements Programme {
   fitness: Int!
   muscle: Int!
   description: String!
-  progressStartShareMediaImage: ProgrammeImage
+  progressStartShareMediaImage: ProgrammeShareImage
   firstWeek: [WorkoutWeek]!
 }
