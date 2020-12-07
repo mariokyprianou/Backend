@@ -3,16 +3,35 @@ import {
   CreateHmcQuestionGraphQlInput,
   UpdateHmcQuestionGraphQlInput,
 } from 'apps/cms/src/hmc-question/hmc-question.cms.resolve';
+import Objection from 'objection';
 import { HmcQuestionScore } from './hmc-question-score.model';
 import { HmcQuestionTranslation } from './hmc-question-translation.model';
 import { HmcQuestion } from './hmc-question.model';
 
 @Injectable()
 export class HmcQuestionService {
-  public findAll() {
-    return HmcQuestion.query()
-      .withGraphFetched('localisations')
-      .withGraphFetched('programmeScores');
+  public findAll(
+    page = 0,
+    perPage = 25,
+    sortField = 'order_index',
+    sortOrder: 'ASC' | 'DESC' | null = 'ASC',
+    filter: HmcQuestionFilter = {},
+  ) {
+    const findAllQuery = applyFilter(
+      HmcQuestion.query()
+        .withGraphJoined('localisations')
+        .withGraphJoined('programmeScores'),
+      filter,
+    );
+
+    findAllQuery.limit(perPage).offset(perPage * page);
+    findAllQuery.orderBy(sortField, sortOrder);
+
+    return findAllQuery;
+  }
+
+  public findAllMeta(filter: HmcQuestionFilter = {}) {
+    return applyFilter(HmcQuestion.query(), filter).resultSize();
   }
 
   public findById(id: string) {

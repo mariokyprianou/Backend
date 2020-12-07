@@ -1,6 +1,5 @@
-import Objection from 'objection';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { HmcQuestion, HmcQuestionService } from '@lib/power/hmc-question';
+import { HmcQuestionFilter, HmcQuestionService } from '@lib/power/hmc-question';
 import { ListMetadata } from '@lib/power/types';
 
 @Resolver('HmcQuestion')
@@ -20,10 +19,13 @@ export class HmcQuestionResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: HmcQuestionFilter = {},
   ): Promise<HmcQuestionGraphQlType[]> {
-    const findAllQuery = applyFilter(this.service.findAll(), filter);
-
-    findAllQuery.limit(perPage).offset(perPage * page);
-    findAllQuery.orderBy(sortField, sortOrder);
+    const findAllQuery = this.service.findAll(
+      page,
+      perPage,
+      sortField,
+      sortOrder,
+      filter,
+    );
 
     return await findAllQuery;
   }
@@ -33,7 +35,7 @@ export class HmcQuestionResolver {
     @Args('filter') filter: HmcQuestionFilter = {},
   ): Promise<ListMetadata> {
     return {
-      count: await applyFilter(this.service.findAll(), filter).resultSize(),
+      count: await this.service.findAllMeta(filter),
     };
   }
 
@@ -58,21 +60,6 @@ export class HmcQuestionResolver {
     return await this.service.delete(id);
   }
 }
-
-const applyFilter = (
-  hmcQuestionQuery: Objection.QueryBuilder<HmcQuestion, HmcQuestion[]>,
-  filter: HmcQuestionFilter,
-): Objection.QueryBuilder<HmcQuestion, HmcQuestion[]> => {
-  if (filter.id) {
-    hmcQuestionQuery.findByIds([filter.id]);
-  }
-
-  if (filter.ids) {
-    hmcQuestionQuery.findByIds(filter.ids);
-  }
-
-  return hmcQuestionQuery;
-};
 
 interface HmcQuestionGraphQlType {
   id: string;
@@ -116,9 +103,4 @@ interface HmcProgrammeScoreGraphQlInput {
   answer2Score: number;
   answer3Score: number;
   answer4Score: number;
-}
-
-interface HmcQuestionFilter {
-  id?: string;
-  ids?: string[];
 }
