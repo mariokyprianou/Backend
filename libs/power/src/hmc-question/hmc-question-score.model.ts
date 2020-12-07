@@ -7,7 +7,7 @@ export class HmcQuestionScore extends BaseModel {
   static tableName = 'hmc_question_score';
 
   static get columnNameMappers() {
-    return snakeCaseMappers();
+    return snakeCaseMappers({ underscoreBeforeDigits: true });
   }
 
   id: string;

@@ -6,7 +6,7 @@ export class HmcQuestionTranslation extends BaseModel {
   static tableName = 'hmc_question_tr';
 
   static get columnNameMappers() {
-    return snakeCaseMappers();
+    return snakeCaseMappers({ underscoreBeforeDigits: true });
   }
 
   id: string;

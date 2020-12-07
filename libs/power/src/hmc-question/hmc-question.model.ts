@@ -16,11 +16,11 @@ export class HmcQuestion extends BaseModel {
   createdAt: Date;
   updatedAt: Date;
 
-  translations: HmcQuestionTranslation[];
-  scores: HmcQuestionScore[];
+  localisations: HmcQuestionTranslation[];
+  programmeScores: HmcQuestionScore[];
 
   static relationMappings = () => ({
-    translations: {
+    localisations: {
       relation: Model.HasManyRelation,
       modelClass: HmcQuestionTranslation,
       join: {
@@ -28,7 +28,7 @@ export class HmcQuestion extends BaseModel {
         to: 'hmc_question_tr.hmc_question_id',
       },
     },
-    scores: {
+    programmeScores: {
       relation: Model.HasManyRelation,
       modelClass: HmcQuestionScore,
       join: {

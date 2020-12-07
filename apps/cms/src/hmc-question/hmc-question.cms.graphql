@@ -37,19 +37,19 @@ input HmcQuestionLocalisationInput {
 }
 
 type HmcProgrammeScore {
-  programId: ID!
-  answer1: Int!
-  answer2: Int!
-  answer3: Int!
-  answer4: Int!
+  trainingProgrammeId: ID!
+  answer1Score: Int!
+  answer2Score: Int!
+  answer3Score: Int!
+  answer4Score: Int!
 }
 
 input HmcProgrammeScoreInput {
-  programmeId: ID!
-  answer1: Int!
-  answer2: Int!
-  answer3: Int!
-  answer4: Int!
+  trainingProgrammeId: ID!
+  answer1Score: Int!
+  answer2Score: Int!
+  answer3Score: Int!
+  answer4Score: Int!
 }
 
 input HmcQuestionFilter {

@@ -1,11 +1,6 @@
 import Objection from 'objection';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import {
-  HmcQuestion,
-  HmcQuestionScore,
-  HmcQuestionService,
-  HmcQuestionTranslation,
-} from '@lib/power/hmc-question';
+import { HmcQuestion, HmcQuestionService } from '@lib/power/hmc-question';
 import { ListMetadata } from '@lib/power/types';
 
 @Resolver('HmcQuestion')
@@ -14,11 +9,7 @@ export class HmcQuestionResolver {
 
   @Query('HmcQuestion')
   async HmcQuestion(@Args('id') id): Promise<HmcQuestionGraphQlType> {
-    const findByIdQuery = await this.service.findById(id);
-
-    return findByIdQuery
-      ? hmcQuestionModelToHmcQuestionGraphQL(findByIdQuery)
-      : null;
+    return await this.service.findById(id);
   }
 
   @Query('allHmcQuestions')
@@ -34,7 +25,7 @@ export class HmcQuestionResolver {
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);
 
-    return (await findAllQuery).map(hmcQuestionModelToHmcQuestionGraphQL);
+    return await findAllQuery;
   }
 
   @Query('_allHmcQuestionsMeta')
@@ -50,48 +41,23 @@ export class HmcQuestionResolver {
   async createHmcQuestion(
     @Args('input') input: CreateHmcQuestionGraphQlInput,
   ): Promise<HmcQuestionGraphQlType> {
-    const hmcQuestion = await this.service.create(input);
-
-    return hmcQuestion
-      ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
-      : null;
+    return await this.service.create(input);
   }
 
   @Mutation('updateHmcQuestion')
   async updateHmcQuestion(
     @Args('input') input: UpdateHmcQuestionGraphQlInput,
   ): Promise<HmcQuestionGraphQlType> {
-    const hmcQuestion = await this.service.update(input);
-
-    return hmcQuestion
-      ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
-      : null;
+    return await this.service.update(input);
   }
 
   @Mutation('deleteHmcQuestion')
   async deleteHmcQuestion(
     @Args('id') id: string,
   ): Promise<HmcQuestionGraphQlType> {
-    const hmcQuestion = await this.service.delete(id);
-
-    return hmcQuestion
-      ? hmcQuestionModelToHmcQuestionGraphQL(hmcQuestion)
-      : null;
+    return await this.service.delete(id);
   }
 }
-
-const hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType = (
-  hmcQuestionTranslationModel: HmcQuestionTranslation,
-): HmcQuestionLocalisationGraphQlType => {
-  return {
-    language: hmcQuestionTranslationModel.language,
-    question: hmcQuestionTranslationModel.question,
-    answer1: hmcQuestionTranslationModel.answer1,
-    answer2: hmcQuestionTranslationModel.answer2,
-    answer3: hmcQuestionTranslationModel.answer3,
-    answer4: hmcQuestionTranslationModel.answer4,
-  };
-};
 
 const applyFilter = (
   hmcQuestionQuery: Objection.QueryBuilder<HmcQuestion, HmcQuestion[]>,
@@ -106,33 +72,6 @@ const applyFilter = (
   }
 
   return hmcQuestionQuery;
-};
-
-const hmcQuestionModelToHmcQuestionGraphQL = (
-  hmcQuestionModel: HmcQuestion,
-): HmcQuestionGraphQlType => {
-  return {
-    id: hmcQuestionModel.id,
-    orderIndex: hmcQuestionModel.orderIndex,
-    localisations: hmcQuestionModel.translations.map(
-      hmcQuestionTranslationModelToHmcQuestionLocalisationGraphQlType,
-    ),
-    programmeScores: hmcQuestionModel.scores.map(
-      hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType,
-    ),
-  };
-};
-
-const hmcQuestionScoreModelToHmcProgrammeScoreGraphQlType = (
-  hmcQuestionScoreModel: HmcQuestionScore,
-): HmcProgrammeScoreGraphQlType => {
-  return {
-    programId: hmcQuestionScoreModel.trainingProgrammeId,
-    answer1: hmcQuestionScoreModel.answer1Score,
-    answer2: hmcQuestionScoreModel.answer2Score,
-    answer3: hmcQuestionScoreModel.answer3Score,
-    answer4: hmcQuestionScoreModel.answer4Score,
-  };
 };
 
 interface HmcQuestionGraphQlType {
@@ -164,19 +103,19 @@ interface HmcQuestionLocalisationGraphQlType {
 }
 
 interface HmcProgrammeScoreGraphQlType {
-  programId: string;
-  answer1: number;
-  answer2: number;
-  answer3: number;
-  answer4: number;
+  trainingProgrammeId: string;
+  answer1Score: number;
+  answer2Score: number;
+  answer3Score: number;
+  answer4Score: number;
 }
 
 interface HmcProgrammeScoreGraphQlInput {
-  programmeId: string;
-  answer1: number;
-  answer2: number;
-  answer3: number;
-  answer4: number;
+  trainingProgrammeId: string;
+  answer1Score: number;
+  answer2Score: number;
+  answer3Score: number;
+  answer4Score: number;
 }
 
 interface HmcQuestionFilter {
