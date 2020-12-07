@@ -48,6 +48,11 @@ export class ChallengeResolver {
   ): Promise<ChallengeGraphQlType> {
     return await this.service.update(input);
   }
+
+  @Mutation('deleteChallenge')
+  async deleteChallenge(@Args('id') id: string): Promise<ChallengeGraphQlType> {
+    return await this.service.delete(id);
+  }
 }
 
 interface ChallengeGraphQlType {

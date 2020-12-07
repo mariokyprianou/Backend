@@ -4,6 +4,8 @@ import {
   UpdateChallengeGraphQlInput,
 } from 'apps/cms/src/challenge/challenge.cms.resolver';
 import Objection from 'objection';
+import { ChallengeHistory } from './challenge-history.model';
+import { ChallengeTranslation } from './challenge-translation.model';
 import { Challenge, ChallengeType } from './challenge.model';
 
 @Injectable()
@@ -16,7 +18,7 @@ export class ChallengeService {
     filter: ChallengeFilter = {},
   ) {
     const findAllQuery = applyFilter(
-      Challenge.query().withGraphJoined('localisations'),
+      Challenge.query().withGraphFetched('localisations'),
       filter,
     );
 
@@ -54,6 +56,18 @@ export class ChallengeService {
     );
 
     return this.findById(challengeModel.id);
+  }
+
+  public async delete(id: string) {
+    const challenge = await this.findById(id);
+
+    console.error('TODO: actually delete the challenge!');
+    // TODO: I think we need a deleted flag in the database
+    // await ChallengeTranslation.query().where('challenge_id', id).delete();
+    // // await ChallengeHistory.query().where('challenge_id', id).delete();
+    // await Challenge.query().deleteById(id);
+
+    return challenge;
   }
 }
 

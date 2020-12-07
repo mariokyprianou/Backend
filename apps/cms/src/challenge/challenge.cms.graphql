@@ -65,5 +65,5 @@ extend type Query {
 extend type Mutation {
   createChallenge(input: CreateChallengeInput!): Challenge
   updateChallenge(input: UpdateChallengeInput!): Challenge
-  #   deleteChallenge: Challenge
+  deleteChallenge(id: ID!): Challenge
 }
