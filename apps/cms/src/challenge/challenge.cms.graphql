@@ -1,0 +1,44 @@
+type Challenge {
+  id: ID!
+  type: ChallengeType!
+  duration: Int
+  localisations: [ChallengeLocalisation]
+}
+
+enum ChallengeType {
+  COUNTDOWN
+  STOPWATCH
+  OTHER
+}
+
+type ChallengeLocalisation {
+  language: ISOLanguage!
+  name: String!
+  fieldTitle: String!
+  fieldDescription: String!
+}
+
+input CreateChallengeInput {
+  type: ChallengeType!
+  duration: Int
+  localisations: [ChallengeLocalisationInput!]!
+}
+
+input ChallengeLocalisationInput {
+  language: ISOLanguage!
+  name: String!
+  fieldTitle: String!
+  fieldDescription: String!
+}
+
+# extend type Query {
+#   Challenge(id: ID!): Challenge
+#   allChallenges: [Challenge]
+#   _allChallengesMeta: [Challenge]
+# }
+
+extend type Mutation {
+  createChallenge(input: CreateChallengeInput!): Challenge
+  #   updateChallenge: Challenge
+  #   deleteChallenge: Challenge
+}
