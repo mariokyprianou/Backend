@@ -1,0 +1,26 @@
+type Feedback {
+  id: ID!
+}
+
+input FeedbackFilter {
+  id: ID
+  ids: [ID!]
+}
+
+extend type Query {
+  Feedback(id: ID!): Feedback
+  allFeedbacks(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: FeedbackFilter
+  ): [Feedback!]!
+  _allFeedbacksMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: FeedbackFilter
+  ): ListMetadata
+}
