@@ -46,7 +46,13 @@ extend type Query {
     sortOrder: String
     filter: ChallengesFilter
   ): [Challenge!]!
-  #   _allChallengesMeta: [Challenge]
+  _allChallengesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: ChallengesFilter
+  ): ListMetadata!
 }
 
 extend type Mutation {

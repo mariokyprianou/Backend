@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { CreateChallengeGraphQlInput } from 'apps/cms/src/challenge/challenge.cms.resolver';
 import { Challenge } from './challenge.model';
-
-// TODO
-type CreateChallengeGraphQlInput = any;
 
 @Injectable()
 export class ChallengeService {
-  public findAll(language = 'en') {
-    // TODO!
+  public findAll() {
     return Challenge.query().withGraphJoined('localisations');
-    // .modifyGraph('localisations', (qb) => qb.where('language', language))
-    // .orderBy('order_index', 'asc');
   }
 
   public findById(id: string) {

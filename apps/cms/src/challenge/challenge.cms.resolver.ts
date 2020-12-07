@@ -1,9 +1,8 @@
-// import Objection from 'objection';
+import Objection from 'objection';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-// import { ListMetadata } from '@lib/power/types';
+import { ListMetadata } from '@lib/power/types';
 import { ChallengeService } from '@lib/power/challenge/challenge.service';
 import { Challenge, ChallengeType } from '@lib/power/challenge/challenge.model';
-import Objection from 'objection';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
@@ -23,6 +22,15 @@ export class ChallengeResolver {
     findAllQuery.orderBy(sortField, sortOrder);
 
     return await findAllQuery;
+  }
+
+  @Query('_allChallengesMeta')
+  async _allChallengesMeta(
+    @Args('filter') filter: ChallengeFilter = {},
+  ): Promise<ListMetadata> {
+    return {
+      count: await applyFilter(this.service.findAll(), filter).resultSize(),
+    };
   }
 
   @Mutation('createChallenge')
