@@ -24,6 +24,13 @@ input CreateChallengeInput {
   localisations: [ChallengeLocalisationInput!]!
 }
 
+input UpdateChallengeInput {
+  id: ID!
+  type: ChallengeType!
+  duration: Int
+  localisations: [ChallengeLocalisationInput!]!
+}
+
 input ChallengeLocalisationInput {
   language: ISOLanguage!
   name: String!
@@ -57,6 +64,6 @@ extend type Query {
 
 extend type Mutation {
   createChallenge(input: CreateChallengeInput!): Challenge
-  #   updateChallenge: Challenge
+  updateChallenge(input: UpdateChallengeInput!): Challenge
   #   deleteChallenge: Challenge
 }

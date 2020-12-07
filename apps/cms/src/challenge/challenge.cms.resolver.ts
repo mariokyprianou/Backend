@@ -1,8 +1,10 @@
-import Objection from 'objection';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
-import { ChallengeService } from '@lib/power/challenge/challenge.service';
-import { Challenge, ChallengeType } from '@lib/power/challenge/challenge.model';
+import {
+  ChallengeFilter,
+  ChallengeService,
+} from '@lib/power/challenge/challenge.service';
+import { ChallengeType } from '@lib/power/challenge/challenge.model';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
@@ -21,12 +23,7 @@ export class ChallengeResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: ChallengeFilter = {},
   ): Promise<ChallengeGraphQlType[]> {
-    const findAllQuery = applyFilter(this.service.findAll(), filter);
-
-    findAllQuery.limit(perPage).offset(perPage * page);
-    findAllQuery.orderBy(sortField, sortOrder);
-
-    return await findAllQuery;
+    return this.service.findAll(page, perPage, sortField, sortOrder, filter);
   }
 
   @Query('_allChallengesMeta')
@@ -34,7 +31,7 @@ export class ChallengeResolver {
     @Args('filter') filter: ChallengeFilter = {},
   ): Promise<ListMetadata> {
     return {
-      count: await applyFilter(this.service.findAll(), filter).resultSize(),
+      count: await this.service.findAllMeta(filter),
     };
   }
 
@@ -44,26 +41,14 @@ export class ChallengeResolver {
   ): Promise<ChallengeGraphQlType> {
     return await this.service.create(input);
   }
+
+  @Mutation('updateChallenge')
+  async updateChallenge(
+    @Args('input') input: UpdateChallengeGraphQlInput,
+  ): Promise<ChallengeGraphQlType> {
+    return await this.service.update(input);
+  }
 }
-
-const applyFilter = (
-  hmcQuestionQuery: Objection.QueryBuilder<Challenge, Challenge[]>,
-  filter: ChallengeFilter,
-): Objection.QueryBuilder<Challenge, Challenge[]> => {
-  if (filter.id) {
-    hmcQuestionQuery.findByIds([filter.id]);
-  }
-
-  if (filter.ids) {
-    hmcQuestionQuery.findByIds(filter.ids);
-  }
-
-  if (filter.type) {
-    hmcQuestionQuery.where('type', filter.type);
-  }
-
-  return hmcQuestionQuery;
-};
 
 interface ChallengeGraphQlType {
   id: string;
@@ -85,8 +70,7 @@ export interface CreateChallengeGraphQlInput {
   localisations: ChallengeLocalisationGraphQlType[];
 }
 
-interface ChallengeFilter {
-  id?: string;
-  ids?: string[];
-  type?: ChallengeType;
+export interface UpdateChallengeGraphQlInput
+  extends CreateChallengeGraphQlInput {
+  id: string;
 }
