@@ -16,6 +16,7 @@ export class Challenge extends BaseModel {
   duration?: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
 
   localisations: ChallengeTranslation[];
 
