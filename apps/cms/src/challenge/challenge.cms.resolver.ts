@@ -2,11 +2,28 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 // import { ListMetadata } from '@lib/power/types';
 import { ChallengeService } from '@lib/power/challenge/challenge.service';
-import { ChallengeType } from '@lib/power/challenge/challenge.model';
+import { Challenge, ChallengeType } from '@lib/power/challenge/challenge.model';
+import Objection from 'objection';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
   constructor(private readonly service: ChallengeService) {}
+
+  @Query('allChallenges')
+  async allChallenges(
+    @Args('page') page = 0,
+    @Args('perPage') perPage = 25,
+    @Args('sortField') sortField = 'created_at',
+    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
+    @Args('filter') filter: ChallengeFilter = {},
+  ): Promise<ChallengeGraphQlType[]> {
+    const findAllQuery = applyFilter(this.service.findAll(), filter);
+
+    findAllQuery.limit(perPage).offset(perPage * page);
+    findAllQuery.orderBy(sortField, sortOrder);
+
+    return await findAllQuery;
+  }
 
   @Mutation('createChallenge')
   async createChallenge(
@@ -15,6 +32,25 @@ export class ChallengeResolver {
     return await this.service.create(input);
   }
 }
+
+const applyFilter = (
+  hmcQuestionQuery: Objection.QueryBuilder<Challenge, Challenge[]>,
+  filter: ChallengeFilter,
+): Objection.QueryBuilder<Challenge, Challenge[]> => {
+  if (filter.id) {
+    hmcQuestionQuery.findByIds([filter.id]);
+  }
+
+  if (filter.ids) {
+    hmcQuestionQuery.findByIds(filter.ids);
+  }
+
+  if (filter.type) {
+    hmcQuestionQuery.where('type', filter.type);
+  }
+
+  return hmcQuestionQuery;
+};
 
 interface ChallengeGraphQlType {
   id: string;
@@ -34,4 +70,10 @@ export interface CreateChallengeGraphQlInput {
   type: ChallengeType;
   duration: number;
   localisations: ChallengeLocalisationGraphQlType[];
+}
+
+interface ChallengeFilter {
+  id?: string;
+  ids?: string[];
+  type?: ChallengeType;
 }

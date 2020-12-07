@@ -31,11 +31,23 @@ input ChallengeLocalisationInput {
   fieldDescription: String!
 }
 
-# extend type Query {
-#   Challenge(id: ID!): Challenge
-#   allChallenges: [Challenge]
-#   _allChallengesMeta: [Challenge]
-# }
+input ChallengesFilter {
+  id: ID
+  ids: [ID!]
+  type: ChallengeType
+}
+
+extend type Query {
+  #   Challenge(id: ID!): Challenge
+  allChallenges(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: ChallengesFilter
+  ): [Challenge!]!
+  #   _allChallengesMeta: [Challenge]
+}
 
 extend type Mutation {
   createChallenge(input: CreateChallengeInput!): Challenge
