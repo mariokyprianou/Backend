@@ -72,3 +72,23 @@ export class HmcQuestionService {
     return this.findById(hmcQuestionModel.id);
   }
 }
+
+const applyFilter = (
+  hmcQuestionQuery: Objection.QueryBuilder<HmcQuestion, HmcQuestion[]>,
+  filter: HmcQuestionFilter,
+): Objection.QueryBuilder<HmcQuestion, HmcQuestion[]> => {
+  if (filter.id) {
+    hmcQuestionQuery.findByIds([filter.id]);
+  }
+
+  if (filter.ids) {
+    hmcQuestionQuery.findByIds(filter.ids);
+  }
+
+  return hmcQuestionQuery;
+};
+
+export interface HmcQuestionFilter {
+  id?: string;
+  ids?: string[];
+}
