@@ -8,6 +8,11 @@ import { Challenge, ChallengeType } from '@lib/power/challenge/challenge.model';
 export class ChallengeResolver {
   constructor(private readonly service: ChallengeService) {}
 
+  @Query('Challenge')
+  async Challenge(@Args('id') id): Promise<ChallengeGraphQlType> {
+    return await this.service.findById(id);
+  }
+
   @Query('allChallenges')
   async allChallenges(
     @Args('page') page = 0,

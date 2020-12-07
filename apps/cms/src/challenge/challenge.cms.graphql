@@ -38,7 +38,7 @@ input ChallengesFilter {
 }
 
 extend type Query {
-  #   Challenge(id: ID!): Challenge
+  Challenge(id: ID!): Challenge
   allChallenges(
     page: Int
     perPage: Int
