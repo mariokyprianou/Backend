@@ -1,22 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
-import { Feedback } from './feedback.model';
+import { UserWorkout } from './user-workout.model';
 
+// Note: this is untested
 @Injectable()
-export class FeedbackService {
+export class UserWorkoutService {
   public findAll(
     page = 0,
     perPage = 25,
     sortField = 'created_at',
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
-    filter: FeedbackFilter = {},
+    filter: UserWorkoutFilter = {},
   ) {
-    const findAllQuery = applyFilter(
-      Feedback.query()
-        .withGraphJoined('localisations')
-        .withGraphJoined('programmeScores'),
-      filter,
-    );
+    const findAllQuery = applyFilter(UserWorkout.query(), filter);
 
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);
@@ -24,8 +20,8 @@ export class FeedbackService {
     return findAllQuery;
   }
 
-  public findAllMeta(filter: FeedbackFilter = {}) {
-    return applyFilter(Feedback.query(), filter).resultSize();
+  public findAllMeta(filter: UserWorkoutFilter = {}) {
+    return applyFilter(UserWorkout.query(), filter).resultSize();
   }
 
   public findById(id: string) {
@@ -34,9 +30,9 @@ export class FeedbackService {
 }
 
 const applyFilter = (
-  query: Objection.QueryBuilder<Feedback, Feedback[]>,
-  filter: FeedbackFilter,
-): Objection.QueryBuilder<Feedback, Feedback[]> => {
+  query: Objection.QueryBuilder<UserWorkout, UserWorkout[]>,
+  filter: UserWorkoutFilter,
+): Objection.QueryBuilder<UserWorkout, UserWorkout[]> => {
   if (filter.id) {
     query.findByIds([filter.id]);
   }
@@ -48,7 +44,7 @@ const applyFilter = (
   return query;
 };
 
-export interface FeedbackFilter {
+export interface UserWorkoutFilter {
   id?: string;
   ids?: string[];
 }

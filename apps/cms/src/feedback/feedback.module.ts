@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { FeedbackResolver } from './feedback.cms.resolver';
-import { FeedbackModule } from '@lib/power/feedback/feedback.module';
+import { FeedbackService } from './feedback.service';
 
 @Module({
-  imports: [FeedbackModule],
-  providers: [FeedbackResolver],
+  providers: [FeedbackResolver, FeedbackService],
 })
 export class FeedbackCMSModule {}

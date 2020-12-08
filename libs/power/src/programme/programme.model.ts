@@ -27,6 +27,7 @@ export class Programme extends BaseModel {
   localisations: ProgrammeTranslation[];
   images: ProgrammeImage[];
   shareMediaImages: ShareMedia[];
+  trainer: Trainer;
 
   public getTranslation(language: string) {
     return (this.localisations ?? []).find((tr) => tr.language === language);
@@ -55,6 +56,14 @@ export class Programme extends BaseModel {
       join: {
         from: 'training_programme.id',
         to: 'training_programme_image.training_programme_id',
+      },
+    },
+    trainer: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: Trainer,
+      join: {
+        from: 'training_programme.trainer_id',
+        to: 'trainer.id',
       },
     },
   };

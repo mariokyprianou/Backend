@@ -5,4 +5,5 @@ export * from './trainer';
 export * from './types';
 export * from './programme';
 export * from './exercise-category';
-export * from './feedback';
+export * from './user-workout-week';
+export * from './user-workout';

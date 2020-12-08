@@ -1,5 +1,13 @@
 type Feedback {
   id: ID!
+  trainerName: String!
+  week: Int!
+  workoutName: String!
+  emoji: String
+  userEmail: String!
+  timeTaken: Int
+  workoutIntensity: Int
+  date: Date
 }
 
 input FeedbackFilter {

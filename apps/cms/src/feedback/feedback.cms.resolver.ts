@@ -1,6 +1,7 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { FeedbackFilter, FeedbackService } from '@lib/power/feedback';
+import { UserWorkout, UserWorkoutFilter } from '@lib/power/user-workout';
 import { ListMetadata } from '@lib/power/types';
+import { FeedbackService } from './feedback.service';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
@@ -8,7 +9,7 @@ export class FeedbackResolver {
 
   @Query('Feedback')
   async Feedback(@Args('id') id): Promise<FeedbackGraphQlType> {
-    return await this.service.findById(id);
+    return feedbackModelToFeedbackGraphQLType(await this.service.findById(id));
   }
 
   @Query('allFeedbacks')
@@ -17,7 +18,7 @@ export class FeedbackResolver {
     @Args('perPage') perPage = 25,
     @Args('sortField') sortField = 'created_at',
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
-    @Args('filter') filter: FeedbackFilter = {},
+    @Args('filter') filter: UserWorkoutFilter = {},
   ): Promise<FeedbackGraphQlType[]> {
     const findAllQuery = this.service.findAll(
       page,
@@ -27,12 +28,12 @@ export class FeedbackResolver {
       filter,
     );
 
-    return await findAllQuery;
+    return await (await findAllQuery).map(feedbackModelToFeedbackGraphQLType);
   }
 
   @Query('_allFeedbacksMeta')
   async _allFeedbacksMeta(
-    @Args('filter') filter: FeedbackFilter = {},
+    @Args('filter') filter: UserWorkoutFilter = {},
   ): Promise<ListMetadata> {
     return {
       count: await this.service.findAllMeta(filter),
@@ -40,6 +41,37 @@ export class FeedbackResolver {
   }
 }
 
+// this transformation is required as there isn't a 'feedback' table in the database
+// and so there isn't a simple relation to an existing model
+const feedbackModelToFeedbackGraphQLType = (
+  userWorkout: UserWorkout | null,
+): FeedbackGraphQlType => {
+  if (userWorkout) {
+    return {
+      id: userWorkout.id,
+      trainerName:
+        userWorkout.workout.trainingProgramme.trainer.localisations[0].name,
+      week: userWorkout.userWorkoutWeek.weekNumber,
+      workoutName: userWorkout.workout.localisations[0].name,
+      emoji: 'emoji', // TODO
+      userEmail: 'fake@fake.com', // TODO
+      timeTaken: userWorkout.timeTaken,
+      workoutIntensity: userWorkout.feedBackIntensity,
+      date: userWorkout.completedAt,
+    };
+  } else {
+    return null;
+  }
+};
+
 interface FeedbackGraphQlType {
   id: string;
+  trainerName: string;
+  week: number;
+  workoutName: string;
+  emoji?: string;
+  userEmail: string;
+  timeTaken?: number;
+  workoutIntensity?: number;
+  date: Date;
 }
