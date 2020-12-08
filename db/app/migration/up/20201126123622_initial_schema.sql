@@ -35,6 +35,7 @@ CREATE TABLE config_tr (
   id uuid CONSTRAINT pk_config_tr PRIMARY KEY DEFAULT uuid_generate_v4(),
   config_id uuid NOT NULL,
   language text NOT NULL,
+  title text NOT NULL,
   value text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
