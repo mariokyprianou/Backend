@@ -1,20 +1,28 @@
 type Configuration {
-  id: ID!
   localisations: [ConfigurationLocalisation!]!
 }
 
 type ConfigurationLocalisation {
-  locale: Locale
+  language: String!
   termsAndConditions: String!
   privacyPolicy: String!
   onboarding: [OnboardingConfig!]!
   notifications: [PushNotificationConfig!]!
 }
 
+enum PushNotificationType {
+  THREE_DAYS_WITHOUT_TRAINING
+  TWO_WEEKS_WITHOUT_OPENING_APP
+  SEVEN_DAYS_WITHOUT_LOGGING_CHALLENGE
+  NEW_TRAINER_ADDED
+  NEW_CHALLENGE_ADDED
+  END_OF_COMPLETED_WORKOUT_WEEK
+}
+
 type OnboardingConfig {
   title: String!
   description: String!
-  image: URL!
+  image: String!
 }
 
 type PushNotificationConfig {
@@ -23,28 +31,28 @@ type PushNotificationConfig {
   body: String!
 }
 
-input OnboardingInput {
-  title: String!
-  description: String!
-  image: String!
-}
+# input OnboardingInput {
+#   title: String!
+#   description: String!
+#   image: String!
+# }
 
-input NotificationsInput {
-  fieldName: String!
-}
+# input NotificationsInput {
+#   fieldName: String!
+# }
 
-input ConfigurationInput {
-  locale: Locale
-  termsAndConditions: String!
-  privacyPolicy: String!
-  onboarding: [OnboardingInput!]
-  notifications: [NotificationInput!]
-}
+# input ConfigurationInput {
+#   locale: Locale
+#   termsAndConditions: String!
+#   privacyPolicy: String!
+#   onboarding: [OnboardingInput!]
+#   notifications: [NotificationInput!]
+# }
 
 extend type Query {
   Configuration: Configuration
 }
 
-extend type Mutation {
-  updateConfiguration: Configuration
-}
+# extend type Mutation {
+#   updateConfiguration: Configuration
+# }

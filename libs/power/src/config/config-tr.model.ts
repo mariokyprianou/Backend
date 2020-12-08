@@ -5,13 +5,10 @@ import { Model, snakeCaseMappers } from 'objection';
 export class ConfigTranslation extends BaseModel {
   static tableName = 'config_tr';
 
-//   static get columnNameMappers() {
-//     return snakeCaseMappers();
-//   }
-
   id: string;
   configId: string;
   language: string;
+  title: string;
   value: string;
   createdAt: Date;
   updatedAt: Date;
