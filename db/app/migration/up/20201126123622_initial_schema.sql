@@ -10,9 +10,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TYPE config_type AS ENUM (
+  'TERMS',
+  'PRIVACY',
+  'THREE_DAYS_WITHOUT_TRAINING',
+  'TWO_WEEKS_WITHOUT_OPENING_APP',
+  'SEVEN_DAYS_WITHOUT_LOGGING_CHALLENGE',
+  'NEW_TRAINER_ADDED',
+  'NEW_CHALLENGE_ADDED',
+  'END_OF_COMPLETED_WORKOUT_WEEK'
+);
+
+
 CREATE TABLE config (
   id uuid CONSTRAINT pk_config PRIMARY KEY DEFAULT uuid_generate_v4(),
-  key text not null,
+  type config_type not null,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_config_key UNIQUE (key)
