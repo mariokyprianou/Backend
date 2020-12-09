@@ -1,19 +1,12 @@
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import { constructLimits } from '../constructLimits';
-import { Filter, IShareMedia, ListMetadata } from '@lib/power/types';
-import { Programme } from '@lib/power/programme';
-import { ProgrammeService } from '@lib/power/programme/programme.service';
-import { IProgramme } from '../../../../libs/power/src/types';
-import { CommonService } from '@lib/common';
-import { TrainerService } from '@lib/power/trainer';
-import { ProgrammeImage } from '@lib/power/programme/programme-image.model';
+import { User, UserService } from '@lib/power/user';
+import { Resolver, Query } from '@nestjs/graphql';
 
 @Resolver('User')
-export class UserResolver {}
+export class UserResolver {
+  constructor(private service: UserService) {}
+
+  @Query('allUsers')
+  async allUsers(): Promise<User[]> {
+    return this.service.findAll();
+  }
+}
