@@ -323,7 +323,6 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON account FOR EACH ROW EXECUTE PROCE
 CREATE TABLE user_training_programme (
   id uuid CONSTRAINT pk_user_training_programme PRIMARY KEY DEFAULT uuid_generate_v4(),
   account_id uuid NOT NULL,
-  -- TODO: should this be user_training_programme_id
   training_programme_id uuid NOT NULL,
   start_date timestamptz NOT NULL DEFAULT NOW(),
   created_at timestamptz NOT NULL DEFAULT NOW(),
@@ -366,12 +365,12 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_exercise_note FOR EACH ROW EX
 
 CREATE TABLE user_workout_week (
   id uuid CONSTRAINT pk_user_workout_week PRIMARY KEY DEFAULT uuid_generate_v4(),
-  training_programme_id uuid NOT NULL,
+  user_training_programme_id uuid NOT NULL,
   week_number integer NOT NULL,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_user_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
+  CONSTRAINT fk_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout_week FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -388,8 +387,6 @@ CREATE TABLE user_workout (
   order_index integer NOT NULL,
   workout_id uuid NOT NULL,
   feedback_intensity integer NOT NULL,
-  -- TODO: add this when we know how many feedback_emojis we can have
-  -- feedback_emoji text NOT NULL,
   time_taken integer,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
