@@ -375,6 +375,13 @@ CREATE TABLE user_workout_week (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout_week FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
+CREATE TABLE user_workout_feedback_emoji (
+  id uuid CONSTRAINT pk_user_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_workout_id uuid NOT NULL,
+  emoji text NOT NULL,
+  CONSTRAINT fk_user_workout FOREIGN KEY (user_workout_id) REFERENCES user_workout (id)
+);
+
 CREATE TABLE user_workout (
   id uuid CONSTRAINT pk_user_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_workout_week_id uuid NOT NULL,
