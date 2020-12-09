@@ -3,7 +3,7 @@ type Feedback {
   trainerName: String!
   week: Int!
   workoutName: String!
-  emoji: [String!]!
+  emojis: [String!]!
   userEmail: String!
   timeTaken: Int
   workoutIntensity: Int

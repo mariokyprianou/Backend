@@ -1,4 +1,4 @@
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver, ResolveField, Parent } from '@nestjs/graphql';
 import { UserWorkout, UserWorkoutFilter } from '@lib/power/user-workout';
 import { ListMetadata } from '@lib/power/types';
 import { FeedbackService } from './feedback.service';
@@ -8,8 +8,8 @@ export class FeedbackResolver {
   constructor(private readonly service: FeedbackService) {}
 
   @Query('Feedback')
-  async Feedback(@Args('id') id): Promise<FeedbackGraphQlType> {
-    return feedbackModelToFeedbackGraphQLType(await this.service.findById(id));
+  async Feedback(@Args('id') id) {
+    return await this.service.findById(id);
   }
 
   @Query('allFeedbacks')
@@ -19,16 +19,8 @@ export class FeedbackResolver {
     @Args('sortField') sortField = 'created_at',
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: UserWorkoutFilter = {},
-  ): Promise<FeedbackGraphQlType[]> {
-    const findAllQuery = this.service.findAll(
-      page,
-      perPage,
-      sortField,
-      sortOrder,
-      filter,
-    );
-
-    return await (await findAllQuery).map(feedbackModelToFeedbackGraphQLType);
+  ) {
+    return this.service.findAll(page, perPage, sortField, sortOrder, filter);
   }
 
   @Query('_allFeedbacksMeta')
@@ -39,39 +31,48 @@ export class FeedbackResolver {
       count: await this.service.findAllMeta(filter),
     };
   }
-}
 
-// this transformation is used as there isn't a 'feedback' table in the database
-// and so there isn't a simple relation to an existing model
-const feedbackModelToFeedbackGraphQLType = (
-  userWorkout: UserWorkout | null,
-): FeedbackGraphQlType => {
-  if (userWorkout) {
-    return {
-      id: userWorkout.id,
-      trainerName:
-        userWorkout.workout.trainingProgramme.trainer.localisations[0].name,
-      week: userWorkout.userWorkoutWeek.weekNumber,
-      workoutName: userWorkout.workout.localisations[0].name,
-      emoji: userWorkout.emojis.map((x) => x.emoji),
-      userEmail: 'fake@fake.com', // TODO: when the user tables are setup
-      timeTaken: userWorkout.timeTaken,
-      workoutIntensity: userWorkout.feedBackIntensity,
-      date: userWorkout.completedAt,
-    };
-  } else {
-    return null;
+  @ResolveField('trainerName')
+  getTrainerName(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.workout.trainingProgramme.trainer.localisations.find(
+      (x) => x.language == 'en',
+    ).name;
   }
-};
 
-interface FeedbackGraphQlType {
-  id: string;
-  trainerName: string;
-  week: number;
-  workoutName: string;
-  emoji: string[];
-  userEmail: string;
-  timeTaken?: number;
-  workoutIntensity?: number;
-  date: Date;
+  @ResolveField('week')
+  getWeek(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.userWorkoutWeek.weekNumber;
+  }
+
+  @ResolveField('workoutName')
+  getWorkoutName(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.workout.localisations.find((x) => x.language == 'en')
+      .name;
+  }
+
+  @ResolveField('emojis')
+  getEmojis(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.emojis.map((x) => x.emoji);
+  }
+
+  // TODO: when the user tables are setup
+  @ResolveField('userEmail')
+  getUserEmail(@Parent() userWorkout: UserWorkout) {
+    return 'fake@fake.com';
+  }
+
+  @ResolveField('timeTaken')
+  getTimeTaken(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.timeTaken;
+  }
+
+  @ResolveField('workoutIntensity')
+  getWorkoutIntensity(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.feedBackIntensity;
+  }
+
+  @ResolveField('date')
+  getDate(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.completedAt;
+  }
 }
