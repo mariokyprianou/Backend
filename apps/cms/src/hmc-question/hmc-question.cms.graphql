@@ -1,0 +1,82 @@
+type HmcQuestion {
+  id: ID!
+  orderIndex: Int!
+  localisations: [HmcQuestionLocalisation!]!
+  programmeScores: [HmcProgrammeScore!]!
+}
+
+input CreateHmcQuestionInput {
+  orderIndex: Int!
+  localisations: [HmcQuestionLocalisationInput!]!
+  programmeScores: [HmcProgrammeScoreInput!]!
+}
+
+input UpdateHmcQuestionInput {
+  id: ID!
+  orderIndex: Int!
+  localisations: [HmcQuestionLocalisationInput!]!
+  programmeScores: [HmcProgrammeScoreInput!]!
+}
+
+type HmcQuestionLocalisation {
+  language: ISOLanguage!
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}
+
+input HmcQuestionLocalisationInput {
+  language: ISOLanguage!
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}
+
+type HmcProgrammeScore {
+  trainingProgrammeId: ID!
+  answer1Score: Int!
+  answer2Score: Int!
+  answer3Score: Int!
+  answer4Score: Int!
+}
+
+input HmcProgrammeScoreInput {
+  trainingProgrammeId: ID!
+  answer1Score: Int!
+  answer2Score: Int!
+  answer3Score: Int!
+  answer4Score: Int!
+}
+
+input HmcQuestionFilter {
+  id: ID
+  ids: [ID!]
+}
+
+extend type Query {
+  HmcQuestion(id: ID!): HmcQuestion
+  allHmcQuestions(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: HmcQuestionFilter
+  ): [HmcQuestion!]!
+  _allHmcQuestionsMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: HmcQuestionFilter
+  ): ListMetadata!
+}
+
+extend type Mutation {
+  createHmcQuestion(input: CreateHmcQuestionInput!): HmcQuestion
+  updateHmcQuestion(input: UpdateHmcQuestionInput!): HmcQuestion
+  deleteHmcQuestion(id: ID!): HmcQuestion
+}
