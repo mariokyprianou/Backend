@@ -26,7 +26,7 @@ export class Config extends BaseModel {
     return (this.translations ?? []).find((tr) => tr.language === language);
   }
 
-  static relationMappings = {
+  static relationMappings = () => ({
     translations: {
       relation: BaseModel.HasManyRelation,
       modelClass: Translation,
@@ -35,5 +35,5 @@ export class Config extends BaseModel {
         to: 'config_tr.config_id',
       },
     },
-  };
+  });
 }

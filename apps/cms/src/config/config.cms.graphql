@@ -6,7 +6,7 @@ type ConfigurationLocalisation {
   language: String!
   termsAndConditions: String!
   privacyPolicy: String!
-  onboarding: [OnboardingConfig!]!
+  onboardings: [OnboardingConfig!]!
   notifications: [PushNotificationConfig!]!
 }
 
@@ -20,6 +20,7 @@ enum PushNotificationType {
 }
 
 type OnboardingConfig {
+  orderIndex: Int!
   title: String!
   description: String!
   image: String!
@@ -31,28 +32,35 @@ type PushNotificationConfig {
   body: String!
 }
 
-# input OnboardingInput {
-#   title: String!
-#   description: String!
-#   image: String!
-# }
+input OnboardingInput {
+  orderIndex: Int!
+  title: String!
+  description: String!
+  image: String!
+}
 
-# input NotificationsInput {
-#   fieldName: String!
-# }
+input NotificationInput {
+  type: PushNotificationType!
+  title: String!
+  body: String!
+}
 
-# input ConfigurationInput {
-#   locale: Locale
-#   termsAndConditions: String!
-#   privacyPolicy: String!
-#   onboarding: [OnboardingInput!]
-#   notifications: [NotificationInput!]
-# }
+input ConfigurationInput {
+  localisations: [ConfigurationLocalisationInput!]!
+}
+
+input ConfigurationLocalisationInput {
+  language: String!
+  termsAndConditions: String!
+  privacyPolicy: String!
+  onboardings: [OnboardingInput!]
+  notifications: [NotificationInput!]
+}
 
 extend type Query {
   Configuration: Configuration
 }
 
-# extend type Mutation {
-#   updateConfiguration: Configuration
-# }
+extend type Mutation {
+  updateConfiguration(input: ConfigurationInput): Configuration
+}

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Onboarding } from '@lib/power/onboarding';
+import { Onboarding, OnboardingTranslation } from '@lib/power/onboarding';
 
 @Injectable()
 export class CmsOnboardingService {
@@ -8,4 +8,30 @@ export class CmsOnboardingService {
       .withGraphJoined('translations')
       .orderBy('order_index', 'asc');
   }
+
+  public async updateTranslations(translations: OnboardingTranslationData[]) {
+    for (const translation of translations) {
+      await OnboardingTranslation.query()
+        .whereExists(
+          OnboardingTranslation.relatedQuery('onboarding').where(
+            'order_index',
+            translation.orderIndex,
+          ),
+        )
+        .where('language', translation.language)
+        .patch({
+          title: translation.title,
+          imageKey: translation.image,
+          description: translation.description,
+        });
+    }
+  }
+}
+
+export interface OnboardingTranslationData {
+  orderIndex: number;
+  language: string;
+  title: string;
+  description: string;
+  image: string;
 }
