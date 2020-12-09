@@ -11,12 +11,7 @@ export class UserService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: UserFilter = {},
   ) {
-    const findAllQuery = applyFilter(
-      User.query()
-        .withGraphJoined('localisations')
-        .withGraphJoined('programmeScores'),
-      filter,
-    );
+    const findAllQuery = applyFilter(User.query(), filter);
 
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);

@@ -2,7 +2,7 @@ type User {
   id: ID!
   firstName: String!
   lastName: String!
-  email: String! # Todo schema validation on email
+  email: EmailAddress!
   country: String!
   region: String!
   createdAt: DateTime!
@@ -12,3 +12,19 @@ type User {
 extend type Query {
   allUsers: [User!]!
 }
+
+# type UserSubscription {
+#   isSubscribed: Boolean!
+#   platform: SubscriptionPlatform!
+# }
+
+# extend type Query {
+#   User(id: ID!): User
+#   # allUsers: [User]
+#   # _allUsersMeta: ListMetadata
+# }
+
+# # extend type Mutation {
+# #   updateUser(id: ID!): User
+# #   deleteUser(id: ID!): User
+# # }
