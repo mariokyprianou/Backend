@@ -73,6 +73,7 @@ export class InfraStack extends cdk.Stack {
     }
 
     this.addS3Bucket('Assets');
+    this.addS3Bucket('Reports');
   }
 
   get isProduction() {
