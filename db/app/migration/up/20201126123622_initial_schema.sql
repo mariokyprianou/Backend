@@ -379,12 +379,12 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_exercise_note FOR EACH ROW EX
 
 CREATE TABLE user_workout_week (
   id uuid CONSTRAINT pk_user_workout_week PRIMARY KEY DEFAULT uuid_generate_v4(),
-  training_programme_id uuid NOT NULL,
+  user_training_programme_id uuid NOT NULL,
   week_number integer NOT NULL,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_user_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
+  CONSTRAINT fk_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout_week FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
