@@ -1,0 +1,14 @@
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String! # Todo schema validation on email
+  country: String!
+  region: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+extend type Query {
+  allUsers: [User!]!
+}

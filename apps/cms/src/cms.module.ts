@@ -13,6 +13,7 @@ import { HmcQuestionCMSModule } from './hmc-question/hmc-question.cms.module';
 import { WorkoutCMSModule } from './workout/workout.module';
 import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';
+import { UserCMSModule } from './user/user.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -31,6 +32,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         WorkoutCMSModule,
         ConfigCMSModule,
         ChallengeCMSModule,
+        UserCMSModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -60,6 +62,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     WorkoutCMSModule,
     ConfigCMSModule,
     ChallengeCMSModule,
+    UserCMSModule,
     GraphQLProvider,
   ],
 })
