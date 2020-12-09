@@ -1,5 +1,6 @@
 import { User, UserFilter, UserService } from '@lib/power/user';
 import { Resolver, Query, Args } from '@nestjs/graphql';
+import { ListMetadata } from '@lib/power/types';
 
 @Resolver('User')
 export class UserResolver {
@@ -14,6 +15,15 @@ export class UserResolver {
     @Args('filter') filter: UserFilter = {},
   ): Promise<User[]> {
     return this.service.findAll(page, perPage, sortField, sortOrder, filter);
+  }
+
+  @Query('_allUsersMeta')
+  async _allUsersMeta(
+    @Args('filter') filter: UserFilter = {},
+  ): Promise<ListMetadata> {
+    return {
+      count: await this.service.findAllMeta(filter),
+    };
   }
 
   @Query('User')

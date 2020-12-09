@@ -28,6 +28,13 @@ extend type Query {
     sortOrder: String
     filter: UserFilter
   ): [User!]!
+  _allUsersMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: UserFilter
+  ): ListMetadata!
 }
 
 # type UserSubscription {
