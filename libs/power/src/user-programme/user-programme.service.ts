@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
-import { UserWorkoutWeek } from './user-workout-week.model';
+import { UserProgramme } from './user-programme.model';
 
 @Injectable()
-export class UserWorkoutWeekService {
+export class UserProgrammeService {
   public findAll(
     page = 0,
     perPage = 25,
     sortField = 'created_at',
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
-    filter: UserWorkoutWeekFilter = {},
+    filter: UserProgramFilter = {},
   ) {
-    const findAllQuery = applyFilter(UserWorkoutWeek.query(), filter);
+    const findAllQuery = applyFilter(UserProgramme.query(), filter);
 
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);
@@ -19,8 +19,8 @@ export class UserWorkoutWeekService {
     return findAllQuery;
   }
 
-  public findAllMeta(filter: UserWorkoutWeekFilter = {}) {
-    return applyFilter(UserWorkoutWeek.query(), filter).resultSize();
+  public findAllMeta(filter: UserProgramFilter = {}) {
+    return applyFilter(UserProgramme.query(), filter).resultSize();
   }
 
   public findById(id: string) {
@@ -29,9 +29,9 @@ export class UserWorkoutWeekService {
 }
 
 const applyFilter = (
-  query: Objection.QueryBuilder<UserWorkoutWeek, UserWorkoutWeek[]>,
-  filter: UserWorkoutWeekFilter,
-): Objection.QueryBuilder<UserWorkoutWeek, UserWorkoutWeek[]> => {
+  query: Objection.QueryBuilder<UserProgramme, UserProgramme[]>,
+  filter: UserProgramFilter,
+): Objection.QueryBuilder<UserProgramme, UserProgramme[]> => {
   if (filter.id) {
     query.findByIds([filter.id]);
   }
@@ -43,7 +43,7 @@ const applyFilter = (
   return query;
 };
 
-export interface UserWorkoutWeekFilter {
+export interface UserProgramFilter {
   id?: string;
   ids?: string[];
 }

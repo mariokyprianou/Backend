@@ -7,3 +7,4 @@ export * from './programme';
 export * from './exercise-category';
 export * from './user-workout-week';
 export * from './user-workout';
+export * from './user-programme';

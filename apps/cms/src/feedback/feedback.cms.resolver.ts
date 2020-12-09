@@ -41,7 +41,7 @@ export class FeedbackResolver {
   }
 }
 
-// this transformation is required as there isn't a 'feedback' table in the database
+// this transformation is used as there isn't a 'feedback' table in the database
 // and so there isn't a simple relation to an existing model
 const feedbackModelToFeedbackGraphQLType = (
   userWorkout: UserWorkout | null,
@@ -53,8 +53,8 @@ const feedbackModelToFeedbackGraphQLType = (
         userWorkout.workout.trainingProgramme.trainer.localisations[0].name,
       week: userWorkout.userWorkoutWeek.weekNumber,
       workoutName: userWorkout.workout.localisations[0].name,
-      emoji: 'emoji', // TODO
-      userEmail: 'fake@fake.com', // TODO
+      emoji: userWorkout.emojis.map((x) => x.emoji),
+      userEmail: 'fake@fake.com', // TODO: when the user tables are setup
       timeTaken: userWorkout.timeTaken,
       workoutIntensity: userWorkout.feedBackIntensity,
       date: userWorkout.completedAt,
@@ -69,7 +69,7 @@ interface FeedbackGraphQlType {
   trainerName: string;
   week: number;
   workoutName: string;
-  emoji?: string;
+  emoji: string[];
   userEmail: string;
   timeTaken?: number;
   workoutIntensity?: number;

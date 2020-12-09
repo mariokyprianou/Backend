@@ -1,6 +1,6 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { Programme } from '../programme';
+import { UserProgramme } from '../user-programme';
 
 export class UserWorkoutWeek extends BaseModel {
   static tableName = 'user_workout_week';
@@ -10,22 +10,21 @@ export class UserWorkoutWeek extends BaseModel {
   }
 
   id: string;
-  // TODO: should this be user_training_programme_id
-  trainingProgrammeId: string;
+  userTrainingProgrammeId: string;
   weekNumber: number;
   completedAt: Date;
   createdAt: Date;
   updatedAt: Date;
 
-  trainingProgramme: Programme;
+  userTrainingProgramme: UserProgramme;
 
   static relationMappings = {
-    trainingProgramme: {
+    userTrainingProgramme: {
       relation: Model.BelongsToOneRelation,
-      modelClass: Programme,
+      modelClass: UserProgramme,
       join: {
-        from: 'user_workout_week.training_programme_id',
-        to: 'training_programme.id',
+        from: 'user_workout_week.user_training_programme_id',
+        to: 'user_training_programme.id',
       },
     },
   };

@@ -17,7 +17,10 @@ export class FeedbackService {
         .withGraphJoined('workout.trainingProgramme')
         .withGraphJoined('workout.trainingProgramme.trainer')
         .withGraphJoined('workout.trainingProgramme.trainer.localisations')
-        .withGraphJoined('userWorkoutWeek'),
+        .withGraphJoined('userWorkoutWeek')
+        .withGraphJoined('userWorkoutWeek.userTrainingProgramme'),
+      // TODO: this needs adding when the user tables are implemented
+      // .withGraphJoined('userWorkoutWeek.userTrainingProgramme.user')
       filter,
     );
 
