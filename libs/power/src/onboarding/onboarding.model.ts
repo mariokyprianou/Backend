@@ -1,13 +1,8 @@
 import { BaseModel } from '@lib/database';
-// import {  } from 'objection';
 import { OnboardingTranslation as Translation } from './onboarding-tr.model';
 
 export class Onboarding extends BaseModel {
   static tableName = 'onboarding_screen';
-
-//   static get columnNameMappers() {
-//     return BaseModel();
-//   }
 
   id: string;
   orderIndex: number;
@@ -20,7 +15,7 @@ export class Onboarding extends BaseModel {
     return (this.translations ?? []).find((tr) => tr.language === language);
   }
 
-  static relationMappings = {
+  static relationMappings = () => ({
     translations: {
       relation: BaseModel.HasManyRelation,
       modelClass: Translation,
@@ -29,5 +24,5 @@ export class Onboarding extends BaseModel {
         to: 'onboarding_screen_tr.onboarding_screen_id',
       },
     },
-  };
+  });
 }
