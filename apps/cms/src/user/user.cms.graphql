@@ -20,6 +20,7 @@ input UserFilter {
 }
 
 extend type Query {
+  User(id: ID!): User
   allUsers(
     page: Int
     perPage: Int

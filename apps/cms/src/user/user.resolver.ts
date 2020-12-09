@@ -15,4 +15,9 @@ export class UserResolver {
   ): Promise<User[]> {
     return this.service.findAll(page, perPage, sortField, sortOrder, filter);
   }
+
+  @Query('User')
+  async User(@Args('id') id) {
+    return await this.service.findById(id);
+  }
 }
