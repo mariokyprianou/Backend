@@ -6,3 +6,4 @@ export * from './trainer';
 export * from './types';
 export * from './programme';
 export * from './exercise-category';
+export * from './user';
