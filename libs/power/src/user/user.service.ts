@@ -31,6 +31,8 @@ export class UserService {
 export interface UserFilter {
   id?: string;
   ids?: string[];
+  email?: string;
+  country?: string;
 }
 
 const applyFilter = (
@@ -43,6 +45,14 @@ const applyFilter = (
 
   if (filter.ids) {
     query.findByIds(filter.ids);
+  }
+
+  if (filter.email) {
+    query.where('email', 'ilike', `%${filter.email}%`);
+  }
+
+  if (filter.country) {
+    query.where('country', 'ilike', `%${filter.country}%`);
   }
 
   return query;

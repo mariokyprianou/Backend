@@ -5,12 +5,28 @@ type User {
   email: EmailAddress!
   country: String!
   region: String!
+  # subscriberStatus: UserSubscription!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
+input UserFilter {
+  id: ID
+  ids: [ID!]
+  email: EmailAddress
+  country: String
+  # marketingPreferences
+  # subscriberStatus
+}
+
 extend type Query {
-  allUsers: [User!]!
+  allUsers(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: UserFilter
+  ): [User!]!
 }
 
 # type UserSubscription {
