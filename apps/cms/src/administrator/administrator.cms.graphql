@@ -13,5 +13,5 @@ extend type Query {
 extend type Mutation {
   createAdministrator(name: String!, email: EmailAddress!): Administrator
   updateAdministrator(id: ID!, name: String, email: EmailAddress): Administrator
-  #   deleteAdministrator(id: ID!): Administrator
+  deleteAdministrator(id: ID!): Administrator
 }

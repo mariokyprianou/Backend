@@ -50,4 +50,9 @@ export class AdministratorResolver {
   ) {
     return await this.service.update(id, name, email);
   }
+
+  @Mutation('deleteAdministrator')
+  async deleteAdministrator(@Args('id') id: string) {
+    return await this.service.delete(id);
+  }
 }
