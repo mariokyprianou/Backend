@@ -66,13 +66,7 @@ extend type Query {
 #   platform: SubscriptionPlatform!
 # }
 
-# extend type Query {
-#   User(id: ID!): User
-#   # allUsers: [User]
-#   # _allUsersMeta: ListMetadata
-# }
-
-# extend type Mutation {
-#   updateUser(id: ID!): User
-#   deleteUser(id: ID!): User
-# }
+extend type Mutation {
+  #   updateUser(id: ID!): User
+  deleteUser(id: ID!): User
+}

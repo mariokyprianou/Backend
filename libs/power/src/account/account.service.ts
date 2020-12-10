@@ -11,4 +11,9 @@ export class AccountService {
   public findById(id: string) {
     return this.findAll().findById(id);
   }
+
+  public delete(id: string) {
+    // Note: leave the user training program un-deleted
+    return Account.query().findById(id).delete();
+  }
 }

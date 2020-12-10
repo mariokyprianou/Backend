@@ -26,6 +26,10 @@ export class UserService {
   public findById(id: string) {
     return this.findAll().findById(id);
   }
+
+  public delete(id: string) {
+    return User.query().findById(id).delete();
+  }
 }
 
 export interface UserFilter {

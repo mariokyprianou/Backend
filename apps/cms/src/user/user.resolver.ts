@@ -1,5 +1,12 @@
 import { User, UserFilter, UserService } from '@lib/power/user';
-import { Resolver, Query, Args, ResolveField, Parent } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Args,
+  ResolveField,
+  Parent,
+  Mutation,
+} from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
 import { UserProgrammeService } from '@lib/power/user-program/user-programme.service';
 import { AccountService } from '@lib/power/account';
@@ -32,6 +39,16 @@ export class UserResolver {
   @Query('User')
   async User(@Args('id') id) {
     return await this.userService.findById(id);
+  }
+
+  @Mutation('deleteUser')
+  async deleteUser(@Args('id') id) {
+    const userToDelete = this.userService.findById(id);
+    await this.accountService.delete(id);
+    await this.userService.delete(id);
+    // TODO: there will also be a step to remove users from the
+    // AWS cognito user pool
+    return userToDelete;
   }
 
   @ResolveField('currentTrainingProgramme')
