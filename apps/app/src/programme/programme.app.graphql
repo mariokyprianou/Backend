@@ -23,4 +23,6 @@ type ProgrammeOverview implements Programme {
   description: String!
   progressStartShareMediaImage: ProgrammeShareImage
   firstWeek: [WorkoutWeek]!
+  programmeImage: URL
+  numberOfWeeks: Int!
 }

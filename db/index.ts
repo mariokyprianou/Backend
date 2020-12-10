@@ -50,7 +50,7 @@ export const createUserDb = async () => {
     },
     migrations: {
       tableName: 'knex_migrations',
-      directory: './app/migration',
+      directory: './user/migration',
     },
     pool: {
       min: 0,

@@ -9,8 +9,12 @@ import scalars from '../../common/scalars';
 import { ExerciseCMSModule } from './exercise/exercise.module';
 import { ExerciseCategoryCMSModule } from './exercise-category/exercise-category.module';
 import { ProgrammeCMSModule } from './programme/programme.module';
+import { HmcQuestionCMSModule } from './hmc-question/hmc-question.cms.module';
 import { WorkoutCMSModule } from './workout/workout.module';
 import { FeedbackCMSModule } from './feedback/feedback.module';
+import { ConfigCMSModule } from './config/config.module';
+import { ChallengeCMSModule } from './challenge/challenge.module';
+import { UserCMSModule } from './user/user.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -25,8 +29,12 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ExerciseCMSModule,
         ExerciseCategoryCMSModule,
         ProgrammeCMSModule,
+        HmcQuestionCMSModule,
         WorkoutCMSModule,
         FeedbackCMSModule,
+        ConfigCMSModule,
+        ChallengeCMSModule,
+        UserCMSModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -52,8 +60,12 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     TrainerCMSModule,
     ExerciseCategoryCMSModule,
     ProgrammeCMSModule,
+    HmcQuestionCMSModule,
     WorkoutCMSModule,
     FeedbackCMSModule,
+    ConfigCMSModule,
+    ChallengeCMSModule,
+    UserCMSModule,
     GraphQLProvider,
   ],
 })

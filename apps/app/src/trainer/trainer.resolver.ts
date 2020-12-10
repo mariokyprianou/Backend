@@ -40,7 +40,8 @@ export class TrainerResolver {
     // Resolve the graph relation to fetch the trainers programmes.
     const relatedProgrammes = await this.programme
       .findAll(language)
-      .where('trainer_id', trainer.id);
+      .where('trainer_id', trainer.id)
+      .andWhere('status', 'PUBLISHED');
 
     const res = await Promise.all(
       relatedProgrammes.map(async (programme) => {
@@ -49,7 +50,16 @@ export class TrainerResolver {
         );
         const image = images && images.getTranslation(language);
 
-        const firstWeek = await this.workout.findAll().where('week_number', 1);
+        const firstWeek = await this.workout
+          .findAll(programme.id)
+          .where('week_number', 1);
+        // const week = firstWeek[0];
+
+        const primaryProgrammeImage = programme.images.find(
+          (image) => image.orderIndex === 0,
+        );
+
+        const count = await this.workout.findAll(programme.id);
 
         return {
           id: programme.id,
@@ -87,6 +97,14 @@ export class TrainerResolver {
               },
             })),
           ),
+          programmeImage:
+            primaryProgrammeImage &&
+            (await this.common.getPresignedUrl(
+              primaryProgrammeImage.imageKey,
+              this.common.env().FILES_BUCKET,
+              'getObject',
+            )),
+          numberOfWeeks: count.length,
         };
       }),
     );
