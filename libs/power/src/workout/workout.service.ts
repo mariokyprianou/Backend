@@ -25,10 +25,14 @@ export class WorkoutService {
     });
   }
 
-  public findAll() {
-    return ProgrammeWorkout.query().withGraphJoined(
-      'workout.[localisations, exercises.[sets]]',
-    );
+  public findAll(programme?: string) {
+    return programme
+      ? ProgrammeWorkout.query()
+          .where('training_programme_id', programme)
+          .withGraphFetched('workout.[localisations, exercises.[sets]]')
+      : ProgrammeWorkout.query().withGraphFetched(
+          'workout.[localisations, exercises.[sets]]',
+        );
   }
 
   public async create(workout: IProgrammeWorkout) {
@@ -44,8 +48,12 @@ export class WorkoutService {
     return this.findById(programmeWorkout.id);
   }
 
-  public count() {
-    return ProgrammeWorkout.query().count();
+  public count(programme?: string) {
+    return programme
+      ? ProgrammeWorkout.query()
+          .where('training_programme_id', programme)
+          .count()
+      : ProgrammeWorkout.query().count();
   }
 
   public findById(id: string) {
