@@ -10,8 +10,8 @@ extend type Query {
   _allAdministratorsMeta: ListMetadata!
 }
 
-# extend type Mutation {
-#   createAdministrator(name: String!, email: EmailAddress!): Administrator
-#   updateAdministrator(id: ID!, name: String, email: EmailAddress): Administrator
-#   deleteAdministrator(id: ID!): Administrator
-# }
+extend type Mutation {
+  createAdministrator(name: String!, email: EmailAddress!): Administrator
+  #   updateAdministrator(id: ID!, name: String, email: EmailAddress): Administrator
+  #   deleteAdministrator(id: ID!): Administrator
+}
