@@ -1,5 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { CountryFilter, CountryService } from '@lib/power/country';
+import { ListMetadata } from '@lib/power/types';
 
 @Resolver('Country')
 export class CountryResolver {
@@ -19,5 +20,14 @@ export class CountryResolver {
     @Args('filter') filter: CountryFilter = {},
   ) {
     return this.service.findAll(page, perPage, sortField, sortOrder, filter);
+  }
+
+  @Query('_allCountriesMeta')
+  async _allCountriesMeta(
+    @Args('filter') filter: CountryFilter = {},
+  ): Promise<ListMetadata> {
+    return {
+      count: await this.service.findAllMeta(filter),
+    };
   }
 }

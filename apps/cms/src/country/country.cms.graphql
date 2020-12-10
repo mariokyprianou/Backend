@@ -23,4 +23,11 @@ extend type Query {
     sortOrder: String
     filter: CountryFilter
   ): [Country!]!
+  _allCountriesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: CountryFilter
+  ): ListMetadata!
 }
