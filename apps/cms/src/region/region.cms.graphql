@@ -1,0 +1,19 @@
+type Region {
+  id: ID!
+  region: String!
+  country: Country!
+}
+
+type Country {
+  id: ID!
+  country: String!
+}
+
+# input RegionFilter {
+#   id: ID
+#   ids: [ID!]
+# }
+
+extend type Query {
+  Region(id: ID!): Region
+}

@@ -1,0 +1,13 @@
+type TimeZone {
+  id: ID!
+  timeZone: String!
+}
+
+# input TimeZoneFilter {
+#   id: ID
+#   ids: [ID!]
+# }
+
+extend type Query {
+  TimeZone(id: ID!): TimeZone
+}
