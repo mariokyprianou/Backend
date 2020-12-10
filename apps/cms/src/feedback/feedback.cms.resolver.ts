@@ -5,11 +5,13 @@ import { FeedbackService } from './feedback.service';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
-  constructor(private readonly service: FeedbackService) {}
+  constructor(
+    private readonly feedbackService: FeedbackService /*, private readonly userService: UserService */,
+  ) {}
 
   @Query('Feedback')
   async Feedback(@Args('id') id) {
-    return await this.service.findById(id);
+    return await this.feedbackService.findById(id);
   }
 
   @Query('allFeedbacks')
@@ -20,7 +22,13 @@ export class FeedbackResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: UserWorkoutFilter = {},
   ) {
-    return this.service.findAll(page, perPage, sortField, sortOrder, filter);
+    return this.feedbackService.findAll(
+      page,
+      perPage,
+      sortField,
+      sortOrder,
+      filter,
+    );
   }
 
   @Query('_allFeedbacksMeta')
@@ -28,7 +36,7 @@ export class FeedbackResolver {
     @Args('filter') filter: UserWorkoutFilter = {},
   ): Promise<ListMetadata> {
     return {
-      count: await this.service.findAllMeta(filter),
+      count: await this.feedbackService.findAllMeta(filter),
     };
   }
 
@@ -58,6 +66,11 @@ export class FeedbackResolver {
   // TODO: when the user tables are setup
   @ResolveField('userEmail')
   getUserEmail(@Parent() userWorkout: UserWorkout) {
+    // TODO: needs the user work to be merged
+    // const userID = userWorkout.userWorkoutWeek.userTrainingProgramme.accountId;
+    // const user = this.userService.findById(userID);
+    // return user.email;
+
     return 'fake@fake.com';
   }
 
