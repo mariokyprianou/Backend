@@ -11,7 +11,7 @@ export class Account extends BaseModel {
 
   id: string;
   cognitoUsername: string;
-  trainingProgramId: string;
+  userTrainingProgramId: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -22,8 +22,8 @@ export class Account extends BaseModel {
       relation: Model.HasOneRelation,
       modelClass: UserProgramme,
       join: {
-        from: 'account.training_programme_id',
-        to: 'training_programme.id',
+        from: 'account.user_training_programme_id',
+        to: 'user_training_programme.id',
       },
     },
   });

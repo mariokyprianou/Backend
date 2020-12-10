@@ -72,7 +72,7 @@ extend type Query {
 #   # _allUsersMeta: ListMetadata
 # }
 
-# # extend type Mutation {
-# #   updateUser(id: ID!): User
-# #   deleteUser(id: ID!): User
-# # }
+# extend type Mutation {
+#   updateUser(id: ID!): User
+#   deleteUser(id: ID!): User
+# }

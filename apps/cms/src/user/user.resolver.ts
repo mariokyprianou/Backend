@@ -36,10 +36,12 @@ export class UserResolver {
 
   @ResolveField('currentTrainingProgramme')
   async getCurrentTrainingProgramme(@Parent() user: User) {
+    // TODO: this is where it is currently crashing with the user
+    // Queries as there wasn't data in the database yet
     const account = await this.accountService.findById(user.id);
 
     const currentUserProgram = await this.userProgramService.findById(
-      account.trainingProgramId,
+      account.userTrainingProgramId,
     );
 
     if (currentUserProgram) {
