@@ -14,6 +14,7 @@ import { WorkoutCMSModule } from './workout/workout.module';
 import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';
 import { UserCMSModule } from './user/user.module';
+import { AdministratorCMSModule } from './administrator/administrator.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -33,6 +34,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ConfigCMSModule,
         ChallengeCMSModule,
         UserCMSModule,
+        AdministratorCMSModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -63,6 +65,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ConfigCMSModule,
     ChallengeCMSModule,
     UserCMSModule,
+    AdministratorCMSModule,
     GraphQLProvider,
   ],
 })
