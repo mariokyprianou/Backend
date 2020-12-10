@@ -53,7 +53,7 @@ export class TrainerResolver {
         const firstWeek = await this.workout
           .findAll(programme.id)
           .where('week_number', 1);
-        const week = firstWeek[0];
+        // const week = firstWeek[0];
 
         const primaryProgrammeImage = programme.images.find(
           (image) => image.orderIndex === 0,
@@ -79,22 +79,24 @@ export class TrainerResolver {
               )),
             colour: image.colour,
           },
-          firstWeek: week && {
-            ...week,
-            workout: {
-              overviewImage:
-                week.workout.overviewImageKey &&
-                (await this.common.getPresignedUrl(
-                  week.workout.overviewImageKey,
-                  this.common.env().FILES_BUCKET,
-                  'getObject',
-                )),
-              intensity: week.workout.intensity,
-              duration: week.workout.duration,
-              name: week.workout.getTranslation(language).name,
-              exercises: null,
-            },
-          },
+          firstWeek: await Promise.all(
+            firstWeek.map(async (week) => ({
+              ...week,
+              workout: {
+                overviewImage:
+                  week.workout.overviewImageKey &&
+                  (await this.common.getPresignedUrl(
+                    week.workout.overviewImageKey,
+                    this.common.env().FILES_BUCKET,
+                    'getObject',
+                  )),
+                intensity: week.workout.intensity,
+                duration: week.workout.duration,
+                name: week.workout.getTranslation(language).name,
+                exercises: null,
+              },
+            })),
+          ),
           programmeImage:
             primaryProgrammeImage &&
             (await this.common.getPresignedUrl(
