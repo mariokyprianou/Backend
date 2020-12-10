@@ -104,7 +104,9 @@ export class HmcQuestionService {
           FOUR: 'answer4Score',
         };
 
-        questionScores.map((score) => {
+        // This loops over each score and updates the value the programme id in programmeScores
+        // It's fairly short hand but is in essence id = id.value + new.value
+        questionScores.forEach((score) => {
           programmeScores[score.trainingProgrammeId] = programmeScores[
             score.trainingProgrammeId
           ]
@@ -115,9 +117,7 @@ export class HmcQuestionService {
       }),
     );
 
-    console.log(programmeScores);
-
-    // const max = Math.max(...arr);
+    // reduce the keys down to get the key that is the highest value
     const programmeId = Object.keys(programmeScores).reduce((a, b) =>
       programmeScores[a] > programmeScores[b] ? a : b,
     );
