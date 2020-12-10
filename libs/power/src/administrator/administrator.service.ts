@@ -5,15 +5,15 @@ export class AdministratorService {
   public findAll(
     page = 0,
     perPage = 25,
-    sortField = 'first_name',
+    sortField = 'name',
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
-    filter: AdminFilter = {},
+    filter: AdministratorFilter = {},
   ) {
     // TODO
     return [];
   }
 
-  public findAllMeta(filter: AdminFilter = {}) {
+  public findAllMeta(filter: AdministratorFilter = {}) {
     // TODO
     return 0;
   }
@@ -29,7 +29,7 @@ export class AdministratorService {
   }
 }
 
-export interface AdminFilter {
+export interface AdministratorFilter {
   id?: string;
   ids?: string[];
   email?: string;

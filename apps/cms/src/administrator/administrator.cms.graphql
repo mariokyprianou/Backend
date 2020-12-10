@@ -6,7 +6,7 @@ type Administrator {
 
 extend type Query {
   Administrator(id: ID!): Administrator
-  # allAdministrators: [Administrator]
+  allAdministrators: [Administrator!]!
   # _allAdministratorsMeta: [Administrator]
 }
 
