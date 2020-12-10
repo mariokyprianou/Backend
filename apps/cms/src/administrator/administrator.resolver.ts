@@ -24,4 +24,14 @@ export class AdministratorResolver {
   ) {
     return this.service.findAll(page, perPage, sortField, sortOrder, filter);
   }
+
+  @Query('_allAdministratorsMeta')
+  async _allAdministratorsMeta(
+    @Args('filter') filter: AdministratorFilter = {},
+  ): Promise<ListMetadata> {
+    return {
+      count: await this.service.findAllMeta(filter),
+    };
+  }
+
 }
