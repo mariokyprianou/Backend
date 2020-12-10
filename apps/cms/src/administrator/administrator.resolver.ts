@@ -41,4 +41,13 @@ export class AdministratorResolver {
   ) {
     return await this.service.create(name, email);
   }
+
+  @Mutation('updateAdministrator')
+  async updateAdministrator(
+    @Args('id') id: string,
+    @Args('name') name: string,
+    @Args('email') email: string,
+  ) {
+    return await this.service.update(id, name, email);
+  }
 }

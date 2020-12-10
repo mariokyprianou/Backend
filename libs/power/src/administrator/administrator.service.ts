@@ -32,6 +32,11 @@ export class AdministratorService {
     // TODO
     return null;
   }
+
+  public update(id: string, name: string, email: string) {
+    // TODO
+    return null;
+  }
 }
 
 export interface AdministratorFilter {
