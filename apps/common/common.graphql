@@ -108,3 +108,12 @@ enum SetType {
   REPS
   TIME
 }
+
+type HmcQuestionLocalisation {
+  language: ISOLanguage!
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}

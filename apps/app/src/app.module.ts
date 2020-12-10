@@ -7,6 +7,7 @@ import { CommonModule } from '../../common/common.module';
 import scalars from '../../common/scalars';
 import { ConfigAppModule } from './config/config.module';
 import { createContext } from './createContext';
+import { HMCAppModule } from './hmc/hmc.module';
 
 import { OnboardingAppModule } from './onboarding/onboarding.module';
 import { TrainerAppModule } from './trainer/trainer.module';
@@ -23,6 +24,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         OnboardingAppModule,
         ConfigAppModule,
         TrainerAppModule,
+        HMCAppModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -48,6 +50,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     OnboardingAppModule,
     ConfigAppModule,
     TrainerAppModule,
+    HMCAppModule,
     GraphQLProvider,
   ],
 })
