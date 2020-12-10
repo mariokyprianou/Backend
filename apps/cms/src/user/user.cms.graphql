@@ -5,9 +5,21 @@ type User {
   email: EmailAddress!
   country: String!
   region: String!
+  currentTrainingProgramme: CurrentTrainingProgramme
+  # TODO
+  # marketingPermissions
   # subscriberStatus: UserSubscription!
+  # Current Week
+  # Previous trainers
+  # 30 day devise limit
+  # User Timezone
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type CurrentTrainingProgramme {
+  id: ID!
+  name: String!
 }
 
 input UserFilter {
@@ -15,9 +27,21 @@ input UserFilter {
   ids: [ID!]
   email: EmailAddress
   country: String
-  # marketingPreferences
   # subscriberStatus
+  # Current Trainer
+  # Current Week
+  # 30 day devise limit
+  # User Timezone
 }
+
+# input UpdateUserInput {
+#   id: ID!
+#   firstName: String!
+#   lastName: String!
+#   email: EmailAddress!
+#   country: String!
+#   region: String!
+# }
 
 extend type Query {
   User(id: ID!): User

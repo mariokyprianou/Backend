@@ -1,10 +1,16 @@
 import { User, UserFilter, UserService } from '@lib/power/user';
-import { Resolver, Query, Args } from '@nestjs/graphql';
+import { Resolver, Query, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
+import { UserProgrammeService } from '@lib/power/user-program/user-programme.service';
+import { AccountService } from '@lib/power/account';
 
 @Resolver('User')
 export class UserResolver {
-  constructor(private service: UserService) {}
+  constructor(
+    private userService: UserService,
+    private accountService: AccountService,
+    private userProgramService: UserProgrammeService,
+  ) {}
 
   @Query('allUsers')
   async allUsers(
@@ -14,7 +20,38 @@ export class UserResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: UserFilter = {},
   ): Promise<User[]> {
-    return this.service.findAll(page, perPage, sortField, sortOrder, filter);
+    return this.userService.findAll(
+      page,
+      perPage,
+      sortField,
+      sortOrder,
+      filter,
+    );
+  }
+
+  @Query('User')
+  async User(@Args('id') id) {
+    return await this.userService.findById(id);
+  }
+
+  @ResolveField('currentTrainingProgramme')
+  async getCurrentTrainingProgramme(@Parent() user: User) {
+    const account = await this.accountService.findById(user.id);
+
+    const currentUserProgram = await this.userProgramService.findById(
+      account.trainingProgramId,
+    );
+
+    if (currentUserProgram) {
+      return {
+        id: currentUserProgram.id,
+        name: currentUserProgram.programme.localisations.find(
+          (x) => x.language == 'en',
+        ).description,
+      };
+    } else {
+      return null;
+    }
   }
 
   @Query('_allUsersMeta')
@@ -22,12 +59,7 @@ export class UserResolver {
     @Args('filter') filter: UserFilter = {},
   ): Promise<ListMetadata> {
     return {
-      count: await this.service.findAllMeta(filter),
+      count: await this.userService.findAllMeta(filter),
     };
-  }
-
-  @Query('User')
-  async User(@Args('id') id) {
-    return await this.service.findById(id);
   }
 }

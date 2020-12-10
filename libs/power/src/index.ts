@@ -7,3 +7,5 @@ export * from './types';
 export * from './programme';
 export * from './exercise-category';
 export * from './user';
+export * from './user-program';
+export * from './account';

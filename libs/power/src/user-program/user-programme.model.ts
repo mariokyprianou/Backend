@@ -1,28 +1,29 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { UserProgramme } from '../user-program';
+import { Programme } from '../programme';
 
-export class Account extends BaseModel {
-  static tableName = 'account';
+export class UserProgramme extends BaseModel {
+  static tableName = 'user_training_programme';
 
   static get columnNameMappers() {
     return snakeCaseMappers();
   }
 
   id: string;
-  cognitoUsername: string;
-  trainingProgramId: string;
+  accountId: string;
+  trainingProgrammeId: string;
+  startDate: Date;
   createdAt: Date;
   updatedAt: Date;
 
-  trainingProgram: UserProgramme[];
+  programme: Programme;
 
   static relationMappings = () => ({
-    localisations: {
+    programme: {
       relation: Model.HasOneRelation,
-      modelClass: UserProgramme,
+      modelClass: Programme,
       join: {
-        from: 'account.training_programme_id',
+        from: 'user_training_programme.training_programme_id',
         to: 'training_programme.id',
       },
     },
