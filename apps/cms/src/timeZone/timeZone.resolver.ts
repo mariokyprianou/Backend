@@ -1,5 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { TimeZoneFilter, TimeZoneService } from '@lib/power/timeZone';
+import { ListMetadata } from '@lib/power/types';
 
 @Resolver('TimeZone')
 export class TimeZoneResolver {
@@ -19,5 +20,14 @@ export class TimeZoneResolver {
     @Args('filter') filter: TimeZoneFilter = {},
   ) {
     return this.service.findAll(page, perPage, sortField, sortOrder, filter);
+  }
+
+  @Query('_allTimeZonesMeta')
+  async _allTimeZonesMeta(
+    @Args('filter') filter: TimeZoneFilter = {},
+  ): Promise<ListMetadata> {
+    return {
+      count: await this.service.findAllMeta(filter),
+    };
   }
 }

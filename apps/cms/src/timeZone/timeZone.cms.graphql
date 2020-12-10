@@ -17,4 +17,11 @@ extend type Query {
     sortOrder: String
     filter: TimeZoneFilter
   ): [TimeZone!]!
+  _allTimeZonesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: TimeZoneFilter
+  ): ListMetadata!
 }
