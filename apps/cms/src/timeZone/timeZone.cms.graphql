@@ -3,11 +3,18 @@ type TimeZone {
   timeZone: String!
 }
 
-# input TimeZoneFilter {
-#   id: ID
-#   ids: [ID!]
-# }
+input TimeZoneFilter {
+  id: ID
+  ids: [ID!]
+}
 
 extend type Query {
   TimeZone(id: ID!): TimeZone
+  allTimeZones(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: TimeZoneFilter
+  ): [TimeZone!]!
 }
