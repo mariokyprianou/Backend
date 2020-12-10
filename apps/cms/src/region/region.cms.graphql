@@ -23,4 +23,11 @@ extend type Query {
     sortOrder: String
     filter: RegionFilter
   ): [Region!]!
+  _allRegionsMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: RegionFilter
+  ): ListMetadata!
 }
