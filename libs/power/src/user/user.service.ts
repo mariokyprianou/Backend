@@ -11,7 +11,13 @@ export class UserService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: UserFilter = {},
   ) {
-    const findAllQuery = applyFilter(User.query(), filter);
+    const findAllQuery = applyFilter(
+      User.query()
+        .withGraphJoined('country')
+        .withGraphJoined('region')
+        .withGraphJoined('timeZone'),
+      filter,
+    );
 
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);
