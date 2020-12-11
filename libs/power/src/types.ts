@@ -123,3 +123,16 @@ export interface HmcQuestionLocalisationGraphQlType {
   answer3: string;
   answer4: string;
 }
+
+export interface RegisterUserInput {
+  givenName: string;
+  familyName: string;
+  email: string;
+  password: string;
+  gender: string;
+  dateOfBirth: Date;
+  country: string;
+  region: string;
+  deviceUDID: string;
+  timeZone: string;
+}
