@@ -1,16 +1,16 @@
-# type UserProfile {
-#   givenName: String!
-#   familyName: String!
-#   email: String!
-#   gender: Gender
-#   dateOfBirth: Date
-#   country: ISOCountry
-#   region: String
-#   memberSince: Date!
-#   canChangeDevice: Boolean!
-#   timeZone: String!
-#   deviceUDID: ID!
-# }
+type UserProfile {
+  givenName: String!
+  familyName: String!
+  email: String!
+  gender: Gender
+  dateOfBirth: Date
+  country: String
+  region: String
+  memberSince: Date!
+  canChangeDevice: Boolean!
+  timeZone: String!
+  deviceUDID: ID!
+}
 
 # enum DownloadQuality {
 #   HIGH
@@ -26,27 +26,27 @@
 #   downloadQuality: DownloadQuality!
 # }
 
-# type Legals {
-#   termsAndConditions: String!
-#   privacyPolicy: String!
-# }
+enum Gender {
+  male
+  female
+}
 
-# input RegisterUserInput {
-#   givenName: String!
-#   familyName: String!
-#   email: String!
-#   password: String!
-#   gender: Gender
-#   dateOfBirth: Date
-#   country: ISOCountry
-#   region: String
-#   deviceUDID: String!
-#   timeZone: String!
-# }
+input RegisterUserInput {
+  givenName: String!
+  familyName: String!
+  email: String!
+  password: String!
+  gender: Gender
+  dateOfBirth: DateTime
+  country: String
+  region: String
+  deviceUDID: String!
+  timeZone: String!
+}
 
-# type RegisterUserResponse {
-#   profile: UserProfile
-# }
+type RegisterUserResponse {
+  profile: UserProfile
+}
 
 # input UpdateProfileInput {
 #   givenName: String!
@@ -69,24 +69,24 @@
 #   success: Boolean!
 # }
 
+# type ScreenshotTakenResponse {
+#   success: Boolean!
+#   isBlocked: Boolean!
+# }
+
 # extend type Query {
 #   profile: UserProfile
 #   preferences: UserPreferences
 #   legals: Legals
 # }
 
-# type ScreenshotTakenResponse {
-#   success: Boolean!
-#   isBlocked: Boolean!
-# }
-
-# extend type Mutation {
-#   registerUser(input: RegisterUserInput!): RegisterUserResponse
-#   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
-#   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse
-#   screenshotTaken: ScreenshotTakenResponse
-# }
-
-extend type Query {
-  tmp: String
+extend type Mutation {
+  registerUser(input: RegisterUserInput!): Boolean! # Return boolean to allow the front end to handle session management through amplify
+  #   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
+  #   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse
+  #   screenshotTaken: ScreenshotTakenResponse
 }
+
+# extend type Query {
+#   tmp: String
+# }

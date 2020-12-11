@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { HmcQuestionFilter, HmcQuestionService } from '@lib/power/hmc-question';
-import { ListMetadata } from '@lib/power/types';
+import { HmcQuestionLocalisationGraphQlType, ListMetadata } from '@lib/power/types';
 
 @Resolver('HmcQuestion')
 export class HmcQuestionResolver {
@@ -78,15 +78,6 @@ export interface CreateHmcQuestionGraphQlInput {
 export interface UpdateHmcQuestionGraphQlInput
   extends CreateHmcQuestionGraphQlInput {
   id: string;
-}
-
-interface HmcQuestionLocalisationGraphQlType {
-  language: string;
-  question: string;
-  answer1: string;
-  answer2: string;
-  answer3: string;
-  answer4: string;
 }
 
 interface HmcProgrammeScoreGraphQlType {

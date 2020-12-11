@@ -11,7 +11,9 @@ export class ProgrammeService {
   // FIND ALL PROGRAMMES
   public findAll(language?: string) {
     return Programme.query()
-      .withGraphJoined('[localisations, images, shareMediaImages.[localisations]]')
+      .withGraphJoined(
+        '[localisations, images, shareMediaImages.[localisations]]',
+      )
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,
       );
@@ -26,8 +28,8 @@ export class ProgrammeService {
     return Programme.query().insertGraphAndFetch(programme);
   }
 
-  public findById(id: string) {
-    return this.findAll().findById(id);
+  public findById(id: string, language?: string) {
+    return this.findAll(language).findById(id);
   }
 
   public async delete(id: string) {

@@ -30,6 +30,12 @@ export class HmcQuestionService {
     return findAllQuery;
   }
 
+  public findAllQuestions(language = 'en') {
+    return HmcQuestion.query()
+      .withGraphJoined('localisations')
+      .modifyGraph('localisations', (qb) => qb.where('language', language));
+  }
+
   public findAllMeta(filter: HmcQuestionFilter = {}) {
     return applyFilter(HmcQuestion.query(), filter).resultSize();
   }
@@ -70,6 +76,53 @@ export class HmcQuestionService {
     );
 
     return this.findById(hmcQuestionModel.id);
+  }
+
+  public async calculateProgrammeScores(
+    answers: {
+      question: string;
+      answer: string;
+    }[],
+  ) {
+    const programmeScores = {};
+    // map over the answers
+    // for each answer find the score for each programme
+    await Promise.all(
+      answers.map(async (each) => {
+        const { question, answer } = each;
+        // select all scores
+        const questionScores = await HmcQuestionScore.query().where(
+          'hmc_question_id',
+          question,
+        );
+
+        // answer can be ONE, TWO, THREE, or FOUR
+        const answers = {
+          ONE: 'answer1Score',
+          TWO: 'answer2Score',
+          THREE: 'answer3Score',
+          FOUR: 'answer4Score',
+        };
+
+        // This loops over each score and updates the value the programme id in programmeScores
+        // It's fairly short hand but is in essence id = id.value + new.value
+        questionScores.forEach((score) => {
+          programmeScores[score.trainingProgrammeId] = programmeScores[
+            score.trainingProgrammeId
+          ]
+            ? programmeScores[score.trainingProgrammeId] +
+              parseInt(score[answers[answer]])
+            : 0 + parseInt(score[answers[answer]]);
+        });
+      }),
+    );
+
+    // reduce the keys down to get the key that is the highest value
+    const programmeId = Object.keys(programmeScores).reduce((a, b) =>
+      programmeScores[a] > programmeScores[b] ? a : b,
+    );
+
+    return programmeId;
   }
 }
 

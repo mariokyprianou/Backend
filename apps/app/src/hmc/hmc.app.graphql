@@ -1,0 +1,35 @@
+type ProgrammeQuestion {
+  id: ID!
+  orderIndex: Int!
+  question: HmcQuestionLocalisation
+}
+
+enum AnswerResponse {
+  ONE
+  TWO
+  THREE
+  FOUR
+}
+
+input ProgrammeQuestionAnswerInput {
+  question: ID!
+  answer: AnswerResponse!
+}
+
+input SubmitProgrammeQuestionnaireInput {
+  answers: [ProgrammeQuestionAnswerInput!]!
+}
+
+type SubmitProgrammeQuestionnaireResponse {
+  programme: ProgrammeOverview
+}
+
+extend type Query {
+  programmeQuestionnaire: [ProgrammeQuestion!]!
+}
+
+extend type Mutation {
+  submitProgrammeQuestionnaire(
+    input: SubmitProgrammeQuestionnaireInput!
+  ): SubmitProgrammeQuestionnaireResponse!
+}
