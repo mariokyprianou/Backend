@@ -3,9 +3,11 @@ import { databaseConfig, DatabaseModule } from '@lib/database';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { AuthProviderModule } from '@td/auth-provider';
+import authProviderConfig from '@td/auth-provider/auth-provider.config';
 import { CommonModule } from '../../common/common.module';
 import scalars from '../../common/scalars';
-// import { AuthAppModule } from './authentication/auth.module';
+import { AuthAppModule } from './authentication/auth.module';
 import { ConfigAppModule } from './config/config.module';
 import { CountryAppModule } from './country/region.module';
 import { createContext } from './createContext';
@@ -32,7 +34,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         TimeZoneAppModule,
         RegionAppModule,
         CountryAppModule,
-        // AuthAppModule,
+        AuthAppModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -51,7 +53,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [commonConfig, databaseConfig],
+      load: [commonConfig, databaseConfig, authProviderConfig],
     }),
     CommonModule,
     DatabaseModule,
@@ -62,7 +64,8 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     TimeZoneAppModule,
     RegionAppModule,
     CountryAppModule,
-    // AuthAppModule,
+    AuthAppModule,
+    AuthProviderModule,
     GraphQLProvider,
   ],
 })

@@ -1,6 +1,6 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { UserProgramme } from '../user-program';
+import { UserProgramme } from '../user-programme';
 
 export class Account extends BaseModel {
   static tableName = 'account';

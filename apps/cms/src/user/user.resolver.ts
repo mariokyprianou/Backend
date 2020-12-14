@@ -8,7 +8,7 @@ import {
   Mutation,
 } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
-import { UserProgrammeService } from '@lib/power/user-program/user-programme.service';
+import { UserProgrammeService } from '@lib/power/user-programme/user-programme.service';
 import { AccountService } from '@lib/power/account';
 
 @Resolver('User')
@@ -64,7 +64,7 @@ export class UserResolver {
     if (currentUserProgram) {
       return {
         id: currentUserProgram.id,
-        name: currentUserProgram.programme.localisations.find(
+        name: currentUserProgram.trainingProgramme.localisations.find(
           (x) => x.language == 'en',
         ).description,
       };

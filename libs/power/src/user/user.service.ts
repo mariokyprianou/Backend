@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { AuthProviderService } from '@td/auth-provider';
 import Objection from 'objection';
+import { RegisterUserInput } from '../types';
 import { User } from './user.model';
 
 @Injectable()
 export class UserService {
+  constructor(private authProvider: AuthProviderService) {}
+
   public findAll(
     page = 0,
     perPage = 25,
@@ -35,6 +39,10 @@ export class UserService {
 
   public delete(id: string) {
     return User.query().findById(id).delete();
+  }
+
+  public create(input: RegisterUserInput) {
+    return this.authProvider.register(input.email, input.password);
   }
 }
 
