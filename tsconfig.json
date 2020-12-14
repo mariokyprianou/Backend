@@ -32,6 +32,12 @@
       "@lib/power/*": [
         "libs/database/src/*",
         "libs/power/src/*"
+      ],
+      "@td/auth-provider": [
+        "libs/auth-provider/src"
+      ],
+      "@td/auth-provider/*": [
+        "libs/auth-provider/src/*"
       ]
     }
   }

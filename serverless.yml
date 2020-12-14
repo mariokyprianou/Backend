@@ -20,7 +20,7 @@ provider:
       Resource: '*'
       Action:
         - 's3:*'
-
+        - 'cognito-idp:*'
 plugins:
   - serverless-dotenv-plugin
   - serverless-prune-plugin

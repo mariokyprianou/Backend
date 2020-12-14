@@ -49,6 +49,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/power/tsconfig.lib.json"
       }
+    },
+    "auth-provider": {
+      "type": "library",
+      "root": "libs/auth-provider",
+      "entryFile": "index",
+      "sourceRoot": "libs/auth-provider/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/auth-provider/tsconfig.lib.json"
+      }
     }
   }
 }
