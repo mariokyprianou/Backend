@@ -1,0 +1,17 @@
+type Administrator {
+  id: ID!
+  name: String!
+  email: EmailAddress!
+}
+
+extend type Query {
+  Administrator(id: ID!): Administrator
+  allAdministrators: [Administrator!]!
+  _allAdministratorsMeta: ListMetadata!
+}
+
+extend type Mutation {
+  createAdministrator(name: String!, email: EmailAddress!): Administrator
+  updateAdministrator(id: ID!, name: String, email: EmailAddress): Administrator
+  deleteAdministrator(id: ID!): Administrator
+}
