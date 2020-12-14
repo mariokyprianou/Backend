@@ -19,8 +19,8 @@ import { AdministratorCMSModule } from './administrator/administrator.module';
 import { TimeZoneCMSModule } from './timeZone/timeZone.module';
 import { RegionCMSModule } from './region/region.module';
 import { CountryCMSModule } from './country/region.module';
-import authProviderConfig from '@td/auth-provider/auth-provider.config';
 import { AuthProviderModule } from '@td/auth-provider';
+import userAuthKeysConfig from 'apps/common/user-auth-keys.config';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -62,7 +62,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [commonConfig, databaseConfig, authProviderConfig],
+      load: [commonConfig, databaseConfig, userAuthKeysConfig],
     }),
     CommonModule,
     DatabaseModule,

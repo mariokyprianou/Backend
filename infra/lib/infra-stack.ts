@@ -69,7 +69,7 @@ export class InfraStack extends cdk.Stack {
     }
 
     if (props.cmsUserPool) {
-      // this.cmsUserPool = this.addCognitoCmsUserPool( props.cmsUserPool);
+      this.cmsUserPool = this.addCognitoCmsUserPool(props.cmsUserPool);
     }
 
     this.addS3Bucket('Assets');
@@ -265,74 +265,71 @@ export class InfraStack extends cdk.Stack {
   }
 
   private addCognitoCmsUserPool(config: InfraStackCognitoConfig) {
-    // const usernameConfiguration = {
-    //   caseSensitive: false,
-    // };
-    // const userPool = new cognito.CfnUserPool(this, 'UserPool', {
-    //   adminCreateUserConfig: {
-    //     allowAdminCreateUserOnly: true,
-    //   },
-    //   policies: {
-    //     passwordPolicy: {
-    //       minimumLength: 8,
-    //       requireLowercase: true,
-    //       requireNumbers: true,
-    //       requireUppercase: true,
-    //       requireSymbols: true,
-    //     },
-    //   },
-    //   schema: [],
-    //   userPoolName: `${this.resourcePrefix}-userpool`,
-    //   usernameAttributes: ['email'],
-    //   usernameConfiguration,
-    //   accountRecoverySetting: {
-    //     recoveryMechanisms: [
-    //       {
-    //         name: 'verified_email',
-    //         priority: 1,
-    //       },
-    //     ],
-    //   },
-    // });
-    // userPool.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    // this.addOutput(this, 'UserPoolId', userPool.ref);
-    // this.addOutput(this, 'UserPoolArn', userPool.attrArn);
-    // const frontendUserPoolClient = new cognito.CfnUserPoolClient(
-    //   this,
-    //   'FrontendUserPoolClient',
-    //   {
-    //     userPoolId: userPool.ref,
-    //     clientName: `${this.resourcePrefix}-userpoolclient-frontend`,
-    //     explicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_USER_SRP_AUTH'],
-    //     generateSecret: false,
-    //     preventUserExistenceErrors: 'ENABLED',
-    //     readAttributes: [
-    //       'email',
-    //     ],
-    //   },
-    // );
-    // frontendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    // this.addOutput(
-    //   this,
-    //   'FrontendUserPoolClientId',
-    //   frontendUserPoolClient.ref,
-    // );
-    // const backendUserPoolClient = new cognito.CfnUserPoolClient(
-    //   this,
-    //   'BackendUserPoolClient',
-    //   {
-    //     userPoolId: userPool.ref,
-    //     clientName: `${this.resourcePrefix}-userpoolclient-backend`,
-    //     explicitAuthFlows: [
-    //       'ALLOW_ADMIN_USER_PASSWORD_AUTH',
-    //       'ALLOW_REFRESH_TOKEN_AUTH',
-    //     ],
-    //     preventUserExistenceErrors: 'ENABLED',
-    //     generateSecret: false,
-    //   },
-    // );
-    // backendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    // this.addOutput(this, 'BackendUserPoolClientId', backendUserPoolClient.ref);
-    // return userPool;
+    const usernameConfiguration = {
+      caseSensitive: false,
+    };
+    const userPool = new cognito.CfnUserPool(this, 'CMSUserPool', {
+      adminCreateUserConfig: {
+        allowAdminCreateUserOnly: true,
+      },
+      policies: {
+        passwordPolicy: {
+          minimumLength: 8,
+          requireLowercase: true,
+          requireNumbers: true,
+          requireUppercase: true,
+          requireSymbols: true,
+        },
+      },
+      userPoolName: `cms-${this.resourcePrefix}-userpool`,
+      usernameAttributes: ['email'],
+      usernameConfiguration,
+      accountRecoverySetting: {
+        recoveryMechanisms: [
+          {
+            name: 'verified_email',
+            priority: 1,
+          },
+        ],
+      },
+    });
+    userPool.applyRemovalPolicy(RemovalPolicy.RETAIN);
+    this.addOutput(this, 'CmsUserPoolId', userPool.ref);
+    this.addOutput(this, 'CmsUserPoolArn', userPool.attrArn);
+    const frontendUserPoolClient = new cognito.CfnUserPoolClient(
+      this,
+      'CmsFrontendUserPoolClient',
+      {
+        userPoolId: userPool.ref,
+        clientName: `cms-${this.resourcePrefix}-userpoolclient-frontend`,
+        explicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_USER_SRP_AUTH'],
+        generateSecret: false,
+        preventUserExistenceErrors: 'ENABLED',
+        readAttributes: ['email'],
+      },
+    );
+    frontendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
+    this.addOutput(
+      this,
+      'CmsFrontendUserPoolClientId',
+      frontendUserPoolClient.ref,
+    );
+    const backendUserPoolClient = new cognito.CfnUserPoolClient(
+      this,
+      'CmsBackendUserPoolClient',
+      {
+        userPoolId: userPool.ref,
+        clientName: `cms-${this.resourcePrefix}-userpoolclient-backend`,
+        explicitAuthFlows: [
+          'ALLOW_ADMIN_USER_PASSWORD_AUTH',
+          'ALLOW_REFRESH_TOKEN_AUTH',
+        ],
+        preventUserExistenceErrors: 'ENABLED',
+        generateSecret: false,
+      },
+    );
+    backendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
+    this.addOutput(this, 'CmsBackendUserPoolClientId', backendUserPoolClient.ref);
+    return userPool;
   }
 }

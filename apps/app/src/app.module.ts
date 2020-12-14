@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AuthProviderModule } from '@td/auth-provider';
-import authProviderConfig from '@td/auth-provider/auth-provider.config';
+import userAuthKeysConfig from 'apps/common/user-auth-keys.config';
 import { CommonModule } from '../../common/common.module';
 import scalars from '../../common/scalars';
 import { AuthAppModule } from './authentication/auth.module';
@@ -53,7 +53,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [commonConfig, databaseConfig, authProviderConfig],
+      load: [commonConfig, databaseConfig, userAuthKeysConfig],
     }),
     CommonModule,
     DatabaseModule,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
 import Objection from 'objection';
 import { RegisterUserInput } from '../types';
@@ -6,7 +6,10 @@ import { User } from './user.model';
 
 @Injectable()
 export class UserService {
-  constructor(private authProvider: AuthProviderService) {}
+  constructor(
+    @Inject('USER') private authProvider: AuthProviderService,
+    // @Inject('ADMIN') private adminAuthProvider: AuthProviderService,
+  ) {}
 
   public findAll(
     page = 0,
