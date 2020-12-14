@@ -68,4 +68,18 @@ export class AuthProviderService {
       })
       .promise();
   }
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html#listUsers-property
+  // Warning: Not suitable for large user sets due to cognito rate limiting.
+  public async listUsers(props: {
+    Filter?: string;
+    Limit?: number;
+    PaginationToken?: string;
+  }) {
+    const params = {
+      UserPoolId: this.UserPoolId,
+      ...props,
+    };
+    this.cognito.listUsers(params).promise();
+  }
 }
