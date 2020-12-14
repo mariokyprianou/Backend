@@ -10,22 +10,23 @@ export class UserProgramme extends BaseModel {
   }
 
   id: string;
-  accountId: string;
   trainingProgrammeId: string;
+  accountId: string;
   startDate: Date;
   createdAt: Date;
   updatedAt: Date;
 
-  programme: Programme;
+  trainingProgramme: Programme;
+  // user: User; // TODO: this needs hooking up to the actual user
 
-  static relationMappings = () => ({
-    programme: {
-      relation: Model.HasOneRelation,
+  static relationMappings = {
+    trainingProgramme: {
+      relation: Model.BelongsToOneRelation,
       modelClass: Programme,
       join: {
-        from: 'user_training_programme.training_programme_id',
+        from: 'user_training_programme.training_program_id',
         to: 'training_programme.id',
       },
     },
-  });
+  };
 }

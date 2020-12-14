@@ -65,14 +65,15 @@ export class InfraStack extends cdk.Stack {
     }
 
     if (props.userPool) {
-      this.userPool = this.addCognitoUserPool( props.userPool);
+      this.userPool = this.addCognitoUserPool(props.userPool);
     }
 
     if (props.cmsUserPool) {
       // this.cmsUserPool = this.addCognitoCmsUserPool( props.cmsUserPool);
     }
 
-    this.addS3Bucket('Assets')
+    this.addS3Bucket('Assets');
+    this.addS3Bucket('Reports');
   }
 
   get isProduction() {
@@ -105,19 +106,19 @@ export class InfraStack extends cdk.Stack {
       natGatewayProvider: natProvider,
     });
 
-    if(config.natGateways ?? 0 > 0){
-    // S3 Gateway - allows access to S3 from within a private subnet
-    new ec2.GatewayVpcEndpoint(this, 'S3GatewayVpcEndpoint', {
-      vpc,
-      service: ec2.GatewayVpcEndpointAwsService.S3,
-    });
+    if (config.natGateways ?? 0 > 0) {
+      // S3 Gateway - allows access to S3 from within a private subnet
+      new ec2.GatewayVpcEndpoint(this, 'S3GatewayVpcEndpoint', {
+        vpc,
+        service: ec2.GatewayVpcEndpointAwsService.S3,
+      });
 
-    // Dynamo Gateway - allows access to S3 from within a private subnet
-    new ec2.GatewayVpcEndpoint(this, 'DynamoDbGatewayVpcEndpoint', {
-      vpc,
-      service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
-    });
-  }
+      // Dynamo Gateway - allows access to S3 from within a private subnet
+      new ec2.GatewayVpcEndpoint(this, 'DynamoDbGatewayVpcEndpoint', {
+        vpc,
+        service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+      });
+    }
 
     this.addOutput(this, 'VpcId', vpc.vpcId);
 
@@ -155,7 +156,9 @@ export class InfraStack extends cdk.Stack {
       backupRetention: Duration.days(0),
       vpc,
       vpcSubnets: {
-        subnetType: this.isProduction ? ec2.SubnetType.ISOLATED : ec2.SubnetType.PUBLIC
+        subnetType: this.isProduction
+          ? ec2.SubnetType.ISOLATED
+          : ec2.SubnetType.PUBLIC,
       },
     });
     // securityGroups.forEach((sg) => {
@@ -173,7 +176,7 @@ export class InfraStack extends cdk.Stack {
     return instance;
   }
 
-  private addCognitoUserPool( config: InfraStackCognitoConfig) {
+  private addCognitoUserPool(config: InfraStackCognitoConfig) {
     const usernameConfiguration = {
       caseSensitive: false,
     };
@@ -217,10 +220,7 @@ export class InfraStack extends cdk.Stack {
         explicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_USER_SRP_AUTH'],
         generateSecret: false,
         preventUserExistenceErrors: 'ENABLED',
-        readAttributes: [
-          'email',
-        ],
-
+        readAttributes: ['email'],
       },
     );
     frontendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
@@ -264,12 +264,10 @@ export class InfraStack extends cdk.Stack {
     return bucket;
   }
 
-
-  private addCognitoCmsUserPool( config: InfraStackCognitoConfig) {
+  private addCognitoCmsUserPool(config: InfraStackCognitoConfig) {
     // const usernameConfiguration = {
     //   caseSensitive: false,
     // };
-
     // const userPool = new cognito.CfnUserPool(this, 'UserPool', {
     //   adminCreateUserConfig: {
     //     allowAdminCreateUserOnly: true,
@@ -297,10 +295,8 @@ export class InfraStack extends cdk.Stack {
     //   },
     // });
     // userPool.applyRemovalPolicy(RemovalPolicy.RETAIN);
-
     // this.addOutput(this, 'UserPoolId', userPool.ref);
     // this.addOutput(this, 'UserPoolArn', userPool.attrArn);
-
     // const frontendUserPoolClient = new cognito.CfnUserPoolClient(
     //   this,
     //   'FrontendUserPoolClient',
@@ -313,17 +309,14 @@ export class InfraStack extends cdk.Stack {
     //     readAttributes: [
     //       'email',
     //     ],
-
     //   },
     // );
     // frontendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
-
     // this.addOutput(
     //   this,
     //   'FrontendUserPoolClientId',
     //   frontendUserPoolClient.ref,
     // );
-
     // const backendUserPoolClient = new cognito.CfnUserPoolClient(
     //   this,
     //   'BackendUserPoolClient',
@@ -340,7 +333,6 @@ export class InfraStack extends cdk.Stack {
     // );
     // backendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
     // this.addOutput(this, 'BackendUserPoolClientId', backendUserPoolClient.ref);
-
     // return userPool;
   }
 }

@@ -5,4 +5,4 @@ import { UserProgrammeService } from './user-programme.service';
   providers: [UserProgrammeService],
   exports: [UserProgrammeService],
 })
-export class UserProgramModule {}
+export class UserProgrammeModule {}
