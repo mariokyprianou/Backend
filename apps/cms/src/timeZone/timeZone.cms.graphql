@@ -1,7 +1,3 @@
-type TimeZone {
-  id: ID!
-  timeZone: String!
-}
 
 input TimeZoneFilter {
   id: ID

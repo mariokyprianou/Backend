@@ -1,14 +1,3 @@
-type Country {
-  id: ID!
-  country: String!
-  regions: [Region!]!
-}
-
-type Region {
-  id: ID!
-  region: String!
-}
-
 input CountryFilter {
   id: ID
   ids: [ID!]
