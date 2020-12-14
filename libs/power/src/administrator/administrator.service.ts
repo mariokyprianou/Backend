@@ -38,9 +38,12 @@ export class AdministratorService {
     return null;
   }
 
-  public create(name: string, email: string) {
-    // TODO
-    return null;
+  public async create(name: string, email: string) {
+    await this.adminAuthProvider.register(email, null, {
+      UserAttributes: [{ Name: 'name', Value: name }],
+    });
+
+    return this.findById(email);
   }
 
   public update(id: string, name: string, email: string) {

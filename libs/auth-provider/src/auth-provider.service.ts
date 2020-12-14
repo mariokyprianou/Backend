@@ -18,7 +18,7 @@ export class AuthProviderService {
     this.UserPoolId = this.config.get(this.options.userpoolKey);
   }
 
-  public async register(Username: string, Password: string, options?: any) {
+  public async register(Username: string, Password?: string, options?: any) {
     // Use aws sdk to register a user as admin
     const ap = {
       UserPoolId: this.UserPoolId,
@@ -27,15 +27,17 @@ export class AuthProviderService {
     };
     const user = await this.cognito.adminCreateUser(ap).promise();
 
-    // Set the users password
-    await this.cognito
-      .adminSetUserPassword({
-        Password,
-        UserPoolId: this.UserPoolId,
-        Username: user.User.Username,
-        Permanent: true,
-      })
-      .promise();
+    if (Password) {
+      // Set the users password
+      await this.cognito
+        .adminSetUserPassword({
+          Password,
+          UserPoolId: this.UserPoolId,
+          Username: user.User.Username,
+          Permanent: true,
+        })
+        .promise();
+    }
 
     return user;
   }
