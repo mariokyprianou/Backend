@@ -38,10 +38,10 @@ input RegisterUserInput {
   password: String!
   gender: Gender
   dateOfBirth: DateTime
-  country: String
-  region: String
+  country: ID
+  region: ID
   deviceUDID: String!
-  timeZone: String!
+  timeZone: ID!
 }
 
 type RegisterUserResponse {
