@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthProviderService } from './auth-provider.service';
 
 // @Module({
@@ -10,9 +11,10 @@ import { AuthProviderService } from './auth-provider.service';
 
 @Module({})
 export class AuthProviderModule {
-  static register(options: { region: string; userpool: string; name: string }) {
+  static register(options: { regionKey: string; userpoolKey: string; name: string }) {
     return {
       module: AuthProviderModule,
+      import: [ConfigModule],
       providers: [
         {
           provide: 'AUTH_OPTIONS',
@@ -21,10 +23,9 @@ export class AuthProviderModule {
         {
           provide: options.name,
           useClass: AuthProviderService,
-          // useFactory: () => AuthProviderService,
         },
       ],
-      inject: [AuthProviderService],
+      inject: [AuthProviderService, ConfigService],
       exports: [options.name],
     };
   }

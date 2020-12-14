@@ -9,12 +9,13 @@ export class AuthProviderService {
 
   constructor(
     @Inject('AUTH_OPTIONS')
-    private options: { region: string; userpool: string },
+    private options: { regionKey: string; userpoolKey: string },
+    private config: ConfigService,
   ) {
     this.cognito = new CognitoIdentityServiceProvider({
-      region: this.options.region,
+      region: this.config.get(this.options.regionKey),
     });
-    this.UserPoolId = this.options.userpool;
+    this.UserPoolId = this.config.get(this.options.userpoolKey);
   }
 
   public async register(Username: string, Password: string, options?: any) {
