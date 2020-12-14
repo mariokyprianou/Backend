@@ -11,10 +11,14 @@ import { ExerciseCategoryCMSModule } from './exercise-category/exercise-category
 import { ProgrammeCMSModule } from './programme/programme.module';
 import { HmcQuestionCMSModule } from './hmc-question/hmc-question.cms.module';
 import { WorkoutCMSModule } from './workout/workout.module';
+import { FeedbackCMSModule } from './feedback/feedback.module';
 import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';
 import { UserCMSModule } from './user/user.module';
 import { AdministratorCMSModule } from './administrator/administrator.module';
+import { TimeZoneCMSModule } from './timeZone/timeZone.module';
+import { RegionCMSModule } from './region/region.module';
+import { CountryCMSModule } from './country/region.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -31,10 +35,14 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ProgrammeCMSModule,
         HmcQuestionCMSModule,
         WorkoutCMSModule,
+        FeedbackCMSModule,
         ConfigCMSModule,
         ChallengeCMSModule,
         UserCMSModule,
         AdministratorCMSModule,
+        TimeZoneCMSModule,
+        RegionCMSModule,
+        CountryCMSModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -62,10 +70,14 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ProgrammeCMSModule,
     HmcQuestionCMSModule,
     WorkoutCMSModule,
+    FeedbackCMSModule,
     ConfigCMSModule,
     ChallengeCMSModule,
     UserCMSModule,
     AdministratorCMSModule,
+    TimeZoneCMSModule,
+    RegionCMSModule,
+    CountryCMSModule,
     GraphQLProvider,
   ],
 })

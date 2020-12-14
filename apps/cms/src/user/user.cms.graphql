@@ -2,13 +2,71 @@ type User {
   id: ID!
   firstName: String!
   lastName: String!
-  email: String! # Todo schema validation on email
-  country: String!
-  region: String!
+  email: EmailAddress!
+  country: Country!
+  region: Region!
+  timeZone: TimeZone!
+  currentTrainingProgramme: CurrentTrainingProgramme
+  # TODO
+  # marketingPermissions
+  # subscriberStatus: UserSubscription!
+  # Current Week
+  # Previous trainers
+  # 30 day devise limit
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
+type CurrentTrainingProgramme {
+  id: ID!
+  name: String!
+}
+
+input UserFilter {
+  id: ID
+  ids: [ID!]
+  email: EmailAddress
+  country: String
+  # subscriberStatus
+  # Current Trainer
+  # Current Week
+  # 30 day devise limit
+  # User Timezone
+}
+
+# input UpdateUserInput {
+#   id: ID!
+#   firstName: String!
+#   lastName: String!
+#   email: EmailAddress!
+#   country: String!
+#   region: String!
+# }
+
 extend type Query {
-  allUsers: [User!]!
+  User(id: ID!): User
+  allUsers(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: UserFilter
+  ): [User!]!
+  _allUsersMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: UserFilter
+  ): ListMetadata!
+}
+
+# type UserSubscription {
+#   isSubscribed: Boolean!
+#   platform: SubscriptionPlatform!
+# }
+
+extend type Mutation {
+  #   updateUser(id: ID!): User
+  deleteUser(id: ID!): User
 }

@@ -19,6 +19,10 @@ export class HmcQuestion extends BaseModel {
   localisations: HmcQuestionTranslation[];
   programmeScores: HmcQuestionScore[];
 
+  public getTranslation(language: string) {
+    return (this.localisations ?? []).find((tr) => tr.language === language);
+  }
+
   static relationMappings = () => ({
     localisations: {
       relation: Model.HasManyRelation,
