@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 
@@ -7,12 +7,14 @@ export class AuthProviderService {
   cognito: CognitoIdentityServiceProvider;
   UserPoolId: string;
 
-  constructor(private config: ConfigService) {
-    console.log(this.config.get<string>('auth.region'));
+  constructor(
+    @Inject('AUTH_OPTIONS')
+    private options: { region: string; userpool: string },
+  ) {
     this.cognito = new CognitoIdentityServiceProvider({
-      region: this.config.get<string>('auth.region'),
+      region: this.options.region,
     });
-    this.UserPoolId = this.config.get<string>('auth.userpool');
+    this.UserPoolId = this.options.userpool;
   }
 
   public async register(Username: string, Password: string, options?: any) {
