@@ -108,3 +108,34 @@ enum SetType {
   REPS
   TIME
 }
+
+enum SubscriptionPlatform {
+  ANDROID
+  IOS
+}
+
+type HmcQuestionLocalisation {
+  language: ISOLanguage!
+  question: String!
+  answer1: String!
+  answer2: String!
+  answer3: String!
+  answer4: String!
+}
+
+type Country {
+  id: ID!
+  country: String!
+  regions: [Region]
+}
+
+type Region {
+  id: ID!
+  region: String!
+  country: Country
+}
+
+type TimeZone {
+  id: ID!
+  timeZone: String!
+}

@@ -9,3 +9,8 @@ export * from './exercise-category';
 export * from './user-workout-week';
 export * from './user-workout';
 export * from './user-programme';
+export * from './user';
+export * from './account';
+export * from './country';
+export * from './region';
+export * from './timeZone';

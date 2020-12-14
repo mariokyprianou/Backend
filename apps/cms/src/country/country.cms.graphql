@@ -1,0 +1,22 @@
+input CountryFilter {
+  id: ID
+  ids: [ID!]
+}
+
+extend type Query {
+  Country(id: ID!): Country
+  allCountries(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: CountryFilter
+  ): [Country!]!
+  _allCountriesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: CountryFilter
+  ): ListMetadata!
+}

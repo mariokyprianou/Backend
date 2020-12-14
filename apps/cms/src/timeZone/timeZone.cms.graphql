@@ -1,0 +1,23 @@
+
+input TimeZoneFilter {
+  id: ID
+  ids: [ID!]
+}
+
+extend type Query {
+  TimeZone(id: ID!): TimeZone
+  allTimeZones(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: TimeZoneFilter
+  ): [TimeZone!]!
+  _allTimeZonesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: TimeZoneFilter
+  ): ListMetadata!
+}

@@ -15,6 +15,9 @@ import { FeedbackCMSModule } from './feedback/feedback.module';
 import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';
 import { UserCMSModule } from './user/user.module';
+import { TimeZoneCMSModule } from './timeZone/timeZone.module';
+import { RegionCMSModule } from './region/region.module';
+import { CountryCMSModule } from './country/region.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -35,6 +38,9 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ConfigCMSModule,
         ChallengeCMSModule,
         UserCMSModule,
+        TimeZoneCMSModule,
+        RegionCMSModule,
+        CountryCMSModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -66,6 +72,9 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ConfigCMSModule,
     ChallengeCMSModule,
     UserCMSModule,
+    TimeZoneCMSModule,
+    RegionCMSModule,
+    CountryCMSModule,
     GraphQLProvider,
   ],
 })

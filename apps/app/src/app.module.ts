@@ -5,10 +5,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { CommonModule } from '../../common/common.module';
 import scalars from '../../common/scalars';
+// import { AuthAppModule } from './authentication/auth.module';
 import { ConfigAppModule } from './config/config.module';
+import { CountryAppModule } from './country/region.module';
 import { createContext } from './createContext';
+import { HMCAppModule } from './hmc/hmc.module';
 
 import { OnboardingAppModule } from './onboarding/onboarding.module';
+import { RegionAppModule } from './region/region.module';
+import { TimeZoneAppModule } from './timeZone/timeZone.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
@@ -23,6 +28,11 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         OnboardingAppModule,
         ConfigAppModule,
         TrainerAppModule,
+        HMCAppModule,
+        TimeZoneAppModule,
+        RegionAppModule,
+        CountryAppModule,
+        // AuthAppModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -48,6 +58,11 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     OnboardingAppModule,
     ConfigAppModule,
     TrainerAppModule,
+    HMCAppModule,
+    TimeZoneAppModule,
+    RegionAppModule,
+    CountryAppModule,
+    // AuthAppModule,
     GraphQLProvider,
   ],
 })
