@@ -6,10 +6,7 @@ import { User } from './user.model';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @Inject('USER') private authProvider: AuthProviderService,
-    // @Inject('ADMIN') private adminAuthProvider: AuthProviderService,
-  ) {}
+  constructor(@Inject('USER') private authProvider: AuthProviderService) {}
 
   public findAll(
     page = 0,

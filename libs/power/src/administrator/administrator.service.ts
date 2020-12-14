@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { AuthProviderService } from '@td/auth-provider';
 
 @Injectable()
 export class AdministratorService {
+  constructor(
+    @Inject('ADMIN') private adminAuthProvider: AuthProviderService,
+  ) {}
+
   public findAll(
     page = 0,
     perPage = 25,
@@ -18,9 +23,14 @@ export class AdministratorService {
     return 0;
   }
 
-  public findById(id: string) {
-    // TODO
-    return null;
+  public async findById(id: string) {
+    const admin = await this.adminAuthProvider.getUser(id);
+
+    return {
+      id: admin.Username,
+      email: admin.Username,
+      name: admin.UserAttributes['name'] as string,
+    };
   }
 
   public delete(id: string) {

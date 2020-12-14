@@ -10,7 +10,7 @@ export class AdministratorResolver {
   constructor(private service: AdministratorService) {}
 
   @Query('Administrator')
-  async Administrator(@Args('id') id: string) {
+  async Administrator(@Args('id') id: string): Promise<AdministratorType> {
     return this.service.findById(id);
   }
 
@@ -55,4 +55,10 @@ export class AdministratorResolver {
   async deleteAdministrator(@Args('id') id: string) {
     return await this.service.delete(id);
   }
+}
+
+interface AdministratorType {
+  id: string;
+  name: string;
+  email: string;
 }
