@@ -42,6 +42,7 @@ input RegisterUserInput {
   region: ID
   deviceUDID: String!
   timeZone: String!
+  programme: ID!
 }
 
 type RegisterUserResponse {

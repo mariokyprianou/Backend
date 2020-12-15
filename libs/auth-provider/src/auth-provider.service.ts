@@ -24,7 +24,7 @@ export class AuthProviderService {
     this.ClientId = this.config.get(this.options.clientId);
   }
 
-  public async register(Username: string, Password: string, options?: any) {
+  public async register(Username: string, Password?: string, options?: any) {
     // Use aws sdk to register a user as admin
     const ap = {
       UserPoolId: this.UserPoolId,
@@ -33,15 +33,17 @@ export class AuthProviderService {
     };
     const user = await this.cognito.adminCreateUser(ap).promise();
 
-    // Set the users password
-    await this.cognito
-      .adminSetUserPassword({
-        Password,
-        UserPoolId: this.UserPoolId,
-        Username: user.User.Username,
-        Permanent: true,
-      })
-      .promise();
+    if (Password) {
+      // Set the users password
+      await this.cognito
+        .adminSetUserPassword({
+          Password,
+          UserPoolId: this.UserPoolId,
+          Username: user.User.Username,
+          Permanent: true,
+        })
+        .promise();
+    }
 
     return user;
   }
@@ -64,12 +66,16 @@ export class AuthProviderService {
   }
 
   public async delete(Username: string) {
-    return this.cognito
+    const userToDelete = await this.getUser(Username);
+
+    await this.cognito
       .adminDeleteUser({
         Username,
         UserPoolId: this.UserPoolId,
       })
       .promise();
+
+    return userToDelete;
   }
 
   public async updateAttributes(
@@ -83,26 +89,39 @@ export class AuthProviderService {
     //   },
     //   /* more items */
     // ],
-    return this.cognito
+    await this.cognito
       .adminUpdateUserAttributes({
         Username,
         UserPoolId: this.UserPoolId,
         UserAttributes,
       })
       .promise();
+
+    return this.getUser(Username);
+  }
+
+  public async getUser(Username: string) {
+    const params = {
+      UserPoolId: this.UserPoolId,
+      Username,
+    };
+
+    return this.cognito.adminGetUser(params).promise();
   }
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html#listUsers-property
   // Warning: Not suitable for large user sets due to cognito rate limiting.
-  public async listUsers(props: {
-    Filter?: string;
-    Limit?: number;
-    PaginationToken?: string;
-  }) {
+  public async listUsers(
+    props: {
+      Filter?: string;
+      Limit?: number;
+      PaginationToken?: string;
+    } = {},
+  ) {
     const params = {
       UserPoolId: this.UserPoolId,
       ...props,
     };
-    this.cognito.listUsers(params).promise();
+    return this.cognito.listUsers(params).promise();
   }
 }
