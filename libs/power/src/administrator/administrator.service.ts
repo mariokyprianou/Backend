@@ -71,9 +71,13 @@ export class AdministratorService {
     return this.findById(email);
   }
 
-  public update(id: string, name: string, email: string) {
-    // TODO
-    return null;
+  public async update(id: string, name: string, email: string) {
+    await this.adminAuthProvider.updateAttributes(id, [
+      { Name: 'Username', Value: email },
+      { Name: 'custon:name', Value: name },
+    ]);
+
+    return this.findById(email);
   }
 }
 

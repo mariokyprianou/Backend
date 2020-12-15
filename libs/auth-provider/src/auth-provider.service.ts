@@ -66,13 +66,15 @@ export class AuthProviderService {
     //   },
     //   /* more items */
     // ],
-    return this.cognito
+    await this.cognito
       .adminUpdateUserAttributes({
         Username,
         UserPoolId: this.UserPoolId,
         UserAttributes,
       })
       .promise();
+
+    return this.getUser(Username);
   }
 
   public async getUser(Username: string) {
