@@ -329,7 +329,7 @@ CREATE TABLE account (
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_account_cognito_username UNIQUE (cognito_username),
-  CONSTRAINT fk_account_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id)
+  CONSTRAINT fk_account_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id) DEFERRABLE,
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON account FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 --
