@@ -43,12 +43,16 @@ export class AuthProviderService {
   }
 
   public async delete(Username: string) {
-    return this.cognito
+    const userToDelete = await this.getUser(Username);
+
+    await this.cognito
       .adminDeleteUser({
         Username,
         UserPoolId: this.UserPoolId,
       })
       .promise();
+
+    return userToDelete;
   }
 
   public async updateAttributes(

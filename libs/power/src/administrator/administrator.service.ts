@@ -53,9 +53,14 @@ export class AdministratorService {
     };
   }
 
-  public delete(id: string) {
-    // TODO
-    return null;
+  public async delete(id: string) {
+    const admin = await this.adminAuthProvider.delete(id);
+
+    return {
+      id: admin.Username,
+      email: admin.Username,
+      name: admin.UserAttributes['name'] as string,
+    };
   }
 
   public async create(name: string, email: string) {
