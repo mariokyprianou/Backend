@@ -135,4 +135,5 @@ export interface RegisterUserInput {
   region: string;
   deviceUDID: string;
   timeZone: string;
+  programme: string;
 }
