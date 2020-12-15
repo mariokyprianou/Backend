@@ -54,7 +54,7 @@ export class UserService {
       email: input.email,
       countryId: input.country,
       regionId: input.region,
-      timeZoneId: input.timeZone,
+      timeZone: input.timeZone,
       deviceUdid: input.deviceUDID,
       dateOfBirth: input.dateOfBirth,
       gender: input.gender,

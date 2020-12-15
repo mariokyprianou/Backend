@@ -13,7 +13,7 @@ export default registerAs('user', () => {
     region: env.AUTH_REGION,
     userpool: env.USERPOOL_ID,
     cms_userpool: env.CMS_USERPOOL_ID,
-    app_backend_client: envalid.str(),
+    app_backend_client: env.APP_BACKEND_CLIENT,
   };
 
   return config;

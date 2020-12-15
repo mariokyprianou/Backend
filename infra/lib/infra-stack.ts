@@ -182,9 +182,10 @@ export class InfraStack extends cdk.Stack {
     };
 
     // The set up for a user pool that requires email verification through a link.
+    // TODO: Configure a domain
     const userPool = new cognito.CfnUserPool(this, 'UserPool', {
       adminCreateUserConfig: {
-        allowAdminCreateUserOnly: true,
+        // allowAdminCreateUserOnly: true,
       },
       policies: {
         passwordPolicy: {
