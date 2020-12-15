@@ -13,8 +13,16 @@ export class AuthResolver {
   ): Promise<boolean> {
     const user = await this.user.create(input);
     console.log(user);
+    if (!user) {
+      return false;
+    }
     return true;
   }
+
+  // @Mutation('resendVerificationEmail')
+  // async resendVerificationEmail(): Promise<boolean> {
+  //   return this.user.sendVerification
+  // }
 }
 
 interface UserProfile {

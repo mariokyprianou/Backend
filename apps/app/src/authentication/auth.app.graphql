@@ -3,8 +3,8 @@ type UserProfile {
   familyName: String!
   email: String!
   gender: Gender
-  dateOfBirth: Date
-  country: String
+  dateOfBirth: String
+  country: String!
   region: String
   memberSince: Date!
   canChangeDevice: Boolean!
@@ -37,11 +37,12 @@ input RegisterUserInput {
   email: String!
   password: String!
   gender: Gender
-  dateOfBirth: DateTime
-  country: ID
+  dateOfBirth: String
+  country: ID!
   region: ID
   deviceUDID: String!
-  timeZone: ID!
+  timeZone: String!
+  programme: ID!
 }
 
 type RegisterUserResponse {
@@ -82,6 +83,7 @@ type RegisterUserResponse {
 
 extend type Mutation {
   registerUser(input: RegisterUserInput!): Boolean! # Return boolean to allow the front end to handle session management through amplify
+  resendVerificationEmail: Boolean!
   #   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
   #   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse
   #   screenshotTaken: ScreenshotTakenResponse

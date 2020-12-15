@@ -181,9 +181,11 @@ export class InfraStack extends cdk.Stack {
       caseSensitive: false,
     };
 
+    // The set up for a user pool that requires email verification through a link.
+    // TODO: Configure a domain
     const userPool = new cognito.CfnUserPool(this, 'UserPool', {
       adminCreateUserConfig: {
-        allowAdminCreateUserOnly: true,
+        // allowAdminCreateUserOnly: true,
       },
       policies: {
         passwordPolicy: {
@@ -194,9 +196,11 @@ export class InfraStack extends cdk.Stack {
           requireSymbols: true,
         },
       },
-      userPoolName: `${this.resourcePrefix}-userpool`,
-      usernameAttributes: ['email'],
+      autoVerifiedAttributes: ['email'],
+      emailVerificationSubject: 'Your Power verification link',
+      userPoolName: `app-${this.resourcePrefix}-userpool`,
       usernameConfiguration,
+      usernameAttributes: ['email'],
       accountRecoverySetting: {
         recoveryMechanisms: [
           {
@@ -204,6 +208,9 @@ export class InfraStack extends cdk.Stack {
             priority: 1,
           },
         ],
+      },
+      verificationMessageTemplate: {
+        defaultEmailOption: 'CONFIRM_WITH_LINK',
       },
     });
     userPool.applyRemovalPolicy(RemovalPolicy.RETAIN);
@@ -281,6 +288,7 @@ export class InfraStack extends cdk.Stack {
           requireSymbols: true,
         },
       },
+      schema: [{ name: 'name', required: false, attributeDataType: 'String' }],
       userPoolName: `cms-${this.resourcePrefix}-userpool`,
       usernameAttributes: ['email'],
       usernameConfiguration,
@@ -329,7 +337,11 @@ export class InfraStack extends cdk.Stack {
       },
     );
     backendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    this.addOutput(this, 'CmsBackendUserPoolClientId', backendUserPoolClient.ref);
+    this.addOutput(
+      this,
+      'CmsBackendUserPoolClientId',
+      backendUserPoolClient.ref,
+    );
     return userPool;
   }
 }

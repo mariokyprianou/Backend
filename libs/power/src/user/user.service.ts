@@ -16,10 +16,7 @@ export class UserService {
     filter: UserFilter = {},
   ) {
     const findAllQuery = applyFilter(
-      User.query()
-        .withGraphJoined('country')
-        .withGraphJoined('region')
-        .withGraphJoined('timeZone'),
+      User.query().withGraphJoined('country').withGraphJoined('region'),
       filter,
     );
 
@@ -41,8 +38,25 @@ export class UserService {
     return User.query().findById(id).delete();
   }
 
-  public create(input: RegisterUserInput) {
-    return this.authProvider.register(input.email, input.password);
+  public async create(input: RegisterUserInput) {
+    const res = await this.authProvider.registerWithEmailVerificationLink(
+      input.email,
+      input.password,
+      {},
+    );
+
+    return User.query().insertAndFetch({
+      cognitoSub: res.UserSub,
+      firstName: input.givenName,
+      lastName: input.familyName,
+      email: input.email,
+      countryId: input.country,
+      regionId: input.region,
+      timeZone: input.timeZone,
+      deviceUdid: input.deviceUDID,
+      dateOfBirth: input.dateOfBirth,
+      gender: input.gender,
+    });
   }
 }
 
