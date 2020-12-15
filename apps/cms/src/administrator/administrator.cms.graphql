@@ -19,7 +19,12 @@ extend type Query {
     sortOrder: String
     filter: AdminFilter
   ): [Administrator!]!
-  _allAdministratorsMeta: ListMetadata!
+  _allAdministratorsMeta(page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: AdminFilter
+  ): [Administrator!]!): ListMetadata!
 }
 
 extend type Mutation {

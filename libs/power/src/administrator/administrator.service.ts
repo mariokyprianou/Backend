@@ -19,7 +19,7 @@ export class AdministratorService {
         return {
           id: admin.Username,
           email: admin.Username,
-          name: admin.Attributes['name'] as string,
+          name: admin.Attributes['custom:name'] as string,
         };
       },
     );
@@ -38,9 +38,20 @@ export class AdministratorService {
     });
   }
 
-  public findAllMeta(filter: AdministratorFilter = {}) {
-    // TODO
-    return 0;
+  public async findAllMeta(filter: AdministratorFilter = {}) {
+    const admins = (await this.adminAuthProvider.listUsers()).Users.map(
+      (admin) => {
+        return {
+          id: admin.Username,
+          email: admin.Username,
+          name: admin.Attributes['custom:name'] as string,
+        };
+      },
+    );
+
+    const adminsFiltered = filterAdmins(admins, filter);
+
+    return adminsFiltered.length;
   }
 
   public async findById(id: string) {
@@ -49,7 +60,7 @@ export class AdministratorService {
     return {
       id: admin.Username,
       email: admin.Username,
-      name: admin.UserAttributes['name'] as string,
+      name: admin.UserAttributes['custom:name'] as string,
     };
   }
 
@@ -59,13 +70,13 @@ export class AdministratorService {
     return {
       id: admin.Username,
       email: admin.Username,
-      name: admin.UserAttributes['name'] as string,
+      name: admin.UserAttributes['custom:name'] as string,
     };
   }
 
   public async create(name: string, email: string) {
     await this.adminAuthProvider.register(email, null, {
-      UserAttributes: [{ Name: 'name', Value: name }],
+      UserAttributes: [{ Name: 'custom:name', Value: name }],
     });
 
     return this.findById(email);
