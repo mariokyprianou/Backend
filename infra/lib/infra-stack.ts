@@ -205,6 +205,9 @@ export class InfraStack extends cdk.Stack {
           },
         ],
       },
+      verificationMessageTemplate: {
+        defaultEmailOption: 'CONFIRM_WITH_LINK',
+      },
     });
     userPool.applyRemovalPolicy(RemovalPolicy.RETAIN);
 
@@ -281,6 +284,7 @@ export class InfraStack extends cdk.Stack {
           requireSymbols: true,
         },
       },
+      schema: [{ name: 'name', required: false, attributeDataType: 'String' }],
       userPoolName: `cms-${this.resourcePrefix}-userpool`,
       usernameAttributes: ['email'],
       usernameConfiguration,
@@ -329,7 +333,11 @@ export class InfraStack extends cdk.Stack {
       },
     );
     backendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    this.addOutput(this, 'CmsBackendUserPoolClientId', backendUserPoolClient.ref);
+    this.addOutput(
+      this,
+      'CmsBackendUserPoolClientId',
+      backendUserPoolClient.ref,
+    );
     return userPool;
   }
 }

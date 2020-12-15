@@ -130,7 +130,7 @@ export interface RegisterUserInput {
   email: string;
   password: string;
   gender: string;
-  dateOfBirth: Date;
+  dateOfBirth: string;
   country: string;
   region: string;
   deviceUDID: string;

@@ -13,6 +13,9 @@ export class AuthResolver {
   ): Promise<boolean> {
     const user = await this.user.create(input);
     console.log(user);
+    if (!user) {
+      return false;
+    }
     return true;
   }
 }

@@ -7,8 +7,7 @@ import { User } from './user.model';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('USER') private authProvider: AuthProviderService,
-    // @Inject('ADMIN') private adminAuthProvider: AuthProviderService,
+    @Inject('USER') private authProvider: AuthProviderService, // @Inject('ADMIN') private adminAuthProvider: AuthProviderService,
   ) {}
 
   public findAll(
@@ -44,8 +43,25 @@ export class UserService {
     return User.query().findById(id).delete();
   }
 
-  public create(input: RegisterUserInput) {
-    return this.authProvider.register(input.email, input.password);
+  public async create(input: RegisterUserInput) {
+    const res = await this.authProvider.register(input.email, input.password, {
+      MessageAction: 'SUPPRESS',
+    });
+
+    return User.query().insertAndFetch({
+      cognitoSub: res.User.Attributes.find((attr) => attr.Name === 'sub')[
+        'Value'
+      ],
+      firstName: input.givenName,
+      lastName: input.familyName,
+      email: input.email,
+      countryId: input.country,
+      regionId: input.region,
+      timeZoneId: input.timeZone,
+      deviceUdid: input.deviceUDID,
+      dateOfBirth: input.dateOfBirth,
+      gender: input.gender,
+    });
   }
 }
 

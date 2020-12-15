@@ -12,12 +12,16 @@ export class User extends UserModel {
   }
 
   id: string;
+  cognitoSub: string;
   firstName: string;
   lastName: string;
   email: string;
   countryId: string;
   regionId: string;
   timeZoneId: string;
+  deviceUdid: string;
+  dateOfBirth: string;
+  gender: string;
   createdAt: Date;
   updatedAt: Date;
 

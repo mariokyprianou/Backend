@@ -20,7 +20,7 @@ import { TimeZoneCMSModule } from './timeZone/timeZone.module';
 import { RegionCMSModule } from './region/region.module';
 import { CountryCMSModule } from './country/region.module';
 import { AuthProviderModule } from '@td/auth-provider';
-import userAuthKeysConfig from 'apps/common/user-auth-keys.config';
+import userAuthKeysConfig from '../../common/user-auth-keys.config';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],

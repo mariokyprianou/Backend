@@ -3,8 +3,8 @@ type UserProfile {
   familyName: String!
   email: String!
   gender: Gender
-  dateOfBirth: Date
-  country: String
+  dateOfBirth: String
+  country: String!
   region: String
   memberSince: Date!
   canChangeDevice: Boolean!
@@ -37,8 +37,8 @@ input RegisterUserInput {
   email: String!
   password: String!
   gender: Gender
-  dateOfBirth: DateTime
-  country: ID
+  dateOfBirth: String
+  country: ID!
   region: ID
   deviceUDID: String!
   timeZone: ID!

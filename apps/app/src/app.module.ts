@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AuthProviderModule } from '@td/auth-provider';
-import userAuthKeysConfig from 'apps/common/user-auth-keys.config';
+import userAuthKeysConfig from '../../common/user-auth-keys.config';
 import { CommonModule } from '../../common/common.module';
 import scalars from '../../common/scalars';
 import { AuthAppModule } from './authentication/auth.module';
