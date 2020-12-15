@@ -7,7 +7,7 @@ type Administrator {
 input AdminFilter {
   id: ID
   ids: [ID!]
-  email: string
+  email: String
 }
 
 extend type Query {
@@ -19,12 +19,13 @@ extend type Query {
     sortOrder: String
     filter: AdminFilter
   ): [Administrator!]!
-  _allAdministratorsMeta(page: Int
+  _allAdministratorsMeta(
+    page: Int
     perPage: Int
     sortField: String
     sortOrder: String
     filter: AdminFilter
-  ): [Administrator!]!): ListMetadata!
+  ): ListMetadata!
 }
 
 extend type Mutation {
