@@ -4,9 +4,21 @@ type Administrator {
   email: EmailAddress!
 }
 
+input AdminFilter {
+  id: ID
+  ids: [ID!]
+  email: string
+}
+
 extend type Query {
   Administrator(id: ID!): Administrator
-  allAdministrators: [Administrator!]!
+  allAdministrators(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: AdminFilter
+  ): [Administrator!]!
   _allAdministratorsMeta: ListMetadata!
 }
 
