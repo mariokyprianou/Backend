@@ -4,10 +4,27 @@ type Administrator {
   email: EmailAddress!
 }
 
+input AdminFilter {
+  id: ID
+  ids: [ID!]
+  email: string
+}
+
 extend type Query {
   Administrator(id: ID!): Administrator
-  allAdministrators: [Administrator!]!
-  _allAdministratorsMeta: ListMetadata!
+  allAdministrators(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: AdminFilter
+  ): [Administrator!]!
+  _allAdministratorsMeta(page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: AdminFilter
+  ): [Administrator!]!): ListMetadata!
 }
 
 extend type Mutation {
