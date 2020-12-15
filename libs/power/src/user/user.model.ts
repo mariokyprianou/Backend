@@ -27,7 +27,7 @@ export class User extends UserModel {
 
   country: Country;
   region: Region;
-  timeZone: TimeZone;
+  timeZone: string;
 
   static relationMappings = () => ({
     country: {
@@ -44,14 +44,6 @@ export class User extends UserModel {
       join: {
         from: 'account.region_id',
         to: 'region.id',
-      },
-    },
-    timeZone: {
-      relation: Model.HasOneRelation,
-      modelClass: TimeZone,
-      join: {
-        from: 'account.time_zone_id',
-        to: 'time_zone.id',
       },
     },
   });

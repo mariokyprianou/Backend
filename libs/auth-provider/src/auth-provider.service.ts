@@ -6,16 +6,22 @@ import { CognitoIdentityServiceProvider } from 'aws-sdk';
 export class AuthProviderService {
   cognito: CognitoIdentityServiceProvider;
   UserPoolId: string;
+  ClientId: string;
 
   constructor(
     @Inject('AUTH_OPTIONS')
-    private options: { regionKey: string; userpoolKey: string },
+    private options: {
+      regionKey: string;
+      userpoolKey: string;
+      clientId?: string;
+    },
     private config: ConfigService,
   ) {
     this.cognito = new CognitoIdentityServiceProvider({
       region: this.config.get(this.options.regionKey),
     });
     this.UserPoolId = this.config.get(this.options.userpoolKey);
+    this.ClientId = this.config.get(this.options.clientId);
   }
 
   public async register(Username: string, Password: string, options?: any) {
@@ -36,6 +42,23 @@ export class AuthProviderService {
         Permanent: true,
       })
       .promise();
+
+    return user;
+  }
+
+  public async registerWithEmailVerificationLink(
+    Username: string,
+    Password: string,
+    options?: any,
+  ) {
+    // Use aws sdk to register a user as admin
+    const ap = {
+      ClientId: this.ClientId,
+      Password,
+      Username,
+      ...options,
+    };
+    const user = await this.cognito.signUp(ap).promise();
 
     return user;
   }

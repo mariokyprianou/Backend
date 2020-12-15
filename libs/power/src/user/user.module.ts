@@ -8,6 +8,7 @@ import { UserService } from './user.service';
       name: 'USER',
       regionKey: 'user.region',
       userpoolKey: 'user.userpool',
+      clientId: 'user.app_backend_client'
     }),
     AuthProviderModule.register({
       name: 'ADMIN',

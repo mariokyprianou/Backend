@@ -18,6 +18,11 @@ export class AuthResolver {
     }
     return true;
   }
+
+  // @Mutation('resendVerificationEmail')
+  // async resendVerificationEmail(): Promise<boolean> {
+  //   return this.user.sendVerification
+  // }
 }
 
 interface UserProfile {

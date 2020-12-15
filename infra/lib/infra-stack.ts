@@ -181,6 +181,7 @@ export class InfraStack extends cdk.Stack {
       caseSensitive: false,
     };
 
+    // The set up for a user pool that requires email verification through a link.
     const userPool = new cognito.CfnUserPool(this, 'UserPool', {
       adminCreateUserConfig: {
         allowAdminCreateUserOnly: true,
@@ -194,9 +195,11 @@ export class InfraStack extends cdk.Stack {
           requireSymbols: true,
         },
       },
-      userPoolName: `${this.resourcePrefix}-userpool`,
-      usernameAttributes: ['email'],
+      autoVerifiedAttributes: ['email'],
+      emailVerificationSubject: 'Your Power verification link',
+      userPoolName: `app-${this.resourcePrefix}-userpool`,
       usernameConfiguration,
+      usernameAttributes: ['email'],
       accountRecoverySetting: {
         recoveryMechanisms: [
           {

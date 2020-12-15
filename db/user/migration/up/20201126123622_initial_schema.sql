@@ -29,15 +29,6 @@ CREATE TABLE region (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON region FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
--- Time Zones
-CREATE TABLE time_zone (
-  id uuid CONSTRAINT pk_time_zone PRIMARY KEY DEFAULT uuid_generate_v4(),
-  time_zone text NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT NOW(),
-  updated_at timestamptz NOT NULL DEFAULT NOW()
-);
-CREATE TRIGGER set_timestamp BEFORE UPDATE ON time_zone FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
 -- Account
 CREATE TABLE account (
   id uuid CONSTRAINT pk_account PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -47,14 +38,13 @@ CREATE TABLE account (
   email text NOT NULL,
   country_id uuid NOT NULL,
   region_id uuid NULL,
-  time_zone_id uuid NOT NULL,
+  time_zone text NOT NULL,
   device_udid text NOT NULL,
   date_of_birth text NULL,
   gender text NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_account_country FOREIGN KEY (country_id) REFERENCES country (id),
-  CONSTRAINT fk_account_region FOREIGN KEY (region_id) REFERENCES region (id),
-  CONSTRAINT fk_account_time_zone FOREIGN KEY (time_zone_id) REFERENCES time_zone (id)
+  CONSTRAINT fk_account_region FOREIGN KEY (region_id) REFERENCES region (id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON account FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

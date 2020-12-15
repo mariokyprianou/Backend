@@ -11,7 +11,12 @@ import { AuthProviderService } from './auth-provider.service';
 
 @Module({})
 export class AuthProviderModule {
-  static register(options: { regionKey: string; userpoolKey: string; name: string }) {
+  static register(options: {
+    regionKey: string;
+    userpoolKey: string;
+    name: string;
+    clientId?: string;
+  }) {
     return {
       module: AuthProviderModule,
       import: [ConfigModule],

@@ -41,7 +41,7 @@ input RegisterUserInput {
   country: ID!
   region: ID
   deviceUDID: String!
-  timeZone: ID!
+  timeZone: String!
 }
 
 type RegisterUserResponse {
@@ -82,6 +82,7 @@ type RegisterUserResponse {
 
 extend type Mutation {
   registerUser(input: RegisterUserInput!): Boolean! # Return boolean to allow the front end to handle session management through amplify
+  resendVerificationEmail: Boolean!
   #   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
   #   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse
   #   screenshotTaken: ScreenshotTakenResponse
