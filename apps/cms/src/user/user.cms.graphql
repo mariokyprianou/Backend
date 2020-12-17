@@ -5,7 +5,7 @@ type User {
   email: EmailAddress!
   country: Country!
   region: Region!
-  timeZone: TimeZone!
+  timeZone: String!
   currentTrainingProgramme: CurrentTrainingProgramme
   # TODO
   # marketingPermissions

@@ -18,7 +18,7 @@ export class User extends UserModel {
   email: string;
   countryId: string;
   regionId: string;
-  timeZoneId: string;
+  timeZone: string;
   deviceUdid: string;
   dateOfBirth: string;
   gender: string;
@@ -27,7 +27,6 @@ export class User extends UserModel {
 
   country: Country;
   region: Region;
-  timeZone: string;
 
   static relationMappings = () => ({
     country: {
