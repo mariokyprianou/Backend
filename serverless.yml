@@ -34,9 +34,11 @@ functions:
       - httpApi:
           method: GET
           path: /graphql
+          cors: true
       - httpApi:
           method: POST
           path: /graphql
+          cors: true
 
   cms:
     handler: apps/cms/src/handler.default
