@@ -34,8 +34,15 @@ export class UserService {
     return this.findAll().findById(id);
   }
 
-  public delete(id: string) {
-    return User.query().findById(id).delete();
+  public async delete(id: string) {
+    const user = await User.query().findById(id);
+
+    await User.query().findById(id).delete();
+
+    // Note: not 100% if the sub should be passed in here
+    this.authProvider.delete(user.cognitoSub);
+
+    return user;
   }
 
   public async create(input: RegisterUserInput) {

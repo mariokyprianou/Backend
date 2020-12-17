@@ -46,8 +46,6 @@ export class UserResolver {
     const userToDelete = this.userService.findById(id);
     await this.accountService.delete(id);
     await this.userService.delete(id);
-    // TODO: there will also be a step to remove users from the
-    // AWS cognito user pool
     return userToDelete;
   }
 
