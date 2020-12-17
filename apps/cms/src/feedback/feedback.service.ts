@@ -14,9 +14,11 @@ export class FeedbackService {
     const findAllQuery = applyFilter(
       UserWorkout.query()
         .withGraphJoined('workout')
+        .withGraphFetched('emojis')
+        .withGraphFetched('workout.localisations')
         .withGraphJoined('workout.trainingProgramme')
         .withGraphJoined('workout.trainingProgramme.trainer')
-        .withGraphJoined('workout.trainingProgramme.trainer.localisations')
+        .withGraphFetched('workout.trainingProgramme.trainer.localisations')
         .withGraphJoined('userWorkoutWeek')
         .withGraphJoined('userWorkoutWeek.userTrainingProgramme'),
       filter,
