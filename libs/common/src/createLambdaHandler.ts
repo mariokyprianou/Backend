@@ -25,7 +25,9 @@ async function bootstrap(module: any): Promise<Server> {
   app.use(helmet());
 
   await app.init();
-  app.enableCors();
+  app.enableCors({
+    origin: ['https://7dljjjdaud.execute-api.ap-south-1.amazonaws.com/cms'],
+  });
 
   return createServer(expressApp);
 }

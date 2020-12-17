@@ -6,7 +6,6 @@ import { CmsModule } from './cms.module';
 async function bootstrap() {
   const app = await NestFactory.create(CmsModule);
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors();
   await app.listen(3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
