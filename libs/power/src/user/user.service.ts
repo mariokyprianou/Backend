@@ -58,6 +58,11 @@ export class UserService {
       gender: input.gender,
     });
   }
+
+  public async sendVerification(username: string) {
+    const res = await this.authProvider.resendEmailVerificationLink(username);
+    return res;
+  }
 }
 
 export interface UserFilter {

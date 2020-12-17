@@ -19,10 +19,17 @@ export class AuthResolver {
     return true;
   }
 
-  // @Mutation('resendVerificationEmail')
-  // async resendVerificationEmail(): Promise<boolean> {
-  //   return this.user.sendVerification
-  // }
+  @Mutation('resendVerificationEmail')
+  async resendVerificationEmail(
+    @Args('email') email: string,
+  ): Promise<boolean> {
+    try {
+      await this.user.sendVerification(email);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
 }
 
 interface UserProfile {

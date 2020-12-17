@@ -65,6 +65,15 @@ export class AuthProviderService {
     return user;
   }
 
+  public async resendEmailVerificationLink(Username: string) {
+    return this.cognito
+      .resendConfirmationCode({
+        ClientId: this.ClientId,
+        Username,
+      })
+      .promise();
+  }
+
   public async delete(Username: string) {
     const userToDelete = await this.getUser(Username);
 

@@ -83,7 +83,8 @@ type RegisterUserResponse {
 
 extend type Mutation {
   registerUser(input: RegisterUserInput!): Boolean! # Return boolean to allow the front end to handle session management through amplify
-  resendVerificationEmail: Boolean!
+  resendVerificationEmail(email: String!): Boolean!
+
   #   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
   #   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse
   #   screenshotTaken: ScreenshotTakenResponse

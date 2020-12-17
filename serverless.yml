@@ -39,7 +39,21 @@ functions:
           method: POST
           path: /graphql
           cors: true
-
+  auth:
+    handler: apps/app/src/authHandler.default
+    events:
+      - httpApi:
+          method: GET
+          path: /auth
+          cors: true
+      - httpApi:
+          method: POST
+          path: /auth
+          cors: true
+    authorizer:
+      type: 'COGNITO_USER_POOLS'
+      authorizerId:
+        Ref: 'CognitoAuthorizer'
   cms:
     handler: apps/cms/src/handler.default
     events:
