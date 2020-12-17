@@ -14,12 +14,15 @@ export class AdministratorService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: AdministratorFilter = {},
   ) {
+    // this currently doesn't work. "Cannot read property 'Value' of undefined"
     const admins = (await this.adminAuthProvider.listUsers()).Users.map(
       (admin) => {
         return {
           id: admin.Username,
-          email: admin.Username,
-          name: admin.Attributes['custom:name'] as string,
+          email: admin.Attributes.find((x) => x.Name == 'email')
+            .Value as string,
+          name: admin.Attributes.find((x) => x.Name == 'custom:name')
+            .Value as string,
         };
       },
     );
@@ -38,13 +41,16 @@ export class AdministratorService {
     });
   }
 
+  // this currently doesn't work. "Cannot read property 'Value' of undefined"
   public async findAllMeta(filter: AdministratorFilter = {}) {
     const admins = (await this.adminAuthProvider.listUsers()).Users.map(
       (admin) => {
         return {
           id: admin.Username,
-          email: admin.Username,
-          name: admin.Attributes['custom:name'] as string,
+          email: admin.Attributes.find((x) => x.Name == 'email')
+            .Value as string,
+          name: admin.Attributes.find((x) => x.Name == 'custom:name')
+            .Value as string,
         };
       },
     );
@@ -59,8 +65,10 @@ export class AdministratorService {
 
     return {
       id: admin.Username,
-      email: admin.Username,
-      name: admin.UserAttributes['custom:name'] as string,
+      email: admin.UserAttributes.find((x) => x.Name == 'email')
+        .Value as string,
+      name: admin.UserAttributes.find((x) => x.Name == 'custom:name')
+        .Value as string,
     };
   }
 
@@ -69,8 +77,10 @@ export class AdministratorService {
 
     return {
       id: admin.Username,
-      email: admin.Username,
-      name: admin.UserAttributes['custom:name'] as string,
+      email: admin.UserAttributes.find((x) => x.Name == 'email')
+        .Value as string,
+      name: admin.UserAttributes.find((x) => x.Name == 'custom:name')
+        .Value as string,
     };
   }
 
@@ -84,8 +94,8 @@ export class AdministratorService {
 
   public async update(id: string, name: string, email: string) {
     await this.adminAuthProvider.updateAttributes(id, [
-      { Name: 'Username', Value: email },
-      { Name: 'custon:name', Value: name },
+      { Name: 'email', Value: email },
+      { Name: 'custom:name', Value: name },
     ]);
 
     return this.findById(email);
