@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
 import Objection from 'objection';
+import { AccountService } from '../account';
 import { RegisterUserInput } from '../types';
 import { User } from './user.model';
 
 @Injectable()
 export class UserService {
-  constructor(@Inject('USER') private authProvider: AuthProviderService) {}
-
   public findAll(
     page = 0,
     perPage = 25,
@@ -38,15 +37,9 @@ export class UserService {
     return User.query().findById(id).delete();
   }
 
-  public async create(input: RegisterUserInput) {
-    const res = await this.authProvider.registerWithEmailVerificationLink(
-      input.email,
-      input.password,
-      {},
-    );
-
+  public async create(input: RegisterUserInput, cognitoSub: string) {
     return User.query().insertAndFetch({
-      cognitoSub: res.UserSub,
+      cognitoSub,
       firstName: input.givenName,
       lastName: input.familyName,
       email: input.email,
@@ -57,11 +50,6 @@ export class UserService {
       dateOfBirth: input.dateOfBirth,
       gender: input.gender,
     });
-  }
-
-  public async sendVerification(username: string) {
-    const res = await this.authProvider.resendEmailVerificationLink(username);
-    return res;
   }
 }
 

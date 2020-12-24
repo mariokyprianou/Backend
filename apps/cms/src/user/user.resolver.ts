@@ -58,7 +58,7 @@ export class UserResolver {
     const account = await this.accountService.findById(user.id);
 
     const currentUserProgram = await this.userProgramService.findById(
-      account.userTrainingProgramId,
+      account.userTrainingProgrammeId,
     );
 
     if (currentUserProgram) {

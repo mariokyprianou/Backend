@@ -11,14 +11,14 @@ export class Account extends BaseModel {
 
   id: string;
   cognitoUsername: string;
-  userTrainingProgramId: string;
+  userTrainingProgrammeId: string;
   createdAt: Date;
   updatedAt: Date;
 
-  trainingProgram: UserProgramme[];
+  trainingProgramme: UserProgramme;
 
   static relationMappings = () => ({
-    localisations: {
+    trainingProgramme: {
       relation: Model.HasOneRelation,
       modelClass: UserProgramme,
       join: {

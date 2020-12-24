@@ -400,7 +400,7 @@ CREATE TABLE user_workout (
   user_workout_week_id uuid NOT NULL,
   order_index integer NOT NULL,
   workout_id uuid NOT NULL,
-  feedback_intensity integer NOT NULL,
+  feedback_intensity integer NULL,
   time_taken integer,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
