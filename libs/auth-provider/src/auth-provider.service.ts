@@ -129,8 +129,7 @@ export class AuthProviderService {
 
   public async login(Username: string, Password: string) {
     const params = {
-      Username,
-      Password,
+      AuthParameters: { Username, Password },
       UserPoolId: this.UserPoolId,
       ClientId: this.ClientId,
       AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
