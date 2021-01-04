@@ -81,9 +81,16 @@ type RegisterUserResponse {
 #   legals: Legals
 # }
 
+type LoginResponse {
+  accessToken: String!
+  refreshToken: String!
+  expires: Int!
+}
+
 extend type Mutation {
   registerUser(input: RegisterUserInput!): Boolean! # Return boolean to allow the front end to handle session management through amplify
   resendVerificationEmail(email: String!): Boolean!
+  login(email: String!, password: String): LoginResponse!
 
   #   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
   #   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse

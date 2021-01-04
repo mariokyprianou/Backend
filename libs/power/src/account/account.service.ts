@@ -23,7 +23,11 @@ export class AccountService {
     return Account.query().findById(id).delete();
   }
 
-  public async create(programme: string, cognitoUsername: string) {
+  public async create(
+    programme: string,
+    cognitoUsername: string,
+    accountId: string,
+  ) {
     // Fetch the programmes first two weeks
 
     // UserProgramme
@@ -38,6 +42,8 @@ export class AccountService {
 
     // Create user workouts
 
+    // accountId is the map from the segregated user table
+
     // Fetch user workouts
     const workouts = await this.workout
       .findAll(programme)
@@ -45,7 +51,7 @@ export class AccountService {
 
     await Account.transaction(async (trx) => {
       const userTrainingProgrammeId = uuid();
-      const accountId = uuid();
+
       await trx.raw('SET CONSTRAINTS ALL DEFERRED');
       // Create the account
       await Account.query(trx).insertGraphAndFetch({

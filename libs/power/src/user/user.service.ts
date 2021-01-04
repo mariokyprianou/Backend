@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
 import Objection from 'objection';
 import { AccountService } from '../account';
+import { AuthService } from '../auth';
 import { RegisterUserInput } from '../types';
 import { User } from './user.model';
 
@@ -37,9 +38,6 @@ export class UserService {
     const user = await User.query().findById(id);
 
     await User.query().findById(id).delete();
-
-    // Note: not 100% if the sub should be passed in here
-    this.authProvider.delete(user.cognitoSub);
 
     return user;
   }

@@ -30,6 +30,14 @@ export class AuthResolver {
       return false;
     }
   }
+
+  @Mutation('login')
+  async login(
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<TokenResponse> {
+    return this.user.login(email, password);
+  }
 }
 
 interface UserProfile {
@@ -42,4 +50,10 @@ interface UserProfile {
   region: string;
   deviceUDID: string;
   timeZone: string;
+}
+
+interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  expires: number;
 }

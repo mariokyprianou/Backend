@@ -91,13 +91,6 @@ export class AuthProviderService {
     Username: string,
     UserAttributes: { Name: string; Value: string }[],
   ) {
-    //     UserAttributes: [ /* required */
-    // {
-    //     Name: 'STRING_VALUE', /* required */
-    //     Value: 'STRING_VALUE'
-    //   },
-    //   /* more items */
-    // ],
     await this.cognito
       .adminUpdateUserAttributes({
         Username,
@@ -132,5 +125,17 @@ export class AuthProviderService {
       ...props,
     };
     return this.cognito.listUsers(params).promise();
+  }
+
+  public async login(Username: string, Password: string) {
+    const params = {
+      Username,
+      Password,
+      UserPoolId: this.UserPoolId,
+      ClientId: this.ClientId,
+      AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
+    };
+
+    return this.cognito.adminInitiateAuth(params).promise();
   }
 }

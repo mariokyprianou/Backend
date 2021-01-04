@@ -20,14 +20,10 @@ export class AuthService {
       {},
     );
     // add to the user table
-    await this.userService.create(input, res.UserSub);
+    const user = await this.userService.create(input, res.UserSub);
     // add to the account table
     // add two weeks worth of workouts
-    // await this.accountService.create(input.programme, res.UserSub);
-    await this.accountService.create(
-      input.programme,
-      '5045d36f-38a5-4d4c-bdd0-a8403b44f21e',
-    );
+    await this.accountService.create(input.programme, res.UserSub, user.id);
 
     return true;
   }
@@ -35,5 +31,21 @@ export class AuthService {
   public async sendVerification(username: string) {
     const res = await this.authProvider.resendEmailVerificationLink(username);
     return res;
+  }
+
+  public async delete(id: string) {
+    const user = await this.userService.delete(id);
+    await this.accountService.delete(id);
+    await this.authProvider.delete(user.cognitoSub);
+    return user;
+  }
+
+  public async login(email: string, password: string) {
+    const authResult = await this.authProvider.login(email, password);
+    return {
+      accessToken: authResult.AuthenticationResult.AccessToken,
+      refreshToken: authResult.AuthenticationResult.RefreshToken,
+      expires: authResult.AuthenticationResult.ExpiresIn,
+    };
   }
 }

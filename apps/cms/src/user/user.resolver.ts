@@ -10,6 +10,7 @@ import {
 import { ListMetadata } from '@lib/power/types';
 import { UserProgrammeService } from '@lib/power/user-programme/user-programme.service';
 import { AccountService } from '@lib/power/account';
+import { AuthService } from '@lib/power/auth';
 
 @Resolver('User')
 export class UserResolver {
@@ -17,6 +18,7 @@ export class UserResolver {
     private userService: UserService,
     private accountService: AccountService,
     private userProgramService: UserProgrammeService,
+    private authService: AuthService,
   ) {}
 
   @Query('allUsers')
@@ -44,8 +46,10 @@ export class UserResolver {
   @Mutation('deleteUser')
   async deleteUser(@Args('id') id) {
     const userToDelete = this.userService.findById(id);
-    await this.accountService.delete(id);
-    await this.userService.delete(id);
+    // Moved to new auth service
+    // await this.accountService.delete(id);
+    // await this.userService.delete(id);
+    await this.authService.delete(id);
     return userToDelete;
   }
 
