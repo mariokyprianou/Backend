@@ -13,8 +13,19 @@ provider:
     DB_PASSWORD: ${env:DB_PASSWORD}
     DB_PORT: ${env:DB_PORT, '5432'}
     DB_USER: ${env:DB_USER}
+    USERPOOL_ID: ${env:USERPOOL_ID}
+    APP_BACKEND_CLIENT: ${env:APP_BACKEND_CLIENT}
+    USERPOOL_NAME: ${env:USERPOOL_NAME}
+    APP_BACKEND_CLIENT_NAME: ${env:APP_BACKEND_CLIENT_NAME}
   httpApi:
     payload: '1.0'
+    authorizers:
+      serviceAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.${region}.amazonaws.com/ap-south-1_IKCoLjZya
+        audience:
+          - 6a732h3l1jibdrhorf786l9e2l
+
   iamRoleStatements:
     - Effect: 'Allow'
       Resource: '*'
@@ -46,14 +57,14 @@ functions:
           method: GET
           path: /auth
           cors: true
+          authorizer:
+            name: serviceAuthorizer
       - httpApi:
           method: POST
           path: /auth
           cors: true
-    authorizer:
-      type: 'COGNITO_USER_POOLS'
-      authorizerId:
-        Ref: 'CognitoAuthorizer'
+          authorizer:
+            name: serviceAuthorizer
   cms:
     handler: apps/cms/src/handler.default
     events:
@@ -63,6 +74,26 @@ functions:
       - httpApi:
           method: POST
           path: /cms
+
+# resources:
+#   Resources:
+#     CognitoAuthorizer:
+#       Type: AWS::ApiGatewayV2::Authorizer
+#       Properties:
+#         Name: ${self:service}-${self:provider.stage}-authorizer
+#         AuthorizerType: JWT
+#         IdentitySource:
+#           - $request.header.Authorization
+#         JwtConfiguration:
+#           Audience:
+#             - Ref: ${env.APP_BACKEND_CLIENT_NAME}
+#           Issuer:
+#             Fn::Join:
+#               - ''
+#               - - 'https://cognito-idp.'
+#                 - '${opt:region, self:provider.region}'
+#                 - '.amazonaws.com/'
+#                 - Ref: '${env.USERPOOL_NAME}'
 
 custom:
   serverless-offline:
