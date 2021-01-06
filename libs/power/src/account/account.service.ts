@@ -6,6 +6,7 @@ import { Account } from './account.model';
 import { v4 as uuid } from 'uuid';
 import { UserWorkoutWeek } from '../user-workout-week';
 import { UserWorkout } from '../user-workout';
+import { UserPreference } from '../types';
 
 @Injectable()
 export class AccountService {
@@ -18,9 +19,18 @@ export class AccountService {
     return this.findAll().findById(id);
   }
 
+  public findBySub(sub: string) {
+    return this.findAll().findOne('cognito_username', sub);
+  }
+
   public delete(id: string) {
     // Note: leave the user training program un-deleted
     return Account.query().findById(id).delete();
+  }
+
+  public async updatePreference(input: UserPreference, sub: string) {
+    const account = await this.findBySub(sub);
+    return account.$query().patchAndFetch(input);
   }
 
   public async create(

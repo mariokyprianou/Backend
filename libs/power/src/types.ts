@@ -137,3 +137,52 @@ export interface RegisterUserInput {
   timeZone: string;
   programme: string;
 }
+
+export enum downloadQuality {
+  LOW,
+  HIGH,
+}
+
+export interface AuthContext {
+  sub: string;
+}
+
+export interface UserProfile {
+  givenName: string;
+  familyName: string;
+  email: string;
+  gender?: string;
+  dateOfBirth?: string;
+  country?: string;
+  region?: string;
+  deviceUDID: string;
+  timeZone: string;
+  canChangeDevice: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface UserProfileInput {
+  givenName: string;
+  familyName: string;
+  gender?: string;
+  dateOfBirth?: string;
+  country?: string;
+  region?: string;
+}
+
+export interface UserPreference {
+  notifications: boolean;
+  emails: boolean;
+  errorReports: boolean;
+  analytics: boolean;
+  downloadQuality: DownloadQuality;
+}
+
+export enum DownloadQuality {
+  HIGH,
+  LOW,
+}
+
+export interface ChangeDevice {
+  deviceId: string;
+}

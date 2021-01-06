@@ -127,9 +127,9 @@ export class AuthProviderService {
     return this.cognito.listUsers(params).promise();
   }
 
-  public async login(Username: string, Password: string) {
+  public async login(USERNAME: string, PASSWORD: string) {
     const params = {
-      AuthParameters: { Username, Password },
+      AuthParameters: { USERNAME, PASSWORD },
       UserPoolId: this.UserPoolId,
       ClientId: this.ClientId,
       AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',

@@ -1,0 +1,62 @@
+enum DownloadQuality {
+  HIGH
+  LOW
+}
+
+type UserPreferences {
+  notifications: Boolean!
+  emails: Boolean!
+  errorReports: Boolean!
+  analytics: Boolean!
+  # downloadContent: Boolean!
+  downloadQuality: DownloadQuality!
+}
+
+type UserProfile {
+  givenName: String!
+  familyName: String!
+  email: String!
+  gender: Gender
+  dateOfBirth: String
+  country: String
+  region: String
+  canChangeDevice: Boolean!
+  timeZone: String!
+  deviceUDID: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input UpdateProfileInput {
+  givenName: String!
+  familyName: String!
+  gender: Gender
+  dateOfBirth: Date
+  country: ID
+  region: ID
+}
+
+input UpdatePreferenceInput {
+  notifications: Boolean!
+  emails: Boolean!
+  errorReports: Boolean!
+  analytics: Boolean!
+  # downloadContent: Boolean!
+  downloadQuality: DownloadQuality!
+}
+
+input ChangeDeviceInput {
+  deviceId: String!
+}
+
+extend type Mutation {
+  ping: String!
+  updateProfile(input: UpdateProfileInput!): UserProfile!
+  updatePreference(input: UpdatePreferenceInput!): UserPreferences!
+  changeDevice(input: ChangeDeviceInput!): Boolean!
+}
+
+extend type Query {
+  profile: UserProfile!
+  preferences: UserPreferences!
+}

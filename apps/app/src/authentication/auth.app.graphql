@@ -1,31 +1,3 @@
-type UserProfile {
-  givenName: String!
-  familyName: String!
-  email: String!
-  gender: Gender
-  dateOfBirth: String
-  country: String!
-  region: String
-  memberSince: Date!
-  canChangeDevice: Boolean!
-  timeZone: String!
-  deviceUDID: ID!
-}
-
-# enum DownloadQuality {
-#   HIGH
-#   LOW
-# }
-
-# type UserPreferences {
-#   notifications: Boolean!
-#   emails: Boolean!
-#   errorReports: Boolean!
-#   analytics: Boolean!
-#   downloadContent: Boolean!
-#   downloadQuality: DownloadQuality!
-# }
-
 enum Gender {
   male
   female
@@ -38,48 +10,12 @@ input RegisterUserInput {
   password: String!
   gender: Gender
   dateOfBirth: String
-  country: ID!
+  country: ID
   region: ID
   deviceUDID: String!
   timeZone: String!
   programme: ID!
 }
-
-type RegisterUserResponse {
-  profile: UserProfile
-}
-
-# input UpdateProfileInput {
-#   givenName: String!
-#   familyName: String!
-#   gender: Gender
-#   dateOfBirth: Date
-#   country: ISOCountry
-#   region: String
-# }
-
-# type UpdateProfileResponse {
-#   profile: UserProfile!
-# }
-
-# input ChangeDeviceInput {
-#   deviceId: String!
-# }
-
-# type ChangeDeviceResponse {
-#   success: Boolean!
-# }
-
-# type ScreenshotTakenResponse {
-#   success: Boolean!
-#   isBlocked: Boolean!
-# }
-
-# extend type Query {
-#   profile: UserProfile
-#   preferences: UserPreferences
-#   legals: Legals
-# }
 
 type LoginResponse {
   accessToken: String!
@@ -91,12 +27,4 @@ extend type Mutation {
   registerUser(input: RegisterUserInput!): Boolean! # Return boolean to allow the front end to handle session management through amplify
   resendVerificationEmail(email: String!): Boolean!
   login(email: String!, password: String): LoginResponse!
-
-  #   updateProfile(input: UpdateProfileInput!): UpdateProfileResponse
-  #   changeDevice(input: ChangeDeviceInput!): ChangeDeviceResponse
-  #   screenshotTaken: ScreenshotTakenResponse
 }
-
-# extend type Query {
-#   tmp: String
-# }

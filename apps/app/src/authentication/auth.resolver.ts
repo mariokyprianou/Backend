@@ -2,7 +2,7 @@ import { AuthService } from '@lib/power/auth';
 import { RegisterUserInput } from '@lib/power/types';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 
-@Resolver('UserProfile')
+@Resolver('LoginResponse')
 export class AuthResolver {
   constructor(private user: AuthService) {}
 

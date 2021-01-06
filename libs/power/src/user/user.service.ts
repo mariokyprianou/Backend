@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
+import { addDays, isAfter } from 'date-fns';
 import Objection from 'objection';
 import { AccountService } from '../account';
 import { AuthService } from '../auth';
-import { RegisterUserInput } from '../types';
+import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
 import { User } from './user.model';
 
 @Injectable()
@@ -30,6 +31,10 @@ export class UserService {
     return applyFilter(User.query(), filter).resultSize();
   }
 
+  public findBySub(sub: string) {
+    return this.findAll().findOne('cognito_sub', sub);
+  }
+
   public findById(id: string) {
     return this.findAll().findById(id);
   }
@@ -54,7 +59,34 @@ export class UserService {
       deviceUdid: input.deviceUDID,
       dateOfBirth: input.dateOfBirth,
       gender: input.gender,
+      deviceChange: addDays(new Date(), 30),
     });
+  }
+
+  public async update(input: UserProfileInput, sub: string) {
+    const profile = await User.query().findOne('cognito_sub', sub);
+    return profile.$query().patchAndFetch({
+      firstName: input.givenName,
+      lastName: input.familyName,
+      countryId: input.country,
+      regionId: input.region,
+      gender: input.gender,
+      dateOfBirth: input.dateOfBirth,
+    });
+  }
+
+  public async updateDevice(input: ChangeDevice, sub: string) {
+    const profile = await this.findBySub(sub);
+    if (isAfter(new Date(), new Date(profile.deviceChange))) {
+      // Time period has elapsed and we can change the device
+      await profile.$query().patch({
+        deviceUdid: input.deviceId,
+        deviceChange: addDays(new Date(), 30),
+      });
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 

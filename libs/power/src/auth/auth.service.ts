@@ -1,7 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
+import { isAfter } from 'date-fns';
 import { AccountService } from '../account';
-import { RegisterUserInput } from '../types';
+import {
+  AuthContext,
+  ChangeDevice,
+  RegisterUserInput,
+  UserPreference,
+  UserProfileInput,
+} from '../types';
 import { UserService } from '../user';
 
 @Injectable()
@@ -48,4 +55,44 @@ export class AuthService {
       expires: authResult.AuthenticationResult.ExpiresIn,
     };
   }
+
+  public async profile(context: AuthContext) {
+    const profile = await this.userService.findBySub(context.sub);
+    return generateProfile(profile);
+  }
+
+  public async preference(context: AuthContext) {
+    return this.accountService.findBySub(context.sub);
+  }
+
+  public async updateProfile(
+    input: UserProfileInput,
+    authContext: AuthContext,
+  ) {
+    // Update User
+    // Return User
+    const profile = await this.userService.update(input, authContext.sub);
+    return generateProfile(profile);
+  }
+
+  public async updatePreference(
+    input: UserPreference,
+    authContext: AuthContext,
+  ) {
+    return this.accountService.updatePreference(input, authContext.sub);
+  }
+
+  public async changeDevice(input: ChangeDevice, authContext: AuthContext) {
+    return this.userService.updateDevice(input, authContext.sub);
+  }
 }
+
+const generateProfile = (profile) => ({
+  ...profile,
+  givenName: profile.firstName,
+  familyName: profile.lastName,
+  deviceUDID: profile.deviceUdid,
+  canChangeDevice: isAfter(new Date(), new Date(profile.deviceChange)),
+  country: profile.country && profile.country.country,
+  region: profile.region && profile.region.region,
+});

@@ -42,6 +42,7 @@ CREATE TABLE account (
   device_udid text NOT NULL,
   date_of_birth text NULL,
   gender text NULL,
+  device_change timestamptz NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_account_country FOREIGN KEY (country_id) REFERENCES country (id),

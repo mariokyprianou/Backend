@@ -22,9 +22,9 @@ provider:
     authorizers:
       serviceAuthorizer:
         identitySource: $request.header.Authorization
-        issuerUrl: https://cognito-idp.${region}.amazonaws.com/ap-south-1_IKCoLjZya
+        issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${self:provider.environment.USERPOOL_ID}
         audience:
-          - 6a732h3l1jibdrhorf786l9e2l
+          - ${self:provider.environment.APP_BACKEND_CLIENT}
 
   iamRoleStatements:
     - Effect: 'Allow'

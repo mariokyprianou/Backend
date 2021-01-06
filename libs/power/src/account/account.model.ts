@@ -1,5 +1,6 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
+import { DownloadQuality, downloadQuality } from '../types';
 import { UserProgramme } from '../user-programme';
 
 export class Account extends BaseModel {
@@ -12,6 +13,11 @@ export class Account extends BaseModel {
   id: string;
   cognitoUsername: string;
   userTrainingProgrammeId: string;
+  downloadQuality: DownloadQuality;
+  emails: boolean;
+  analytics: boolean;
+  errorReports: boolean;
+  notifications: boolean;
   createdAt: Date;
   updatedAt: Date;
 

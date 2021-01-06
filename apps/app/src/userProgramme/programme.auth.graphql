@@ -1,0 +1,42 @@
+type UserProgramme implements Programme {
+  id: ID!
+  trainer: Trainer
+  environment: ProgrammeEnvironment!
+  fatLoss: Int!
+  fitness: Int!
+  muscle: Int!
+  description: String!
+  programmeImage: URL
+  numberOfWeeks: Int!
+  currentWeek: UserWorkoutWeek!
+  nextWeek: UserWorkoutWeek!
+}
+
+type UserWorkoutWeek {
+  id: ID!
+  weekNumber: Int!
+  workouts: [UserWorkout]
+}
+
+type UserWorkout {
+  id: ID!
+  orderIndex: Int!
+  overviewImage: URL
+  intensity: IntensityEnum!
+  duration: Int!
+  name: String!
+  exercises: [UserWorkoutExercise]
+}
+
+type UserWorkoutExercise {
+  id: ID!
+  orderIndex: Int!
+  exercise: Exercise!
+  sets: [WorkoutSet]
+  setType: SetType!
+  notes: String
+}
+
+extend type Query {
+  getProgramme: UserProgramme!
+}

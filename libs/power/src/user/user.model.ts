@@ -22,6 +22,7 @@ export class User extends UserModel {
   deviceUdid: string;
   dateOfBirth: string;
   gender: string;
+  deviceChange: Date;
   createdAt: Date;
   updatedAt: Date;
 

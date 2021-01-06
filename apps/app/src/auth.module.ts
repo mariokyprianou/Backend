@@ -22,6 +22,7 @@ import { OnboardingAppModule } from './onboarding/onboarding.module';
 import { RegionAppModule } from './region/region.module';
 import { TimeZoneAppModule } from './timeZone/timeZone.module';
 import { TrainerAppModule } from './trainer/trainer.module';
+import { ProfileAuthModule } from './profile/profile.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -40,13 +41,14 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         RegionAppModule,
         CountryAppModule,
         AuthAppModule,
+        ProfileAuthModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
         './apps/app/src/**/*.auth.graphql',
         './apps/common/common.graphql',
       ],
-      path: '/graphql',
+      path: '/auth',
       resolvers: {
         ...scalars,
       },
@@ -72,6 +74,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     CountryAppModule,
     AuthAppModule,
     AuthProviderModule,
+    ProfileAuthModule,
     GraphQLProvider,
   ],
 })

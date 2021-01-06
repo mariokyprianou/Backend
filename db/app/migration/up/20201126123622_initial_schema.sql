@@ -322,17 +322,23 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON share_media_image_tr FOR EACH ROW 
 
 -- User accounts
 
+CREATE TYPE download_quality_enum AS enum ('HIGH', 'LOW');
+
 CREATE TABLE account (
   id uuid CONSTRAINT pk_account PRIMARY KEY DEFAULT uuid_generate_v4(),
   cognito_username text NOT NULL,
   user_training_programme_id uuid NOT NULL,
+  download_quality download_quality_enum NOT NULL DEFAULT 'LOW',
+  notifications boolean DEFAULT FALSE,
+  emails boolean DEFAULT FALSE,
+  error_reports boolean DEFAULT FALSE,
+  analytics boolean DEFAULT FALSE,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_account_cognito_username UNIQUE (cognito_username),
   CONSTRAINT fk_account_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id) DEFERRABLE,
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON account FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
---
 
 CREATE TABLE user_training_programme (
   id uuid CONSTRAINT pk_user_training_programme PRIMARY KEY DEFAULT uuid_generate_v4(),
