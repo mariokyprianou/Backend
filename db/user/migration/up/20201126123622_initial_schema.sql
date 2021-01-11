@@ -36,7 +36,7 @@ CREATE TABLE account (
   first_name text NOT NULL,
   last_name text NOT NULL,
   email text NOT NULL,
-  country_id uuid NOT NULL,
+  country_id uuid NULL,
   region_id uuid NULL,
   time_zone text NOT NULL,
   device_udid text NOT NULL,

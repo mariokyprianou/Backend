@@ -25,6 +25,7 @@ type UserProfile {
   deviceUDID: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+  completedWorkouts: Int!
 }
 
 input UpdateProfileInput {

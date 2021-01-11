@@ -1,5 +1,9 @@
-/*
- * Author: Joseph Clough (joseph.clough@thedistance.co.uk)
- * Created: Wed, 6th January 212021
- * Copyright 2021 - The Distance
- */
+import { UserPowerModule } from '@lib/power/user-power';
+import { Module } from '@nestjs/common';
+import { UserProgrammeResolver } from './userProgramme.resolver';
+
+@Module({
+  imports: [UserPowerModule],
+  providers: [UserProgrammeResolver],
+})
+export class UserProgrammeAuthModule {}

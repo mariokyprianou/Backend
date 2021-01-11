@@ -186,3 +186,8 @@ export enum DownloadQuality {
 export interface ChangeDevice {
   deviceId: string;
 }
+
+// export interface UserProgramme {
+//   id: string;
+//   trainer: 
+// }

@@ -24,7 +24,7 @@ export class UserProgramme extends BaseModel {
       relation: Model.BelongsToOneRelation,
       modelClass: Programme,
       join: {
-        from: 'user_training_programme.training_program_id',
+        from: 'user_training_programme.training_programme_id',
         to: 'training_programme.id',
       },
     },

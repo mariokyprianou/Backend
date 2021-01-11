@@ -19,6 +19,7 @@ interface ExpressContext {
 export async function createContext({
   req,
 }: ExpressContext): Promise<GQLContext> {
+  console.log(req.headers);
   // GQL Playground workaround
   if (req.method === 'GET') {
     return {

@@ -6,11 +6,23 @@ import {
   ChangeDevice,
 } from '@lib/power/types';
 import { AuthService } from '@lib/power/auth';
-import { Query, Context, Mutation, Resolver, Args } from '@nestjs/graphql';
+import {
+  Query,
+  Context,
+  Mutation,
+  Resolver,
+  Args,
+  ResolveField,
+} from '@nestjs/graphql';
 
 @Resolver('UserProfile')
 export class ProfileResolver {
   constructor(private user: AuthService) {}
+
+  @ResolveField('completedWorkouts')
+  async getCompletedWorkouts(@Context('authContext') authContext: AuthContext) {
+    return this.user.allCompletedUserWorkouts(authContext);
+  }
 
   @Mutation('ping')
   ping(): string {

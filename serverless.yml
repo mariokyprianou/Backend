@@ -15,6 +15,7 @@ provider:
     DB_USER: ${env:DB_USER}
     USERPOOL_ID: ${env:USERPOOL_ID}
     APP_BACKEND_CLIENT: ${env:APP_BACKEND_CLIENT}
+    APP_FRONTEND_CLIENT: ${env:APP_FRONTEND_CLIENT}
     USERPOOL_NAME: ${env:USERPOOL_NAME}
     APP_BACKEND_CLIENT_NAME: ${env:APP_BACKEND_CLIENT_NAME}
   httpApi:
@@ -24,6 +25,7 @@ provider:
         identitySource: $request.header.Authorization
         issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${self:provider.environment.USERPOOL_ID}
         audience:
+          - ${self:provider.environment.APP_FRONTEND_CLIENT}
           - ${self:provider.environment.APP_BACKEND_CLIENT}
 
   iamRoleStatements:

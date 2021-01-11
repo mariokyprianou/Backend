@@ -27,7 +27,7 @@ export class UserWorkout extends BaseModel {
 
   static relationMappings = {
     workout: {
-      relation: Model.BelongsToOneRelation,
+      relation: Model.HasOneRelation,
       modelClass: Workout,
       join: {
         from: 'user_workout.workout_id',

@@ -19,7 +19,9 @@ export class OnboardingResolver {
 
   @Query('onboardingScreens')
   async getOnboarding(@Context('language') language: string) {
-    return this.onboardingService.findAll(language);
+    return (await this.onboardingService.findAll(language)).sort((a, b) =>
+      a.orderIndex <= b.orderIndex ? 1 : 0,
+    );
   }
 
   @ResolveField('title')

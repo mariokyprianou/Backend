@@ -7,9 +7,8 @@ type UserProgramme implements Programme {
   muscle: Int!
   description: String!
   programmeImage: URL
-  numberOfWeeks: Int!
-  currentWeek: UserWorkoutWeek!
-  nextWeek: UserWorkoutWeek!
+  currentWeek: UserWorkoutWeek
+  nextWeek: UserWorkoutWeek
 }
 
 type UserWorkoutWeek {

@@ -10,6 +10,9 @@ import {
   UserProfileInput,
 } from '../types';
 import { UserService } from '../user';
+import { UserProgrammeService } from '../user-programme';
+import { UserWorkoutService } from '../user-workout';
+import { UserWorkoutWeekService } from '../user-workout-week';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +20,9 @@ export class AuthService {
     @Inject('USER') private authProvider: AuthProviderService,
     private accountService: AccountService,
     private userService: UserService,
+    private userWorkoutService: UserWorkoutService,
+    private userWorkoutWeekService: UserWorkoutWeekService,
+    private userProgrammeService: UserProgrammeService,
   ) {}
 
   public async register(input: RegisterUserInput) {
@@ -31,6 +37,8 @@ export class AuthService {
     // add to the account table
     // add two weeks worth of workouts
     await this.accountService.create(input.programme, res.UserSub, user.id);
+
+    // TODO IF ANYTHING FAILS WE NEED TO CLEAN UP THE OTHER STUFF
 
     return true;
   }
@@ -84,6 +92,32 @@ export class AuthService {
 
   public async changeDevice(input: ChangeDevice, authContext: AuthContext) {
     return this.userService.updateDevice(input, authContext.sub);
+  }
+
+  public async allCompletedUserWorkouts(authContext: AuthContext) {
+    // Todo this I need the profile
+    // User training programmes
+    // Workout weeks
+    // Workouts where 'completed_at' is not null
+    const profile = await this.userService.findBySub(authContext.sub);
+    const allUserTrariningProgrammes = await this.userProgrammeService
+      .findAll()
+      .where('account_id', profile.id);
+    const allUserWorkoutWeeks = await this.userWorkoutWeekService
+      .findAll()
+      .whereIn(
+        'user_training_programme_id',
+        allUserTrariningProgrammes.map((each) => each.id),
+      );
+    const allCompletedWorkouts = await this.userWorkoutService
+      .findAll()
+      .whereIn(
+        'user_workout_week_id',
+        allUserWorkoutWeeks.map((each) => each.id),
+      )
+      .andWhereNot('completed_at', null);
+
+    return allCompletedWorkouts.length;
   }
 }
 

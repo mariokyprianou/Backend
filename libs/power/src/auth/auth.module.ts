@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { AuthProviderModule } from '@td/auth-provider';
 import { AccountModule } from '../account';
 import { UserModule } from '../user';
+import { UserProgrammeModule } from '../user-programme';
+import { UserWorkoutModule } from '../user-workout';
+import { UserWorkoutWeekModule } from '../user-workout-week';
 import { AuthService } from './auth.service';
 
 @Module({
@@ -19,6 +22,9 @@ import { AuthService } from './auth.service';
     }),
     AccountModule,
     UserModule,
+    UserWorkoutModule,
+    UserWorkoutWeekModule,
+    UserProgrammeModule,
   ],
   providers: [AuthService],
   exports: [AuthService],
