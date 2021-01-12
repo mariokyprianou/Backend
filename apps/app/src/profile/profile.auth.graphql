@@ -55,6 +55,7 @@ extend type Mutation {
   updateProfile(input: UpdateProfileInput!): UserProfile!
   updatePreference(input: UpdatePreferenceInput!): UserPreferences!
   changeDevice(input: ChangeDeviceInput!): Boolean!
+  updateEmail(email: String!): Boolean!
 }
 
 extend type Query {

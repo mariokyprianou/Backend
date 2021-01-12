@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
+import { Exercise } from '../exercise';
 import { SetType } from '../types';
 import { WorkoutExerciseSet } from './workout-exercise-set.model';
 
@@ -18,6 +19,7 @@ export class WorkoutExercise extends BaseModel {
   orderIndex: number;
 
   sets: WorkoutExerciseSet[];
+  exercise: Exercise;
 
   static relationMappings = {
     sets: {
@@ -28,5 +30,13 @@ export class WorkoutExercise extends BaseModel {
         to: 'workout_exercise_set.workout_exercise_id',
       },
     },
+    exercise: {
+      relation: Model.HasOneRelation,
+      modelClass: Exercise,
+      join: {
+        from: 'workout_exercise.exercise_id',
+        to: 'exercise.id'
+      }
+    }
   };
 }

@@ -66,4 +66,12 @@ export class ProfileResolver {
   ): Promise<boolean> {
     return this.user.changeDevice(input, authContext);
   }
+
+  @Mutation('updateEmail')
+  async updateEmail(
+    @Args('email') email: string,
+    @Context('authContext') authContext: AuthContext
+  ): Promise<boolean> {
+    return this.user.updateEmail(email, authContext)
+  }
 }

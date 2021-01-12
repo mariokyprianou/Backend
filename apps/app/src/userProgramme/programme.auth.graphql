@@ -12,7 +12,6 @@ type UserProgramme implements Programme {
 }
 
 type UserWorkoutWeek {
-  id: ID!
   weekNumber: Int!
   workouts: [UserWorkout]
 }

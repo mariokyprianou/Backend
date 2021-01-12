@@ -94,6 +94,23 @@ export class AuthService {
     return this.userService.updateDevice(input, authContext.sub);
   }
 
+  public async updateEmail(email: string, authContext: AuthContext) {
+    // update cognito
+    // update user
+    try {
+      await this.authProvider.updateAttributes(authContext.sub, [
+        {
+          Name: 'email',
+          Value: email,
+        },
+      ]);
+      await this.userService.updateEmail(email, authContext.sub);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   public async allCompletedUserWorkouts(authContext: AuthContext) {
     // Todo this I need the profile
     // User training programmes
