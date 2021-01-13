@@ -1,3 +1,8 @@
+export interface WorkoutOrder {
+  id: string;
+  index: number;
+}
+
 export interface TrainerLocalisation {
   language: string;
   name: string;
@@ -189,5 +194,5 @@ export interface ChangeDevice {
 
 // export interface UserProgramme {
 //   id: string;
-//   trainer: 
+//   trainer:
 // }

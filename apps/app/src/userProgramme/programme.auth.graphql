@@ -23,6 +23,7 @@ type UserWorkout {
   intensity: IntensityEnum!
   duration: Int!
   name: String!
+  completedAt: DateTime
   exercises: [UserWorkoutExercise]
 }
 
@@ -35,6 +36,25 @@ type UserWorkoutExercise {
   notes: String
 }
 
+input WorkoutOrderInput {
+  id: ID!
+  index: Int!
+}
+
+type WorkoutOrder {
+  id: ID!
+  index: Int!
+}
+
+# input ChangeProgrammeInput {
+
+# }
+
 extend type Query {
   getProgramme: UserProgramme!
+}
+
+extend type Mutation {
+  # changeProgramme(input: ChangeProgrammeInput!): Boolean!
+  updateOrder(input: [WorkoutOrderInput]): Boolean!
 }

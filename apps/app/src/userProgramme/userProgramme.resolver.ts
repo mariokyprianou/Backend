@@ -1,6 +1,6 @@
-import { AuthContext } from '@lib/power/types';
+import { AuthContext, WorkoutOrder } from '@lib/power/types';
 import { UserPowerService } from '@lib/power/user-power';
-import { Context, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 @Resolver('UserProgramme')
 export class UserProgrammeResolver {
@@ -12,5 +12,13 @@ export class UserProgrammeResolver {
     @Context('language') language: string,
   ) {
     return this.userPower.currentUserProgramme(authContext.sub, language);
+  }
+
+  @Mutation('updateOrder')
+  async updateOrder(
+    @Context('authContext') authContext: AuthContext,
+    @Args('input') input: WorkoutOrder[],
+  ): Promise<boolean> {
+    return this.userPower.updateOrder(input, authContext.sub);
   }
 }

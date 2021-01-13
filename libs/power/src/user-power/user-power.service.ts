@@ -8,6 +8,7 @@ import { UserWorkout, UserWorkoutService } from '../user-workout';
 import { UserWorkoutWeek, UserWorkoutWeekService } from '../user-workout-week';
 import { WorkoutExercise } from '../workout/workout-exercise.model';
 import { UserExerciseNote } from '../user-exercise-note/user-exercise.model';
+import { DownloadQuality, WorkoutOrder } from '../types';
 
 @Injectable()
 export class UserPowerService {
@@ -17,6 +18,19 @@ export class UserPowerService {
     private userWorkoutWeekService: UserWorkoutWeekService,
     private commonService: CommonService,
   ) {}
+
+  public async updateOrder(input: WorkoutOrder[], sub: string) {
+    try {
+      const proms = input.map(async (value: WorkoutOrder) => {
+        return this.userWorkoutService.updateOrder(value);
+      });
+
+      await Promise.all(proms);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 
   public async currentUserProgramme(sub: string, language: string) {
     // Fetch Account
@@ -39,14 +53,21 @@ export class UserPowerService {
   }
 
   private async buildWeek(week, language: string, account: Account) {
+    // HIGH OR LOW
+    const downloadQuality = account.downloadQuality;
+    const generateKey = (key: string) =>
+      downloadQuality === DownloadQuality.HIGH
+        ? `${key}_1080.mp4`
+        : `${key}_480.mp4`;
     return Promise.all(
-      week.workouts.map(async (workout) => {
+      week.workouts.map(async (workout: UserWorkout) => {
         const workoutLocalisation = (workout.workout.localisations ?? []).find(
           (tr) => tr.language === language,
         );
         return {
           id: workout.id,
           orderIndex: workout.orderIndex,
+          completedAt: workout.completedAt,
           overviewImage:
             workout.workout.overviewImageKey &&
             (await this.commonService.getPresignedUrl(
@@ -76,20 +97,29 @@ export class UserPowerService {
                   video:
                     exercise.exercise.videoKey &&
                     (await this.commonService.getPresignedUrl(
-                      exercise.exercise.videoKey,
+                      generateKey(exercise.exercise.videoKey),
                       this.commonService.env().VIDEO_BUCKET_DESTINATION,
+                      'getObject',
+                      'us-east-1',
+                      15,
                     )),
                   videoEasy:
                     exercise.exercise.videoKeyEasy &&
                     (await this.commonService.getPresignedUrl(
-                      exercise.exercise.videoKeyEasy,
+                      generateKey(exercise.exercise.videoKeyEasy),
                       this.commonService.env().VIDEO_BUCKET_DESTINATION,
+                      'getObject',
+                      'us-east-1',
+                      15,
                     )),
                   videoEasiest:
                     exercise.exercise.videoKeyEasiest &&
                     (await this.commonService.getPresignedUrl(
-                      exercise.exercise.videoKeyEasiest,
+                      generateKey(exercise.exercise.videoKeyEasiest),
                       this.commonService.env().VIDEO_BUCKET_DESTINATION,
+                      'getObject',
+                      'us-east-1',
+                      15,
                     )),
                 },
               };
@@ -113,9 +143,12 @@ export class UserPowerService {
     // find the current week
     // completed_at null (lowest week number)
     const weeks = await this.userWorkoutWeekService
-      .findAll(0, 25, 'user_workout_week.created_at')
+      .query()
       .whereNull('user_workout_week.completed_at')
-      .andWhere('user_training_programme_id', account.userTrainingProgrammeId)
+      .andWhere(
+        'user_workout_week.user_training_programme_id',
+        account.userTrainingProgrammeId,
+      )
       .withGraphJoined(
         '[workout.[workout.[localisations, exercises.[sets, exercise.[localisations]]], emojis]]',
       );

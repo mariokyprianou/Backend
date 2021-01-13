@@ -19,6 +19,10 @@ export class UserWorkoutWeekService {
     return findAllQuery;
   }
 
+  public query() {
+    return UserWorkoutWeek.query();
+  }
+
   public findAllMeta(filter: UserWorkoutWeekFilter = {}) {
     return applyFilter(UserWorkoutWeek.query(), filter).resultSize();
   }

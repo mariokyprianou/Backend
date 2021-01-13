@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
+import { WorkoutOrder } from '../types';
 import { UserWorkout } from './user-workout.model';
 
 // Note: this is untested
@@ -26,6 +27,12 @@ export class UserWorkoutService {
 
   public findById(id: string) {
     return this.findAll().findById(id);
+  }
+
+  public updateOrder(input: WorkoutOrder) {
+    return UserWorkout.query()
+      .patch({ orderIndex: input.index })
+      .where('id', input.id);
   }
 }
 
