@@ -50,6 +50,23 @@ type WorkoutOrder {
 
 # }
 
+
+input ExerciseWeightInput {
+  exerciseId: ID!
+  weight: Int!
+  reps: Int!
+  setNumber: Int!
+}
+
+type ExerciseWeight {
+  id: ID!
+  exerciseId: ID!
+  weight: Int!
+  reps: Int!
+  setNumber: Int!
+  createdAt: DateTime!
+}
+
 extend type Query {
   getProgramme: UserProgramme!
 }
@@ -57,4 +74,5 @@ extend type Query {
 extend type Mutation {
   # changeProgramme(input: ChangeProgrammeInput!): Boolean!
   updateOrder(input: [WorkoutOrderInput]): Boolean!
+  addExerciseWeight(input: ExerciseWeightInput!): ExerciseWeight!
 }

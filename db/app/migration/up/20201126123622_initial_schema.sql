@@ -350,25 +350,19 @@ CREATE TABLE user_training_programme (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_training_programme FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE TABLE user_category_history (
-  id uuid CONSTRAINT pk_user_category_history PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE user_exercise_history (
+  id uuid CONSTRAINT pk_user_exercise_history PRIMARY KEY DEFAULT uuid_generate_v4(),
   account_id uuid NOT NULL,
-  exercise_category_id uuid NOT NULL,
+  exercise_id uuid NOT NULL,
+  weight integer NOT NULL,
+  reps integer NOT NULL,
+  set_number integer NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW()
+	updated_at timestamptz NOT NULL DEFAULT NOW(),
+  CONSTRAINT fk_user_exercise_note_account FOREIGN KEY (account_id) REFERENCES account (id),
+  CONSTRAINT fk_user_exercise_note_exercise FOREIGN KEY (exercise_id) REFERENCES exercise (id)
 );
-CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_category_history FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
-
-CREATE TABLE user_category_history_set (
-  id uuid CONSTRAINT pk_user_category_history_set PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_category_history_id uuid NOT NULL,
-  set_number INT NOT NULL,
-  amount DECIMAL NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW()
-);
-CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_category_history_set FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_exercise_history FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE user_exercise_note (
   id uuid CONSTRAINT pk_user_exercise_note PRIMARY KEY DEFAULT uuid_generate_v4(),
