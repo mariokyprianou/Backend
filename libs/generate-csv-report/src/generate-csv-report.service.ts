@@ -28,6 +28,6 @@ export class GenerateCsvReportService {
       this.common.env().REPORTS_BUCKET,
     );
 
-    return csvString;
+    return accessUrl;
   }
 }
