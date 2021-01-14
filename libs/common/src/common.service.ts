@@ -18,6 +18,27 @@ export class CommonService {
     });
   }
 
+  public async uploadObject(
+    key: string,
+    bucket: string,
+    contentType: string,
+    body: string,
+    region = 'ap-south-1',
+    minutes = 60 * 24, // default to one day
+  ) {
+    const s3 = new S3({ region });
+    return s3
+      .putObject({
+        Bucket: bucket,
+        Key: key,
+        Expires: new Date(Date.now() + 1000 * 60 * minutes),
+        ContentType: contentType,
+        ContentDisposition: 'attachment',
+        Body: body,
+      })
+      .promise();
+  }
+
   public env() {
     return envalid.cleanEnv(process.env);
   }

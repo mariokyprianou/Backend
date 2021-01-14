@@ -1,12 +1,21 @@
-import { Args, Query, Resolver, ResolveField, Parent } from '@nestjs/graphql';
+import {
+  Args,
+  Query,
+  Resolver,
+  ResolveField,
+  Parent,
+  Mutation,
+} from '@nestjs/graphql';
 import { UserWorkout, UserWorkoutFilter } from '@lib/power/user-workout';
 import { ListMetadata } from '@lib/power/types';
 import { FeedbackService } from './feedback.service';
+import { GenerateCsvReportService, CsvFormat } from '@td/generate-csv-report';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
   constructor(
     private readonly feedbackService: FeedbackService /*, private readonly userService: UserService */,
+    private readonly generateCsvReportService: GenerateCsvReportService,
   ) {}
 
   @Query('Feedback')
@@ -38,6 +47,61 @@ export class FeedbackResolver {
     return {
       count: await this.feedbackService.findAllMeta(filter),
     };
+  }
+
+  @Mutation('exportFeedback')
+  async exportFeedback() {
+    const feedbacks = await this.feedbackService.findAll(0, -1);
+
+    const feedbackData: CsvFormat = {
+      fields: [
+        'Trainer',
+        'Programme',
+        'Week',
+        'Workout Name',
+        'Emoji',
+        'User',
+        'Time Taken',
+        'Intensity',
+        'Date',
+      ],
+      data: feedbacks.map((feedback) => {
+        const trainerName = feedback.workout.trainingProgramme.trainer.localisations.find(
+          (x) => x.language == 'en',
+        ).name;
+
+        const programmeName = feedback.workout.trainingProgramme.environment.toString();
+        const week = feedback.userWorkoutWeek.weekNumber.toString();
+        const workoutName = feedback.workout.localisations.find(
+          (x) => x.language == 'en',
+        ).name;
+        const emoji = feedback.emojis.map((x) => x.emoji).toString();
+        const userEmail = 'fake@fake.com'; // TODO!
+        const timeTaken = feedback.timeTaken
+          ? feedback.timeTaken.toString()
+          : '';
+        const intensity = feedback.feedBackIntensity
+          ? feedback.feedBackIntensity.toString()
+          : '';
+        const date = feedback.completedAt
+          ? feedback.completedAt.toString()
+          : '';
+
+        return [
+          trainerName,
+          programmeName,
+          week,
+          workoutName,
+          emoji,
+          userEmail,
+          timeTaken,
+          intensity,
+          date,
+        ];
+      }),
+    };
+
+    return this.generateCsvReportService.generateAndUploadCsv(feedbackData);
   }
 
   @ResolveField('trainerName')
