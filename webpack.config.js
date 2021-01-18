@@ -21,6 +21,10 @@ module.exports = {
       '@lib/database': path.resolve(__dirname, 'libs/database/src'),
       '@lib/power': path.resolve(__dirname, 'libs/power/src'),
       '@td/auth-provider': path.resolve(__dirname, 'libs/auth-provider/src'),
+      '@td/generate-csv-report': path.resolve(
+        __dirname,
+        'libs/generate-csv-report/src',
+      ),
     },
   },
   output: {
