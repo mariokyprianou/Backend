@@ -24,7 +24,12 @@ export class FeedbackService {
       filter,
     );
 
-    findAllQuery.limit(perPage).offset(perPage * page);
+    // this prevents the Query erroring out
+    // and allowd '-1' to specify all
+    if (page >= 0 && perPage >= 0) {
+      findAllQuery.limit(perPage).offset(perPage * page);
+    }
+
     findAllQuery.orderBy(sortField, sortOrder);
 
     return findAllQuery;

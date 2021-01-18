@@ -58,6 +58,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/auth-provider/tsconfig.lib.json"
       }
+    },
+    "generate-csv-report": {
+      "type": "library",
+      "root": "libs/generate-csv-report",
+      "entryFile": "index",
+      "sourceRoot": "libs/generate-csv-report/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/generate-csv-report/tsconfig.lib.json"
+      }
     }
   }
 }
