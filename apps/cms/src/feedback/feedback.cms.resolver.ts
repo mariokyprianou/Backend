@@ -81,7 +81,7 @@ export class FeedbackResolver {
 
   @ResolveField('workoutIntensity')
   getWorkoutIntensity(@Parent() userWorkout: UserWorkout) {
-    return userWorkout.feedBackIntensity;
+    return userWorkout.feedbackIntensity;
   }
 
   @ResolveField('date')

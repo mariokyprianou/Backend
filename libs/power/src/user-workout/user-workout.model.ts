@@ -15,7 +15,7 @@ export class UserWorkout extends BaseModel {
   userWorkoutWeekId: string;
   workoutId: string;
   orderIndex: number;
-  feedBackIntensity: number;
+  feedbackIntensity: number;
   timeTaken: number;
   completedAt: Date;
   createdAt: Date;

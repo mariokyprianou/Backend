@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
-import { WorkoutOrder } from '../types';
+import { CompleteWorkout, WorkoutOrder } from '../types';
+import { UserWorkoutFeedbackEmoji } from './user-workout-feedback-emoji.model';
 import { UserWorkout } from './user-workout.model';
 
 // Note: this is untested
@@ -27,6 +28,29 @@ export class UserWorkoutService {
 
   public findById(id: string) {
     return this.findAll().findById(id);
+  }
+
+  public addFeedback(userWorkout: string, emoji: string) {
+    return;
+  }
+
+  public async completeWorkout(input: CompleteWorkout) {
+    return UserWorkout.transaction(async (trx) => {
+      await UserWorkout.query(trx)
+        .patch({
+          completedAt: input.date,
+          feedbackIntensity: input.intensity,
+          timeTaken: input.timeTaken,
+        })
+        .where('id', input.workoutId);
+
+      await UserWorkoutFeedbackEmoji.query(trx).insertAndFetch({
+        userWorkoutId: input.workoutId,
+        emoji: input.emoji,
+      });
+
+      return true;
+    });
   }
 
   public updateOrder(input: WorkoutOrder) {

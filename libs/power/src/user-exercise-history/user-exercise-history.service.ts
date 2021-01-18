@@ -14,4 +14,13 @@ export class UserExerciseHistoryService {
       accountId: account.id,
     });
   }
+
+  public async findByExercise(exercise: string, sub: string) {
+    const account = await Account.query()
+      .first()
+      .where('cognito_username', sub);
+    return UserExerciseHistory.query()
+      .where('exercise_id', exercise)
+      .andWhere('account_id', account.id);
+  }
 }

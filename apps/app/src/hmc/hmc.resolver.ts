@@ -1,4 +1,7 @@
-import { HmcQuestionLocalisationGraphQlType } from '@lib/power/types';
+import {
+  HmcQuestionLocalisationGraphQlType,
+  ProgrammeEnvironment,
+} from '@lib/power/types';
 import { HmcQuestionService } from '@lib/power/hmc-question';
 import {
   Args,
@@ -42,14 +45,21 @@ export class HMCResolver {
     @Args('input')
     input: {
       answers: SubmitPQInput[];
+      environment: ProgrammeEnvironment;
     },
   ) {
-    const { answers } = input;
-    const programmeId = await this.service.calculateProgrammeScores(answers);
+    const { answers, environment } = input;
+    const programmeId = await this.service.calculateProgrammeScores(
+      answers,
+      environment,
+    );
     // console.log(programmeId);
 
     // resolve the programme data
     const programme = await this.programme.findById(programmeId, language);
+    if (!programme) {
+      throw new Error("Couldn't match a programme");
+    }
     // console.log(programme);
     const images = programme.shareMediaImages.find(
       (media) => media.type.toString() === 'PROGRAMME_START',

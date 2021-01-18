@@ -18,6 +18,7 @@ input ProgrammeQuestionAnswerInput {
 
 input SubmitProgrammeQuestionnaireInput {
   answers: [ProgrammeQuestionAnswerInput!]!
+  environment: ProgrammeEnvironment!
 }
 
 type SubmitProgrammeQuestionnaireResponse {

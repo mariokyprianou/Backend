@@ -4,6 +4,7 @@ import {
   UpdateHmcQuestionGraphQlInput,
 } from 'apps/cms/src/hmc-question/hmc-question.cms.resolve';
 import Objection from 'objection';
+import { ProgrammeEnvironment } from '../types';
 import { HmcQuestionScore } from './hmc-question-score.model';
 import { HmcQuestionTranslation } from './hmc-question-translation.model';
 import { HmcQuestion } from './hmc-question.model';
@@ -83,6 +84,7 @@ export class HmcQuestionService {
       question: string;
       answer: string;
     }[],
+    environment: ProgrammeEnvironment,
   ) {
     const programmeScores = {};
     // map over the answers
@@ -91,10 +93,10 @@ export class HmcQuestionService {
       answers.map(async (each) => {
         const { question, answer } = each;
         // select all scores
-        const questionScores = await HmcQuestionScore.query().where(
-          'hmc_question_id',
-          question,
-        );
+        const questionScores = await HmcQuestionScore.query()
+          .where('hmc_question_id', question)
+          .withGraphJoined('trainingProgramme')
+          .where('trainingProgramme.environment', environment);
 
         // answer can be ONE, TWO, THREE, or FOUR
         const answers = {
@@ -118,8 +120,9 @@ export class HmcQuestionService {
     );
 
     // reduce the keys down to get the key that is the highest value
-    const programmeId = Object.keys(programmeScores).reduce((a, b) =>
-      programmeScores[a] > programmeScores[b] ? a : b,
+    const programmeId = Object.keys(programmeScores).reduce(
+      (a, b) => (programmeScores[a] > programmeScores[b] ? a : b),
+      null,
     );
 
     return programmeId;

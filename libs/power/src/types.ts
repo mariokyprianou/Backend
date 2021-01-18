@@ -3,6 +3,14 @@ export interface WorkoutOrder {
   index: number;
 }
 
+export interface CompleteWorkout {
+  workoutId: string;
+  date: Date;
+  intensity: number;
+  emoji: string;
+  timeTaken: number;
+}
+
 export interface ExerciseWeight {
   id?: string;
   exerciseId: string;

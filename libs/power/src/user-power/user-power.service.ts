@@ -8,7 +8,7 @@ import { UserWorkout, UserWorkoutService } from '../user-workout';
 import { UserWorkoutWeek, UserWorkoutWeekService } from '../user-workout-week';
 import { WorkoutExercise } from '../workout/workout-exercise.model';
 import { UserExerciseNote } from '../user-exercise-note/user-exercise.model';
-import { DownloadQuality, WorkoutOrder } from '../types';
+import { CompleteWorkout, DownloadQuality, WorkoutOrder } from '../types';
 
 @Injectable()
 export class UserPowerService {
@@ -18,6 +18,29 @@ export class UserPowerService {
     private userWorkoutWeekService: UserWorkoutWeekService,
     private commonService: CommonService,
   ) {}
+
+  public async completeWorkout(input: CompleteWorkout, sub: string) {
+    // fetch account
+    // ensure authenticated to perform the request
+    // update workout
+    // update feedback
+    const account = await this.accountService.findBySub(sub);
+    const userWorkout = await this.userWorkoutService.findById(input.workoutId);
+    const userWorkoutWeek = await this.userWorkoutWeekService
+      .findById(userWorkout.userWorkoutWeekId)
+      .withGraphJoined('userTrainingProgramme');
+
+    if (userWorkoutWeek.userTrainingProgramme.accountId !== account.id) {
+      throw new Error('Not authorised');
+    }
+
+    try {
+      return this.userWorkoutService.completeWorkout(input);
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 
   public async updateOrder(input: WorkoutOrder[], sub: string) {
     try {

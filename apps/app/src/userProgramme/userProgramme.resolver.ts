@@ -1,4 +1,9 @@
-import { AuthContext, ExerciseWeight, WorkoutOrder } from '@lib/power/types';
+import {
+  AuthContext,
+  CompleteWorkout,
+  ExerciseWeight,
+  WorkoutOrder,
+} from '@lib/power/types';
 import { UserExerciseHistoryService } from '@lib/power/user-exercise-history/user-exercise-history.service';
 import { UserPowerService } from '@lib/power/user-power';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
@@ -18,6 +23,14 @@ export class UserProgrammeResolver {
     return this.userPower.currentUserProgramme(authContext.sub, language);
   }
 
+  @Query('getExerciseWeight')
+  async getExerciseWeight(
+    @Args('exercise') exercise: string,
+    @Context('authContext') authContext: AuthContext,
+  ): Promise<ExerciseWeight[]> {
+    return this.userExerciseHistory.findByExercise(exercise, authContext.sub);
+  }
+
   @Mutation('updateOrder')
   async updateOrder(
     @Context('authContext') authContext: AuthContext,
@@ -32,5 +45,13 @@ export class UserProgrammeResolver {
     @Context('authContext') authContext: AuthContext,
   ): Promise<ExerciseWeight> {
     return this.userExerciseHistory.addHistory(input, authContext.sub);
+  }
+
+  @Mutation('completeWorkout')
+  async completeWorkout(
+    @Args('input') input: CompleteWorkout,
+    @Context('authContext') authContext: AuthContext,
+  ) {
+    return this.userPower.completeWorkout(input, authContext.sub);
   }
 }
