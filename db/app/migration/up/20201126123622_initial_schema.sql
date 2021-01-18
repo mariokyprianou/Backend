@@ -69,7 +69,8 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON onboarding_screen_tr FOR EACH ROW 
 CREATE TABLE trainer (
   id uuid CONSTRAINT pk_trainer_ PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW()
+	updated_at timestamptz NOT NULL DEFAULT NOW(),
+  deleted_at timestamptz NULL
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON trainer FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 

@@ -13,6 +13,7 @@ export class Trainer extends BaseModel {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
 
   localisations: TrainerTranslation[];
 

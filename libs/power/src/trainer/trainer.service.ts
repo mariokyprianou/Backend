@@ -26,8 +26,12 @@ export class TrainerService {
 
   // DELETE TRAINER //
   public async deleteTrainer(trainerId: string) {
-    await TrainerTranslation.query().delete().where('trainer_id', trainerId);
-    return Trainer.query().deleteById(trainerId);
+    // await TrainerTranslation.query().delete().where('trainer_id', trainerId);
+    // return Trainer.query().deleteById(trainerId);
+    // set deleted_at flag
+    return Trainer.query()
+      .patch({ deletedAt: new Date() })
+      .where('id', trainerId);
   }
 
   // UPDATE TRAINER //

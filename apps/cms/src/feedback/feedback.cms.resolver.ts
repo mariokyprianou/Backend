@@ -80,8 +80,8 @@ export class FeedbackResolver {
         const timeTaken = feedback.timeTaken
           ? feedback.timeTaken.toString()
           : '';
-        const intensity = feedback.feedBackIntensity
-          ? feedback.feedBackIntensity.toString()
+        const intensity = feedback.feedbackIntensity
+          ? feedback.feedbackIntensity.toString()
           : '';
         const date = feedback.completedAt
           ? feedback.completedAt.toString()
