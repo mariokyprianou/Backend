@@ -3,6 +3,15 @@ export interface WorkoutOrder {
   index: number;
 }
 
+export interface ExerciseWeight {
+  id?: string;
+  exerciseId: string;
+  weight: number;
+  reps: number;
+  setNumber: number;
+  createdAt?: Date;
+}
+
 export interface TrainerLocalisation {
   language: string;
   name: string;
