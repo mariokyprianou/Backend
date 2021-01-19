@@ -91,6 +91,11 @@ export class ExerciseResolver {
     );
   }
 
+  @ResolveField('trainer')
+  async getTrainer(@Parent() exercise: Exercise) {
+    return exercise.trainerId;
+  }
+
   @Query('_allExercisesMeta')
   async _allExercisesMeta(
     @Args('filter') filter: ExerciseFilter,

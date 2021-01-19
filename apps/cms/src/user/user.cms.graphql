@@ -3,7 +3,7 @@ type User {
   firstName: String!
   lastName: String!
   email: EmailAddress!
-  country: Country!
+  country: Country
   region: Region
   timeZone: String!
   currentTrainingProgramme: CurrentTrainingProgramme

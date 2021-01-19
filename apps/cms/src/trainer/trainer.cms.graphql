@@ -28,7 +28,13 @@ extend type Query {
     sortOrder: SortOrder
     filter: TrainerFilter
   ): [Trainer]
-  _allTrainersMeta(filter: TrainerFilter): ListMetadata
+  _allTrainersMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: TrainerFilter
+  ): ListMetadata
 }
 
 extend type Mutation {

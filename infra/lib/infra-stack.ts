@@ -275,7 +275,7 @@ export class InfraStack extends cdk.Stack {
     const usernameConfiguration = {
       caseSensitive: false,
     };
-    const userPool = new cognito.CfnUserPool(this, 'CMSUserPool', {
+    const userPool = new cognito.CfnUserPool(this, 'PowerCMSUserPool', {
       adminCreateUserConfig: {
         allowAdminCreateUserOnly: true,
       },
@@ -288,7 +288,14 @@ export class InfraStack extends cdk.Stack {
           requireSymbols: true,
         },
       },
-      schema: [{ name: 'name', required: false, attributeDataType: 'String' }],
+      schema: [
+        {
+          name: 'name',
+          required: false,
+          attributeDataType: 'String',
+          mutable: true,
+        },
+      ],
       userPoolName: `cms-${this.resourcePrefix}-userpool`,
       usernameAttributes: ['email'],
       usernameConfiguration,

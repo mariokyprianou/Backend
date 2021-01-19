@@ -41,28 +41,35 @@ input WorkoutLocalisationInput {
 }
 
 # // TODO workout the filtering on this
-input WorkoutFilter {
+input WorkoutWeekFilter {
   id: ID
   ids: [ID]
   trainer: ID
-  programme: ID
+  # environment: ID
   name: String
+  week: Int
 }
 
 extend type Mutation {
-  createWorkout(workout: WorkoutInput): WorkoutWeek!
-  updateWorkout(id: ID!, workout: WorkoutInput): WorkoutWeek!
-  deleteWorkout(id: ID!): WorkoutWeek!
+  createWorkoutWeek(workout: WorkoutInput): WorkoutWeek!
+  updateWorkoutWeek(id: ID!, workout: WorkoutInput): WorkoutWeek!
+  deleteWorkoutWeek(id: ID!): WorkoutWeek!
 }
 
 extend type Query {
-  Workout(id: ID!): WorkoutWeek!
-  allWorkouts(
+  WorkoutWeek(id: ID!): WorkoutWeek!
+  allWorkoutWeeks(
     page: Int
     perPage: Int
     sortField: String
     sortOrder: SortOrder
-    filter: WorkoutFilter
+    filter: WorkoutWeekFilter
   ): [WorkoutWeek!]!
-  _allWorkoutsMeta(filter: WorkoutFilter): ListMetadata!
+  _allWorkoutWeeksMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: WorkoutWeekFilter
+  ): ListMetadata!
 }

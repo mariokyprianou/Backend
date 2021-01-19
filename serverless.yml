@@ -22,6 +22,7 @@ provider:
     FILES_BUCKET: ${env:FILES_BUCKET}
   httpApi:
     payload: '1.0'
+    cors: true
     authorizers:
       serviceAuthorizer:
         identitySource: $request.header.Authorization
@@ -49,24 +50,20 @@ functions:
       - httpApi:
           method: GET
           path: /graphql
-          cors: true
       - httpApi:
           method: POST
           path: /graphql
-          cors: true
   auth:
     handler: apps/app/src/authHandler.default
     events:
       - httpApi:
           method: GET
           path: /auth
-          cors: true
           authorizer:
             name: serviceAuthorizer
       - httpApi:
           method: POST
           path: /auth
-          cors: true
           authorizer:
             name: serviceAuthorizer
   cms:

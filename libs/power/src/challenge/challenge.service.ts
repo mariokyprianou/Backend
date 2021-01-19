@@ -81,20 +81,24 @@ export interface ChallengeFilter {
 }
 
 const applyFilter = (
-  hmcQuestionQuery: Objection.QueryBuilder<Challenge, Challenge[]>,
+  query: Objection.QueryBuilder<Challenge, Challenge[]>,
   filter: ChallengeFilter,
 ): Objection.QueryBuilder<Challenge, Challenge[]> => {
   if (filter.id) {
-    hmcQuestionQuery.findByIds([filter.id]);
+    query.findByIds([filter.id]);
   }
 
   if (filter.ids) {
-    hmcQuestionQuery.findByIds(filter.ids);
+    query.findByIds(filter.ids);
   }
 
   if (filter.type) {
-    hmcQuestionQuery.where('type', filter.type);
+    query.where('type', filter.type);
   }
 
-  return hmcQuestionQuery;
+  // if (filter.programmeId) {
+  //   query.where('')
+  // }
+
+  return query;
 };

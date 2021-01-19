@@ -15,7 +15,8 @@ import { ExerciseService } from '@lib/power/exercise';
 interface WorkoutFilter extends Filter {
   name: string;
   trainer: string;
-  programme: string;
+  environment: string;
+  week: number;
 }
 
 @Resolver('WorkoutWeek')
@@ -38,6 +39,17 @@ export class WorkoutResolver {
 
       if (filter.name) {
         query.where('name', 'ilike', `%${filter.name}%`);
+      }
+
+      if (filter.week) {
+        query.where('week_number', filter.week);
+      }
+
+      if (filter.environment) {
+        query.where(
+          'training_programme_workout.workout.trainingProgramme.environment',
+          filter.environment,
+        );
       }
     }
 
@@ -68,14 +80,14 @@ export class WorkoutResolver {
     };
   }
 
-  @Mutation('createWorkout')
+  @Mutation('createWorkoutWeek')
   async createWorkout(
     @Args('workout') workout: IProgrammeWorkout,
   ): Promise<ProgrammeWorkout> {
     return this.service.create(workout);
   }
 
-  @Query('_allWorkoutsMeta')
+  @Query('_allWorkoutWeeksMeta')
   async _allWorkoutsMeta(
     @Args('filter') filter: WorkoutFilter,
   ): Promise<ListMetadata> {
@@ -83,7 +95,7 @@ export class WorkoutResolver {
     return count;
   }
 
-  @Query('allWorkouts')
+  @Query('allWorkoutWeeks')
   async allWorkouts(
     @Args('page') page: number,
     @Args('perPage') perPage: number,
@@ -102,12 +114,12 @@ export class WorkoutResolver {
     );
   }
 
-  @Query('Workout')
+  @Query('WorkoutWeek')
   async Workout(@Args('id') id: string): Promise<ProgrammeWorkout> {
     return this.service.findById(id);
   }
 
-  @Mutation('updateWorkout')
+  @Mutation('updateWorkoutWeek')
   async updateWorkout(
     @Args('id') id: string,
     @Args('workout') workout: IProgrammeWorkout,
@@ -115,7 +127,7 @@ export class WorkoutResolver {
     return this.service.update(id, workout);
   }
 
-  @Mutation('deleteWorkout')
+  @Mutation('deleteWorkoutWeek')
   async deleteWorkout(@Args('id') id: string): Promise<ProgrammeWorkout> {
     const WorkoutToDelete = await this.service.findById(id);
     await this.service.delete(id);

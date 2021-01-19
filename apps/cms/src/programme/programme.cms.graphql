@@ -46,7 +46,13 @@ input ProgrammeFilter {
 }
 
 extend type Query {
-  _allProgrammesMeta(filter: ProgrammeFilter): ListMetadata!
+  _allProgrammesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: ProgrammeFilter
+  ): ListMetadata!
   allProgrammes(
     page: Int
     perPage: Int
@@ -85,13 +91,13 @@ type ProgrammeSharedImage {
 type ProgrammeSharedLocalisation {
   language: ISOLanguage!
   url: URL!
-  colour: String!
+  colour: String
 }
 
 input ProgrammeSharedLocalisationInput {
   language: ISOLanguage!
   imageKey: String!
-  colour: String!
+  colour: String
 }
 
 input ProgrammeSharedImageInput {

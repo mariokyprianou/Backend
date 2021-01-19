@@ -10,12 +10,14 @@ import { UserWorkout, UserWorkoutFilter } from '@lib/power/user-workout';
 import { ListMetadata } from '@lib/power/types';
 import { FeedbackService } from './feedback.service';
 import { GenerateCsvReportService, CsvFormat } from '@td/generate-csv-report';
+import { UserService } from '@lib/power/user';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
   constructor(
     private readonly feedbackService: FeedbackService /*, private readonly userService: UserService */,
     private readonly generateCsvReportService: GenerateCsvReportService,
+    private userService: UserService,
   ) {}
 
   @Query('Feedback')
@@ -111,6 +113,11 @@ export class FeedbackResolver {
     ).name;
   }
 
+  @ResolveField('environment')
+  getEnvironment(@Parent() userWorkout: UserWorkout) {
+    return userWorkout.workout.trainingProgramme.environment;
+  }
+
   @ResolveField('week')
   getWeek(@Parent() userWorkout: UserWorkout) {
     return userWorkout.userWorkoutWeek.weekNumber;
@@ -127,15 +134,11 @@ export class FeedbackResolver {
     return userWorkout.emojis.map((x) => x.emoji);
   }
 
-  // TODO: when the user tables are setup
   @ResolveField('userEmail')
-  getUserEmail(@Parent() userWorkout: UserWorkout) {
-    // TODO: needs the user work to be merged
-    // const userID = userWorkout.userWorkoutWeek.userTrainingProgramme.accountId;
-    // const user = this.userService.findById(userID);
-    // return user.email;
-
-    return 'fake@fake.com';
+  async getUserEmail(@Parent() userWorkout: UserWorkout) {
+    const userID = userWorkout.userWorkoutWeek.userTrainingProgramme.accountId;
+    const user = await this.userService.findById(userID);
+    return user.email;
   }
 
   @ResolveField('timeTaken')

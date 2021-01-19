@@ -8,6 +8,7 @@ type Feedback {
   timeTaken: Int
   workoutIntensity: Int
   date: Date
+  environment: ProgrammeEnvironment
 }
 
 input FeedbackFilter {

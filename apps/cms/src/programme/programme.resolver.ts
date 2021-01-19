@@ -97,6 +97,10 @@ export class ProgrammeResolver {
 
   @Query('_allProgrammesMeta')
   async _allProgrammesMeta(
+    @Args('page') page: number,
+    @Args('perPage') perPage: number,
+    @Args('sortField') sortField = 'created_at',
+    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
     @Args('filter') filter: ProgrammeFilter,
   ): Promise<ListMetadata> {
     const [count] = await this.constructFilters(this.service.count(), filter);

@@ -83,6 +83,7 @@ type WorkoutWeek {
   weekNumber: Int!
   orderIndex: Int!
   workout: Workout!
+  trainingProgrammeId: ID
 }
 
 enum IntensityEnum {

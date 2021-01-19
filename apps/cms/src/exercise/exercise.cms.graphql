@@ -6,6 +6,7 @@ type Exercise {
   videoEasy: URL
   videoEasiest: URL
   category: ExerciseCategory
+  trainer: ID!
 }
 
 type ExerciseLocalisations {
@@ -50,7 +51,13 @@ extend type Query {
     sortOrder: SortOrder
     filter: ExerciseFilter
   ): [Exercise!]!
-  _allExercisesMeta(filter: ExerciseFilter): ListMetadata!
+  _allExercisesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: ExerciseFilter
+  ): ListMetadata!
 }
 
 extend type Mutation {

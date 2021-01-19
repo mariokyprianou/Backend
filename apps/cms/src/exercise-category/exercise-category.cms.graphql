@@ -18,7 +18,13 @@ extend type Query {
     sortOrder: SortOrder
     filter: ExerciseCategoryFilter
   ): [ExerciseCategory]
-  _allExerciseCategoriesMeta(filter: ExerciseCategoryFilter): ListMetadata
+  _allExerciseCategoriesMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: ExerciseCategoryFilter
+  ): ListMetadata
 }
 
 extend type Mutation {

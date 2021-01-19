@@ -42,6 +42,7 @@ input ChallengesFilter {
   id: ID
   ids: [ID!]
   type: ChallengeType
+  programmeId: ID
 }
 
 extend type Query {

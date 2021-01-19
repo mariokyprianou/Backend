@@ -1,3 +1,8 @@
+export interface ExerciseNote {
+  exercise: string;
+  note: string;
+}
+
 export interface WorkoutOrder {
   id: string;
   index: number;
