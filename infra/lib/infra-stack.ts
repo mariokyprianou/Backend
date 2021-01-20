@@ -275,7 +275,7 @@ export class InfraStack extends cdk.Stack {
     const usernameConfiguration = {
       caseSensitive: false,
     };
-    const userPool = new cognito.CfnUserPool(this, 'PowerCMSUserPool', {
+    const userPool = new cognito.CfnUserPool(this, 'CMSUserPool', {
       adminCreateUserConfig: {
         allowAdminCreateUserOnly: true,
       },

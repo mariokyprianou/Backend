@@ -28,7 +28,7 @@ export class WorkoutService {
   public findAll(programme?: string) {
     return programme
       ? ProgrammeWorkout.query()
-          .where('training_programme_id', programme)
+          .where('training_programme_workout.training_programme_id', programme)
           .withGraphJoined('workout.[localisations, exercises.[sets]]')
       : ProgrammeWorkout.query().withGraphJoined(
           'workout.[localisations, exercises.[sets]]',

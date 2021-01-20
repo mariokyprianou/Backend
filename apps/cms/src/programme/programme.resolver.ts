@@ -39,10 +39,10 @@ export class ProgrammeResolver {
       }
 
       if (filter.trainerId) {
-        query.where('trainer_id', filter.trainerId);
+        query.where('training_programme.trainer_id', filter.trainerId);
       }
       if (filter.environment) {
-        query.where('environment', filter.environment);
+        query.where('training_programme.environment', filter.environment);
       }
     }
 

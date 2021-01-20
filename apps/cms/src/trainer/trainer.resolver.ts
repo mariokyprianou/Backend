@@ -27,7 +27,7 @@ export class TrainerResolver {
       }
 
       if (filter.ids) {
-        query.whereIn('id', filter.ids);
+        query.whereIn('trainer.id', filter.ids);
       }
 
       if (filter.name) {

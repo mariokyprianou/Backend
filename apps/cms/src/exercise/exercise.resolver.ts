@@ -42,7 +42,7 @@ export class ExerciseResolver {
       }
 
       if (filter.ids) {
-        query.whereIn('id', filter.ids);
+        query.whereIn('exercise.id', filter.ids);
       }
 
       if (filter.name) {
