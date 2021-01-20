@@ -14,7 +14,7 @@
     "diff:uat": "cdk diff --region ap-south-1 --profile power uat-infra",
     "diff:prod": "cdk diff --region ap-south-1 --profile power prod-infra",
     "deploy:dev": "cdk deploy --region ap-south-1 --profile power dev-infra",
-    "deploy:qa": "cdk diff --region ap-south-1 --profile power qa-infra",
+    "deploy:qa": "cdk deploy --region ap-south-1 --profile power qa-infra",
     "deploy:uat": "cdk diff --region ap-south-1 --profile power uat-infra",
     "deploy:prod": "cdk diff --region ap-south-1 --profile power prod-infra"
   },

@@ -161,9 +161,10 @@ export class InfraStack extends cdk.Stack {
           : ec2.SubnetType.PUBLIC,
       },
     });
-    // securityGroups.forEach((sg) => {
-    //   instance.connections.allowFrom(sg, ec2.Port.tcp(5432));
-    // });
+
+    instance.connections.securityGroups.forEach((sg) => {
+      instance.connections.allowFrom(sg, ec2.Port.tcp(5432));
+    });
 
     this.addOutput(this, `${dbName}Host`, instance.instanceEndpoint.hostname);
     this.addOutput(

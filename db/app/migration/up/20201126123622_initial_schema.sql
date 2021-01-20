@@ -26,8 +26,7 @@ CREATE TABLE config (
   id uuid CONSTRAINT pk_config PRIMARY KEY DEFAULT uuid_generate_v4(),
   type config_type not null,
   created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT uq_config_key UNIQUE (key)
+	updated_at timestamptz NOT NULL DEFAULT NOW()
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON config FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -277,7 +276,7 @@ CREATE TABLE challenge (
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   deleted_at timestamptz DEFAULT NULL,
-  CONSTRAINT fk_challenge_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id),
+  CONSTRAINT fk_challenge_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON challenge FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -325,6 +324,16 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON share_media_image_tr FOR EACH ROW 
 
 CREATE TYPE download_quality_enum AS enum ('HIGH', 'LOW');
 
+CREATE TABLE user_training_programme (
+  id uuid CONSTRAINT pk_user_training_programme PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id uuid NOT NULL,
+  training_programme_id uuid NOT NULL,
+  start_date timestamptz NOT NULL DEFAULT NOW(),
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+	updated_at timestamptz NOT NULL DEFAULT NOW()
+);
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_training_programme FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
 CREATE TABLE account (
   id uuid CONSTRAINT pk_account PRIMARY KEY DEFAULT uuid_generate_v4(),
   cognito_username text NOT NULL,
@@ -337,19 +346,9 @@ CREATE TABLE account (
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_account_cognito_username UNIQUE (cognito_username),
-  CONSTRAINT fk_account_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id) DEFERRABLE,
+  CONSTRAINT fk_account_user_training_programme FOREIGN KEY (user_training_programme_id) REFERENCES user_training_programme (id) DEFERRABLE
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON account FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
-CREATE TABLE user_training_programme (
-  id uuid CONSTRAINT pk_user_training_programme PRIMARY KEY DEFAULT uuid_generate_v4(),
-  account_id uuid NOT NULL,
-  training_programme_id uuid NOT NULL,
-  start_date timestamptz NOT NULL DEFAULT NOW(),
-  created_at timestamptz NOT NULL DEFAULT NOW(),
-	updated_at timestamptz NOT NULL DEFAULT NOW()
-);
-CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_training_programme FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE user_exercise_history (
   id uuid CONSTRAINT pk_user_exercise_history PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -389,13 +388,6 @@ CREATE TABLE user_workout_week (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout_week FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE TABLE user_workout_feedback_emoji (
-  id uuid CONSTRAINT pk_user_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_workout_id uuid NOT NULL,
-  emoji text NOT NULL,
-  CONSTRAINT fk_user_workout FOREIGN KEY (user_workout_id) REFERENCES user_workout (id)
-);
-
 CREATE TABLE user_workout (
   id uuid CONSTRAINT pk_user_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_workout_week_id uuid NOT NULL,
@@ -409,6 +401,13 @@ CREATE TABLE user_workout (
   CONSTRAINT fk_user_workout_week FOREIGN KEY (user_workout_week_id) REFERENCES user_workout_week (id)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON user_workout FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE user_workout_feedback_emoji (
+  id uuid CONSTRAINT pk_user_workout_feedback_emoji PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_workout_id uuid NOT NULL,
+  emoji text NOT NULL,
+  CONSTRAINT fk_user_workout FOREIGN KEY (user_workout_id) REFERENCES user_workout (id)
+);
 
 CREATE TABLE transformation_image (
   id uuid CONSTRAINT pk_transformation_image PRIMARY KEY DEFAULT uuid_generate_v4(),
