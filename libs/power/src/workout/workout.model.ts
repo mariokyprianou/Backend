@@ -47,7 +47,7 @@ export class Workout extends BaseModel {
       },
     },
     trainingProgramme: {
-      relation: Model.BelongsToOneRelation,
+      relation: Model.HasOneRelation,
       modelClass: Programme,
       join: {
         from: 'workout.training_programme_id',

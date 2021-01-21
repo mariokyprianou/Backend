@@ -45,12 +45,18 @@ export class WorkoutResolver {
         query.where('week_number', filter.week);
       }
 
-      if (filter.environment) {
-        query.where(
-          'training_programme_workout.workout.trainingProgramme.environment',
-          filter.environment,
-        );
-      }
+      // if (filter.environment) {
+      //   query.where(
+      //     'training_programme_workout.programme.environment',
+      //     filter.environment,
+      //   );
+      // }
+      // if (filter.trainer) {
+      //   query.where(
+      //     'training_programme_workout.programme.trainer',
+      //     filter.trainer,
+      //   );
+      // }
     }
 
     return query;
@@ -103,7 +109,7 @@ export class WorkoutResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
     @Args('filter') filter: WorkoutFilter,
   ): Promise<ProgrammeWorkout[]> {
-    return this.constructFilters(
+    const results = await this.constructFilters(
       constructLimits(this.service.findAll(), {
         page,
         perPage,
@@ -112,6 +118,25 @@ export class WorkoutResolver {
       }),
       filter,
     );
+    console.log('RESULTS', JSON.stringify(results));
+    if (filter.trainer) {
+      if (filter.environment) {
+        return results.filter(
+          (each) =>
+            each.programme.trainerId === filter.trainer &&
+            each.programme.environment === filter.environment,
+        );
+      }
+      return results.filter(
+        (each) => each.programme.trainerId === filter.trainer,
+      );
+    }
+    if (filter.environment) {
+      return results.filter(
+        (each) => each.programme.environment === filter.environment,
+      );
+    }
+    return results;
   }
 
   @Query('WorkoutWeek')

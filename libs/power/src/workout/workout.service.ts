@@ -29,9 +29,11 @@ export class WorkoutService {
     return programme
       ? ProgrammeWorkout.query()
           .where('training_programme_workout.training_programme_id', programme)
-          .withGraphJoined('workout.[localisations, exercises.[sets]]')
+          .withGraphJoined(
+            '[programme, workout.[localisations, exercises.[sets]]]',
+          )
       : ProgrammeWorkout.query().withGraphJoined(
-          'workout.[localisations, exercises.[sets]]',
+          '[programme, workout.[localisations, exercises.[sets]]]',
         );
   }
 
