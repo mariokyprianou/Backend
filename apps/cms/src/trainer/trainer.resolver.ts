@@ -91,9 +91,9 @@ export class TrainerResolver {
 
   @Mutation('deleteTrainer')
   async deleteTrainer(@Args('id') id: string): Promise<Trainer> {
-    const trainerToDelete = await this.trainerService.findById(id);
-    await this.trainerService.deleteTrainer(id);
+    // const trainerToDelete = await this.trainerService.findById(id);
+    // await this.trainerService.deleteTrainer(id);
 
-    return trainerToDelete;
+    return this.trainerService.deleteTrainer(id);
   }
 }

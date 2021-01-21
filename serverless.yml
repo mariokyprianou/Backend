@@ -33,7 +33,7 @@ provider:
         audience:
           - ${self:provider.environment.APP_FRONTEND_CLIENT}
           - ${self:provider.environment.APP_BACKEND_CLIENT}
-      cmsAuthorizer:
+      cmsServiceAuthorizer:
         identitySource: $request.header.Authorization
         issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${self:provider.environment.CMS_USERPOOL_ID}
         audience:
@@ -82,32 +82,12 @@ functions:
           method: GET
           path: /cms
           authorizer:
-            name: cmsAuthorizer
+            name: cmsServiceAuthorizer
       - httpApi:
           method: POST
           path: /cms
           authorizer:
-            name: cmsAuthorizer
-
-# resources:
-#   Resources:
-#     CognitoAuthorizer:
-#       Type: AWS::ApiGatewayV2::Authorizer
-#       Properties:
-#         Name: ${self:service}-${self:provider.stage}-authorizer
-#         AuthorizerType: JWT
-#         IdentitySource:
-#           - $request.header.Authorization
-#         JwtConfiguration:
-#           Audience:
-#             - Ref: ${env.APP_BACKEND_CLIENT_NAME}
-#           Issuer:
-#             Fn::Join:
-#               - ''
-#               - - 'https://cognito-idp.'
-#                 - '${opt:region, self:provider.region}'
-#                 - '.amazonaws.com/'
-#                 - Ref: '${env.USERPOOL_NAME}'
+            name: cmsServiceAuthorizer
 
 custom:
   serverless-offline:

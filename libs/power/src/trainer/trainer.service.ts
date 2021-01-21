@@ -9,6 +9,7 @@ export class TrainerService {
   // Can be used in cms for chaining filters.
   public findAll(language?: string) {
     return Trainer.query()
+      .whereNull('trainer.deleted_at')
       .withGraphJoined('localisations')
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,
@@ -16,7 +17,7 @@ export class TrainerService {
   }
 
   public count() {
-    return Trainer.query().count();
+    return Trainer.query().count().whereNull('trainer.deleted_at');
   }
 
   // FIND SINGLE TRAINER //
@@ -30,7 +31,7 @@ export class TrainerService {
     // return Trainer.query().deleteById(trainerId);
     // set deleted_at flag
     return Trainer.query()
-      .patch({ deletedAt: new Date() })
+      .patchAndFetch({ deletedAt: new Date() })
       .where('id', trainerId);
   }
 
