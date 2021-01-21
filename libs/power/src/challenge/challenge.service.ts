@@ -78,6 +78,7 @@ export interface ChallengeFilter {
   id?: string;
   ids?: string[];
   type?: ChallengeType;
+  programmeId?: string;
 }
 
 const applyFilter = (
@@ -96,9 +97,9 @@ const applyFilter = (
     query.where('type', filter.type);
   }
 
-  // if (filter.programmeId) {
-  //   query.where('')
-  // }
+  if (filter.programmeId) {
+    query.where('challenge.training_programme_id', filter.programmeId);
+  }
 
   return query;
 };

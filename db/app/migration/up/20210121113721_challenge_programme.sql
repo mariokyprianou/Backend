@@ -1,0 +1,1 @@
+ALTER TABLE challenge ADD COLUMN training_programme_id uuid REFERENCES training_programme (id) NOT NULL;

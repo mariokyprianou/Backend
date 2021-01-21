@@ -17,6 +17,7 @@ export class Challenge extends BaseModel {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
+  trainingProgrammeId: string;
 
   localisations: ChallengeTranslation[];
 

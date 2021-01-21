@@ -73,6 +73,7 @@ export interface CreateChallengeGraphQlInput {
   type: ChallengeType;
   duration: number;
   localisations: ChallengeLocalisationGraphQlType[];
+  trainingProgrammeId: string;
 }
 
 export interface UpdateChallengeGraphQlInput

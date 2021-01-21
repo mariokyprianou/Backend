@@ -22,6 +22,7 @@ input CreateChallengeInput {
   type: ChallengeType!
   duration: Int
   localisations: [ChallengeLocalisationInput!]!
+  trainingProgrammeId: ID!
 }
 
 input UpdateChallengeInput {
