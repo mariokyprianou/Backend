@@ -1,7 +1,4 @@
-const fs = require('fs');
-const yaml = require('js-yaml');
-
-const STAGES = ['local', 'development', 'staging', 'production'];
+const STAGES = ['development', 'qa', 'production'];
 
 const DEFAULT = {
   client: 'pg',
@@ -13,29 +10,28 @@ const DEFAULT = {
 
 const knexConfiguration = STAGES.reduce((config, stage) => {
   try {
-    const seedStage = ['local', 'development'].includes(stage)
-      ? 'development'
-      : stage;
-
-    const env = yaml.safeLoad(
-      fs.readFileSync(`../../env.${stage}.yml`, 'utf8')
-    );
+    const env = require('dotenv').config({ path: `../../.env.${stage}` });
     config[stage] = {
       ...DEFAULT,
       connection: {
-        host: env.DB_HOSTNAME,
-        port: env.DB_PORT || 5432,
-        user: env.DB_USERNAME,
-        password: env.DB_PASSWORD,
-        database: env.DB_NAME,
+        host: env.parsed.DB_HOST,
+        port: env.parsed.DB_PORT || 5432,
+        user: env.parsed.DB_USER,
+        password: env.parsed.DB_PASSWORD,
+        database: env.parsed.DB_DATABASE,
       },
       seeds: {
-        directory: `./seeds/${seedStage}`,
+        directory: `./seeds/${stage}`,
+      },
+      migrations: {
+        tableName: 'knex_migrations',
+        directory: './migration',
       },
     };
+
     return config;
   } catch (e) {
-    console.log(`File 'env.${stage}.yml' not found, ignoring...`);
+    console.log(`File 'env.${stage}' not found, ignoring...`);
     return config;
   }
 }, {});

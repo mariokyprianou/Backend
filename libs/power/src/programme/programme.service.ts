@@ -11,6 +11,7 @@ export class ProgrammeService {
   // FIND ALL PROGRAMMES
   public findAll(language?: string) {
     return Programme.query()
+      .whereNull('training_programme.deleted_at')
       .withGraphJoined(
         '[localisations, images, shareMediaImages.[localisations]]',
       )
@@ -20,7 +21,7 @@ export class ProgrammeService {
   }
 
   public count() {
-    return Programme.query().count();
+    return Programme.query().count().whereNull('training_programme.deleted_at');
   }
 
   // CREATE PROGRAMME //
@@ -34,22 +35,26 @@ export class ProgrammeService {
 
   public async delete(id: string) {
     // delete translations
-    const mediaToDelete = await ShareMedia.query().where(
-      'training_programme_id',
-      id,
-    );
-    await ShareMediaTranslation.query()
-      .del()
-      .whereIn(
-        'share_media_image_id',
-        mediaToDelete.map((each) => each.id),
-      );
-    await ShareMedia.query().del().where('training_programme_id', id);
-    await ProgrammeTranslation.query()
-      .delete()
-      .where('training_programme_id', id);
-    await ProgrammeImage.query().delete().where('training_programme_id', id);
-    return Programme.query().deleteById(id);
+    // const mediaToDelete = await ShareMedia.query().where(
+    //   'training_programme_id',
+    //   id,
+    // );
+    // await ShareMediaTranslation.query()
+    //   .del()
+    //   .whereIn(
+    //     'share_media_image_id',
+    //     mediaToDelete.map((each) => each.id),
+    //   );
+    // await ShareMedia.query().del().where('training_programme_id', id);
+    // await ProgrammeTranslation.query()
+    //   .delete()
+    //   .where('training_programme_id', id);
+    // await ProgrammeImage.query().delete().where('training_programme_id', id);
+    // return Programme.query().deleteById(id);
+
+    // Soft delete
+    // Potential TODO only soft delete if people are subscribed if not do a full clear up
+    return Programme.query().patchAndFetchById(id, { deletedAt: new Date() });
   }
 
   public async update(id: string, programme: IProgramme) {

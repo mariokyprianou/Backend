@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs').promises;
 
 const migrationPath = (type, dirname = __dirname, filename = __filename) => {
-  const parsed = path.parse(path.join(dirname, filename));
+  const parsed = path.parse(filename);
   return path.join(parsed.dir, type, parsed.name + '.sql');
 };
 

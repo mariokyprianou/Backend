@@ -23,6 +23,7 @@ export class Programme extends BaseModel {
   status: PublishStatus;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
 
   localisations: ProgrammeTranslation[];
   images: ProgrammeImage[];
