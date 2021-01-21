@@ -151,12 +151,12 @@ export class ExerciseResolver {
 
   @Mutation('deleteExercise')
   async deleteExercise(@Args('id') id: string): Promise<Exercise> {
-    const ExerciseToDelete = await this.service.findById(id);
-    await this.service.delete(id);
+    // const ExerciseToDelete = await this.service.findById(id);
+    // await this.service.delete(id);
 
     // TODO: Tidy up S3 bucket(s)
 
-    return ExerciseToDelete;
+    return this.service.delete(id);
   }
 
   @Mutation('requestVideoUpload')

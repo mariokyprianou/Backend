@@ -7,9 +7,10 @@ import { ExerciseLocalisation, IExercise } from '../types';
 export class ExerciseService {
   // FIND ALL Exercise
 
-  // TODO filter deleted 
+  // TODO filter deleted
   public findAll(language?: string) {
     return Exercise.query()
+      .whereNull('exercise.deleted_at')
       .withGraphJoined('localisations')
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,
@@ -17,7 +18,7 @@ export class ExerciseService {
   }
 
   public count() {
-    return Exercise.query().count();
+    return Exercise.query().count().whereNull('exercise.deleted_at');
   }
 
   public findById(id: string, language?: string) {
@@ -26,8 +27,10 @@ export class ExerciseService {
 
   public async delete(id: string) {
     // delete translations
-    await ExerciseTranslation.query().delete().where('exercise_id', id);
-    return Exercise.query().deleteById(id);
+    // await ExerciseTranslation.query().delete().where('exercise_id', id);
+    // return Exercise.query().deleteById(id);
+
+    return Exercise.query().patchAndFetchById(id, { deletedAt: new Date() });
   }
 
   public async update(

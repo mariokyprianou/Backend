@@ -19,6 +19,7 @@ export class Exercise extends BaseModel {
   categoryId: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
 
   localisations: ExerciseTranslation[];
 
