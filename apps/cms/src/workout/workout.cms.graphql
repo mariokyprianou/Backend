@@ -40,12 +40,11 @@ input WorkoutLocalisationInput {
   name: String!
 }
 
-# // TODO workout the filtering on this
 input WorkoutWeekFilter {
   id: ID
   ids: [ID]
   trainer: ID
-  # environment: ID
+  environment: ID
   name: String
   week: Int
 }
