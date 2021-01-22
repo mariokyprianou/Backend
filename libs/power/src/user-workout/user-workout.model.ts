@@ -2,7 +2,7 @@ import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
 import { UserWorkoutWeek } from '../user-workout-week';
 import { Workout } from '../workout';
-import { UserWorkoutFeedbackEmoji } from './user-workout-feedback-emoji.model';
+// import { UserWorkoutFeedbackEmoji } from './user-workout-feedback-emoji.model';
 
 export class UserWorkout extends BaseModel {
   static tableName = 'user_workout';
@@ -15,15 +15,13 @@ export class UserWorkout extends BaseModel {
   userWorkoutWeekId: string;
   workoutId: string;
   orderIndex: number;
-  feedbackIntensity: number;
-  timeTaken: number;
   completedAt: Date;
   createdAt: Date;
   updatedAt: Date;
 
   workout: Workout;
   userWorkoutWeek: UserWorkoutWeek;
-  emojis: UserWorkoutFeedbackEmoji[];
+  // feedback: UserWorkoutFeedbackEmoji[];
 
   static relationMappings = {
     workout: {
@@ -42,13 +40,13 @@ export class UserWorkout extends BaseModel {
         to: 'user_workout_week.id',
       },
     },
-    emojis: {
-      relation: Model.HasManyRelation,
-      modelClass: UserWorkoutFeedbackEmoji,
-      join: {
-        from: 'user_workout.id',
-        to: 'user_workout_feedback_emoji.user_workout_id',
-      },
-    },
+    // feedback: {
+    //   relation: Model.HasManyRelation,
+    //   modelClass: UserWorkoutFeedbackEmoji,
+    //   join: {
+    //     from: 'user_workout.id',
+    //     to: 'user_workout_feedback.user_workout_id',
+    //   },
+    // },
   };
 }

@@ -110,7 +110,7 @@ export class UserPowerService {
     }
 
     try {
-      return this.userWorkoutService.completeWorkout(input);
+      return this.userWorkoutService.completeWorkout(input, sub);
     } catch (error) {
       console.log(error);
       return false;
@@ -308,7 +308,7 @@ export class UserPowerService {
         account.userTrainingProgrammeId,
       )
       .withGraphJoined(
-        '[workout.[workout.[localisations, exercises.[sets, exercise.[localisations]]], emojis]]',
+        '[workout.[workout.[localisations, exercises.[sets, exercise.[localisations]]]]]',
       );
 
     const currentWeek = this.returnCurrentWeek(weeks);

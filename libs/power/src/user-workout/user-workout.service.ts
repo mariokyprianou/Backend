@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
+import { UserWorkoutFeedback } from '../feedback/user-workout-feedback.model';
 import { CompleteWorkout, WorkoutOrder } from '../types';
-import { UserWorkoutFeedbackEmoji } from './user-workout-feedback-emoji.model';
+import { User } from '../user/user.model';
 import { UserWorkout } from './user-workout.model';
 
 // Note: this is untested
@@ -34,23 +35,24 @@ export class UserWorkoutService {
     return;
   }
 
-  public async completeWorkout(input: CompleteWorkout) {
-    return UserWorkout.transaction(async (trx) => {
-      await UserWorkout.query(trx)
-        .patch({
-          completedAt: input.date,
-          feedbackIntensity: input.intensity,
-          timeTaken: input.timeTaken,
-        })
-        .where('id', input.workoutId);
+  public async completeWorkout(input: CompleteWorkout, sub: string) {
+    await UserWorkout.query()
+      .patch({
+        completedAt: input.date,
+      })
+      .where('id', input.workoutId);
 
-      await UserWorkoutFeedbackEmoji.query(trx).insertAndFetch({
-        userWorkoutId: input.workoutId,
-        emoji: input.emoji,
-      });
+    const user = await User.query().findOne('cognito_sub', sub);
 
-      return true;
+    await UserWorkoutFeedback.query().insertAndFetch({
+      accountId: user.id,
+      userWorkoutId: input.workoutId,
+      emoji: input.emoji,
+      feedbackIntensity: input.intensity,
+      timeTaken: input.timeTaken,
     });
+
+    return true;
   }
 
   public updateOrder(input: WorkoutOrder) {

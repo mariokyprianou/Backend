@@ -1,0 +1,1 @@
+DROP TABLE user_workout_feedback;
