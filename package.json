@@ -87,9 +87,9 @@
     "migrate:make:app": "bash db/app/make-migration.sh",
     "migrate:make:user": "bash db/user/make-migration.sh",
     "migrate:app:down": "knex migrate:rollback --knexfile db/app/knexfile.js",
-    "migrate:app:up": "knex migrate:latest --knexfile db/app/knexfile.js --env development",
+    "migrate:app:up": "knex migrate:latest --knexfile db/app/knexfile.js --env qa",
     "migrate:user:down": "knex migrate:rollback --knexfile db/user/knexfile.js --env development",
-    "migrate:user:up": "knex migrate:latest --knexfile db/user/knexfile.js --env development"
+    "migrate:user:up": "knex migrate:latest --knexfile db/user/knexfile.js --env qa"
   },
   "repository": {
     "type": "git",

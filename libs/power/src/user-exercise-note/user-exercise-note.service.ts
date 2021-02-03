@@ -10,7 +10,7 @@ export class UserExerciseNoteService {
 
     // Check if they have an existing exercise not?
     const existingNote = await UserExerciseNote.query()
-      .findOne('accountId', account.id)
+      .findOne('account_id', account.id)
       .where('exercise_id', input.exercise);
 
     if (!existingNote) {
@@ -20,9 +20,8 @@ export class UserExerciseNoteService {
         note: input.note,
       });
     }
-    return UserExerciseNote.query()
-      .patch({ note: input.note })
-      .where('exercise_id', input.exercise)
-      .andWhere('account_id', account.id);
+    return UserExerciseNote.query().patchAndFetchById(existingNote.id, {
+      note: input.note,
+    });
   }
 }

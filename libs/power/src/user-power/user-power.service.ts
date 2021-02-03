@@ -179,7 +179,7 @@ export class UserPowerService {
             workout.workout.exercises.map(async (exercise: WorkoutExercise) => {
               const userExercise = await UserExerciseNote.query()
                 .findOne('account_id', account.id)
-                .andWhere('exercise_id', exercise.id);
+                .andWhere('exercise_id', exercise.exercise.id);
 
               const exerciseLocalisation = (
                 exercise.exercise.localisations ?? []

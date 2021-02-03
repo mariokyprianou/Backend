@@ -203,6 +203,12 @@ export interface UserPreference {
   errorReports: boolean;
   analytics: boolean;
   downloadQuality: DownloadQuality;
+  weightPreference: WeightPreference;
+}
+
+export enum WeightPreference {
+  KG,
+  LB,
 }
 
 export enum DownloadQuality {

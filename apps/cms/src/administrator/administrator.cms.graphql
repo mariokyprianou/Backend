@@ -1,6 +1,6 @@
 type Administrator {
   id: ID!
-  name: String!
+  name: String
   email: EmailAddress!
 }
 

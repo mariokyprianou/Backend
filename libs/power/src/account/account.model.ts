@@ -1,6 +1,6 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { DownloadQuality, downloadQuality } from '../types';
+import { DownloadQuality, downloadQuality, WeightPreference } from '../types';
 import { UserProgramme } from '../user-programme';
 
 export class Account extends BaseModel {
@@ -20,6 +20,7 @@ export class Account extends BaseModel {
   notifications: boolean;
   createdAt: Date;
   updatedAt: Date;
+  weightPreference: WeightPreference;
 
   trainingProgramme: UserProgramme;
 

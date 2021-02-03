@@ -228,7 +228,7 @@ export class InfraStack extends cdk.Stack {
         explicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_USER_SRP_AUTH'],
         generateSecret: false,
         preventUserExistenceErrors: 'ENABLED',
-        readAttributes: ['email'],
+        readAttributes: ['email', 'email_verified'],
       },
     );
     frontendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
