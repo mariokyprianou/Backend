@@ -1,0 +1,31 @@
+type ProgressImage {
+  id: ID!
+  createdAt: DateTime!
+}
+
+input ProgressImageInput {
+  id: ID!
+  url: String!
+  createdAt: DateTime!
+}
+
+type ProgressImageResponse {
+  id: ID!
+  url: String!
+  createdAt: DateTime!
+}
+
+type UploadImage {
+  id: ID!
+  url: String!
+}
+
+extend type Query {
+  progressImages: [ProgressImage]!
+  progressImage(input: ProgressImageInput!): ProgressImageResponse!
+}
+
+extend type Mutation {
+  uploadUrl: UploadImage!
+  uploadFailed(id: ID!): Boolean!
+}
