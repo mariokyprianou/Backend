@@ -70,4 +70,28 @@ export class UserProgrammeResolver {
   ) {
     return this.userExerciseNote.addExerciseNote(input, authContext.sub);
   }
+
+  @Mutation('continueProgramme')
+  async continueProgramme(
+    @Args('input') input: { programme: string },
+    @Context('authContext') authContext: AuthContext,
+  ) {
+    return this.userPower.continueProgramme(input.programme, authContext);
+  }
+
+  @Mutation('startProgramme')
+  async startProgramme(
+    @Args('input') input: { programme: string },
+    @Context('authContext') authContext: AuthContext,
+  ) {
+    return this.userPower.startProgramme(input.programme, authContext);
+  }
+
+  @Mutation('restartProgramme')
+  async restartProgramme(
+    @Args('input') input: { programme: string },
+    @Context('authContext') authContext: AuthContext,
+  ) {
+    return this.userPower.restartProgramme(input.programme, authContext);
+  }
 }

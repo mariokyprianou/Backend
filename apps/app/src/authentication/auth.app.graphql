@@ -9,7 +9,7 @@ input RegisterUserInput {
   email: String!
   password: String!
   gender: Gender
-  dateOfBirth: String
+  dateOfBirth: DateTime
   country: ID
   region: ID
   deviceUDID: String!

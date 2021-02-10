@@ -23,7 +23,7 @@ type UserProfile {
   familyName: String!
   email: String!
   gender: Gender
-  dateOfBirth: String
+  dateOfBirth: DateTime
   country: String
   region: String
   canChangeDevice: Boolean!
@@ -38,9 +38,10 @@ input UpdateProfileInput {
   givenName: String!
   familyName: String!
   gender: Gender
-  dateOfBirth: Date
+  dateOfBirth: DateTime
   country: ID
   region: ID
+  timeZone: String!
 }
 
 input UpdatePreferenceInput {

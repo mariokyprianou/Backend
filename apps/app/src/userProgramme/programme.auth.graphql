@@ -87,6 +87,10 @@ type ExerciseNote {
   updatedAt: DateTime!
 }
 
+input ProgrammeSwitchInput {
+  programme: ID!
+}
+
 extend type Query {
   getProgramme: UserProgramme!
   getExerciseWeight(exercise: ID!): [ExerciseWeight!]!
@@ -99,4 +103,7 @@ extend type Mutation {
   completeWorkout(input: CompleteWorkoutInput!): Boolean!
   completeWorkoutWeek: Boolean!
   updateExerciseNote(input: ExerciseNoteInput!): ExerciseNote!
+  continueProgramme(input: ProgrammeSwitchInput): Boolean!
+  startProgramme(input: ProgrammeSwitchInput): Boolean!
+  restartProgramme(input: ProgrammeSwitchInput): Boolean!
 }

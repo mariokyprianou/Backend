@@ -157,7 +157,7 @@ export interface RegisterUserInput {
   email: string;
   password: string;
   gender: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   country: string;
   region: string;
   deviceUDID: string;
@@ -179,7 +179,7 @@ export interface UserProfile {
   familyName: string;
   email: string;
   gender?: string;
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   country?: string;
   region?: string;
   deviceUDID: string;
@@ -192,9 +192,10 @@ export interface UserProfileInput {
   givenName: string;
   familyName: string;
   gender?: string;
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   country?: string;
   region?: string;
+  timeZone: string;
 }
 
 export interface UserPreference {

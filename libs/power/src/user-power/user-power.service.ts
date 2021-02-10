@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Account, AccountService } from '../account';
-import { UserProgrammeService } from '../user-programme';
+import { UserProgramme, UserProgrammeService } from '../user-programme';
 import * as R from 'ramda';
 import { Programme } from '../programme';
 import { CommonService } from '@lib/common';
@@ -8,8 +8,15 @@ import { UserWorkout, UserWorkoutService } from '../user-workout';
 import { UserWorkoutWeek, UserWorkoutWeekService } from '../user-workout-week';
 import { WorkoutExercise } from '../workout/workout-exercise.model';
 import { UserExerciseNote } from '../user-exercise-note/user-exercise-note.model';
-import { CompleteWorkout, DownloadQuality, WorkoutOrder } from '../types';
+import {
+  AuthContext,
+  CompleteWorkout,
+  DownloadQuality,
+  WorkoutOrder,
+} from '../types';
 import { ProgrammeWorkout, Workout, WorkoutService } from '../workout';
+import { GraphQLError } from 'graphql';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class UserPowerService {
@@ -20,6 +27,165 @@ export class UserPowerService {
     private commonService: CommonService,
     private workoutService: WorkoutService,
   ) {}
+
+  public async getProgrammeInformation(
+    relatedProgrammes: Programme[],
+    authContext: AuthContext,
+  ) {
+    // Fetch user
+    const account = await this.accountService.findBySub(authContext.sub);
+    // Fetch user training_programmes
+    const userProgrammes = await UserProgramme.query().where(
+      'account_id',
+      account.id,
+    );
+
+    return await Promise.all(
+      relatedProgrammes.map(async (each) => {
+        const userProgramme = userProgrammes.find(
+          (prog) => prog.trainingProgrammeId === each.id,
+        );
+        if (!userProgramme) {
+          return;
+        }
+        const weeks = await UserWorkoutWeek.query().where(
+          'user_training_programme_id',
+          userProgramme.id,
+        );
+
+        return {
+          id: each.id,
+          isActive: userProgramme.id === account.userTrainingProgrammeId,
+          latestWeek: weeks.reduce(
+            (prev, curr) => (prev > curr.weekNumber ? prev : curr.weekNumber),
+            1,
+          ),
+        };
+      }),
+    );
+  }
+
+  public async continueProgramme(programme: string, authContext: AuthContext) {
+    // check user programme exists
+    const account = await this.accountService.findBySub(authContext.sub);
+    const [userProgramme] = await UserProgramme.query()
+      .where('training_programme_id', programme)
+      .andWhere('account_id', account.id);
+
+    if (!userProgramme) {
+      throw new GraphQLError(
+        "User hasn't started this programme. To continue a programme, a user must have started the programme.",
+      );
+    }
+
+    // replace active programme
+    try {
+      await Account.query().patchAndFetchById(account.id, {
+        userTrainingProgrammeId: userProgramme.id,
+      });
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  public async startProgramme(programme: string, authContext: AuthContext) {
+    const account = await this.accountService.findBySub(authContext.sub);
+    const workouts = await this.workoutService
+      .findAll(programme)
+      .whereIn('week_number', [1, 2]);
+
+    await Account.transaction(async (trx) => {
+      const userTrainingProgrammeId = uuid();
+
+      await trx.raw('SET CONSTRAINTS ALL DEFERRED');
+      // Create the account
+      await Account.query(trx).patchAndFetchById(account.id, {
+        userTrainingProgrammeId,
+      });
+      await UserProgramme.query(trx).insert({
+        id: userTrainingProgrammeId,
+        trainingProgrammeId: programme,
+        accountId: account.id,
+      });
+
+      // add the workouts to the relevant tables
+      const workoutWeeks = workouts.map((workout) => {
+        const weekId = uuid();
+        return {
+          id: weekId,
+          userTrainingProgrammeId,
+          weekNumber: workout.weekNumber,
+          workout: {
+            userWorkoutWeekId: weekId,
+            workoutId: workout.workoutId,
+            orderIndex: workout.orderIndex,
+          },
+        };
+      });
+      return UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
+    });
+
+    return true;
+  }
+
+  public async restartProgramme(programme: string, authContext: AuthContext) {
+    // fetch account
+    // clean up workout existing workout data
+    // start programme
+    const workouts = await this.workoutService
+      .findAll(programme)
+      .whereIn('week_number', [1, 2]);
+    try {
+      // delete user workout
+      // if the user is restarting an active workout we need to handle that
+      const account = await this.accountService.findBySub(authContext.sub);
+      await Account.transaction(async (trx) => {
+        await trx.raw('SET CONSTRAINTS ALL DEFERRED');
+        const userTrainingProgrammeId = uuid();
+
+        // update the account first as to not interfere with any deletes
+        await Account.query(trx).patchAndFetchById(account.id, {
+          userTrainingProgrammeId,
+        });
+
+        // should cascade
+        await UserProgramme.query(trx)
+          .delete()
+          .where('training_programme_id', programme)
+          .andWhere('account_id', account.id);
+
+        //
+        await UserProgramme.query(trx).insert({
+          id: userTrainingProgrammeId,
+          trainingProgrammeId: programme,
+          accountId: account.id,
+        });
+
+        // add the workouts to the relevant tables
+        const workoutWeeks = workouts.map((workout) => {
+          const weekId = uuid();
+          return {
+            id: weekId,
+            userTrainingProgrammeId,
+            weekNumber: workout.weekNumber,
+            workout: {
+              userWorkoutWeekId: weekId,
+              workoutId: workout.workoutId,
+              orderIndex: workout.orderIndex,
+            },
+          };
+        });
+        return UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
+      });
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 
   public async completeWorkoutWeek(sub: string) {
     // ensure authenticated request
@@ -51,6 +217,10 @@ export class UserPowerService {
       if (notCompleteWorkouts.length > 0) {
         throw new Error('Incomplete workouts in week');
       }
+      // TODO Check whether 7 days past since first workout complete
+      // currentWeek.forEach((element: UserWorkoutWeek) => {
+      //     if
+      // });
       // if not we can update the current week to be completed at
       const idsToUpdate = weeks
         .filter((each) => each.weekNumber === currentWeek.weekNumber)
@@ -101,15 +271,20 @@ export class UserPowerService {
     // update feedback
     const account = await this.accountService.findBySub(sub);
     const userWorkout = await this.userWorkoutService.findById(input.workoutId);
-    const userWorkoutWeek = await this.userWorkoutWeekService
-      .findById(userWorkout.userWorkoutWeekId)
-      .withGraphJoined('userTrainingProgramme');
-
-    if (userWorkoutWeek.userTrainingProgramme.accountId !== account.id) {
-      throw new Error('Not authorised');
+    if (!userWorkout) {
+      throw new GraphQLError(
+        'Workout of workout id ' + input.workoutId + ' does not exist',
+      );
     }
-
     try {
+      const userWorkoutWeek = await this.userWorkoutWeekService
+        .findById(userWorkout.userWorkoutWeekId)
+        .withGraphJoined('userTrainingProgramme');
+
+      if (userWorkoutWeek.userTrainingProgramme.accountId !== account.id) {
+        throw new Error('Not authorised');
+      }
+
       return this.userWorkoutService.completeWorkout(input, sub);
     } catch (error) {
       console.log(error);

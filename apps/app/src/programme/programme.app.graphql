@@ -13,6 +13,11 @@ type ProgrammeShareImage {
   colour: String!
 }
 
+type UserProgress {
+  isActive: Boolean
+  latestWeek: Int
+}
+
 type ProgrammeOverview implements Programme {
   id: ID!
   trainer: Trainer
@@ -25,4 +30,5 @@ type ProgrammeOverview implements Programme {
   firstWeek: [WorkoutWeek]!
   programmeImage: URL
   numberOfWeeks: Int!
+  userProgress: UserProgress
 }

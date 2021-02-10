@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonService } from '@lib/common/common.service';
-import { ShareMediaType } from '@lib/power/types';
+import { AuthContext, ShareMediaType } from '@lib/power/types';
 import { ProgrammeService } from '@lib/power/programme';
 import { Trainer } from '@lib/power/trainer';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@nestjs/graphql';
 import { TrainerService } from '../../../../libs/power/src/trainer/trainer.service';
 import { WorkoutService } from '@lib/power/workout';
+import { UserPowerService } from '@lib/power/user-power';
 
 @Resolver('Trainer')
 export class TrainerResolver {
@@ -20,6 +21,7 @@ export class TrainerResolver {
     private common: CommonService,
     private programme: ProgrammeService,
     private workout: WorkoutService,
+    private userPower: UserPowerService,
   ) {}
 
   @Query('getTrainers')
@@ -36,12 +38,21 @@ export class TrainerResolver {
   async programmes(
     @Parent() trainer: Trainer,
     @Context('language') language: string,
+    @Context('authContext') authContext?: AuthContext,
   ) {
     // Resolve the graph relation to fetch the trainers programmes.
     const relatedProgrammes = await this.programme
       .findAll(language)
       .where('trainer_id', trainer.id)
       .andWhere('status', 'PUBLISHED');
+
+    const allUserInformation =
+      authContext && authContext.sub && relatedProgrammes.length
+        ? await this.userPower.getProgrammeInformation(
+            relatedProgrammes,
+            authContext,
+          )
+        : [];
 
     const res = await Promise.all(
       relatedProgrammes.map(async (programme) => {
@@ -60,6 +71,10 @@ export class TrainerResolver {
         );
 
         const count = await this.workout.findAll(programme.id);
+
+        const userProgress = allUserInformation.find(
+          (val) => val && val.id === programme.id,
+        );
 
         return {
           id: programme.id,
@@ -105,6 +120,7 @@ export class TrainerResolver {
               'getObject',
             )),
           numberOfWeeks: count.length,
+          userProgress,
         };
       }),
     );

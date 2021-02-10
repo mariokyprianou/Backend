@@ -20,7 +20,7 @@ export class User extends UserModel {
   regionId: string;
   timeZone: string;
   deviceUdid: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   gender: string;
   deviceChange: Date;
   createdAt: Date;

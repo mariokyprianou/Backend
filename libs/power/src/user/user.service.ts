@@ -72,6 +72,7 @@ export class UserService {
       regionId: input.region,
       gender: input.gender,
       dateOfBirth: input.dateOfBirth,
+      timeZone: input.timeZone,
     });
     return this.findById(profile.id);
   }

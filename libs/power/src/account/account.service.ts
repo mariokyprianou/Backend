@@ -76,20 +76,20 @@ export class AccountService {
       });
 
       // add the workouts to the relevant tables
-      return Promise.all(
-        workouts.map(async (workout) => {
-          const week = await UserWorkoutWeek.query(trx).insertAndFetch({
-            userTrainingProgrammeId,
-            weekNumber: workout.weekNumber,
-          });
-
-          return UserWorkout.query(trx).insert({
-            userWorkoutWeekId: week.id,
+      const workoutWeeks = workouts.map((workout) => {
+        const weekId = uuid();
+        return {
+          id: weekId,
+          userTrainingProgrammeId,
+          weekNumber: workout.weekNumber,
+          workout: {
+            userWorkoutWeekId: weekId,
             workoutId: workout.workoutId,
             orderIndex: workout.orderIndex,
-          });
-        }),
-      );
+          },
+        };
+      });
+      return UserWorkoutWeek.query(trx).insertGraphAndFetch(workoutWeeks);
     });
   }
 }
