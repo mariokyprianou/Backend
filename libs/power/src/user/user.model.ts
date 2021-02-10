@@ -2,7 +2,6 @@ import { UserModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
 import { Country } from '../country';
 import { Region } from '../region';
-import { TimeZone } from '../timeZone';
 
 export class User extends UserModel {
   static tableName = 'account';

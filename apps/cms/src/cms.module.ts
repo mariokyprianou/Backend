@@ -16,7 +16,6 @@ import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';
 import { UserCMSModule } from './user/user.module';
 import { AdministratorCMSModule } from './administrator/administrator.module';
-import { TimeZoneCMSModule } from './timeZone/timeZone.module';
 import { RegionCMSModule } from './region/region.module';
 import { CountryCMSModule } from './country/region.module';
 import { AuthProviderModule } from '@td/auth-provider';
@@ -43,7 +42,6 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ChallengeCMSModule,
         UserCMSModule,
         AdministratorCMSModule,
-        TimeZoneCMSModule,
         RegionCMSModule,
         CountryCMSModule,
       ],
@@ -78,7 +76,6 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ChallengeCMSModule,
     UserCMSModule,
     AdministratorCMSModule,
-    TimeZoneCMSModule,
     RegionCMSModule,
     CountryCMSModule,
     AuthProviderModule,

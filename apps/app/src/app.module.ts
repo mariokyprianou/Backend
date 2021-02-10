@@ -15,7 +15,6 @@ import { HMCAppModule } from './hmc/hmc.module';
 
 import { OnboardingAppModule } from './onboarding/onboarding.module';
 import { RegionAppModule } from './region/region.module';
-import { TimeZoneAppModule } from './timeZone/timeZone.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
@@ -31,7 +30,6 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ConfigAppModule,
         TrainerAppModule,
         HMCAppModule,
-        TimeZoneAppModule,
         RegionAppModule,
         CountryAppModule,
         AuthAppModule,
@@ -61,7 +59,6 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ConfigAppModule,
     TrainerAppModule,
     HMCAppModule,
-    TimeZoneAppModule,
     RegionAppModule,
     CountryAppModule,
     AuthAppModule,
