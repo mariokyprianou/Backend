@@ -5,7 +5,6 @@ type ProgressImage {
 
 input ProgressImageInput {
   id: ID!
-  url: String!
   createdAt: DateTime!
 }
 
@@ -21,7 +20,7 @@ type UploadImage {
 }
 
 extend type Query {
-  progressImages: [ProgressImage]!
+  progressImages: [ProgressImage!]
   progressImage(input: ProgressImageInput!): ProgressImageResponse!
 }
 

@@ -23,6 +23,7 @@ import { RegionAppModule } from './region/region.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 import { ProfileAuthModule } from './profile/profile.module';
 import { UserProgrammeAuthModule } from './userProgramme/userProgramme.module';
+import { TransformationImageAuthModule } from './transformationImage/transformationImage.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -42,6 +43,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         AuthAppModule,
         ProfileAuthModule,
         UserProgrammeAuthModule,
+        TransformationImageAuthModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -75,6 +77,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     AuthProviderModule,
     ProfileAuthModule,
     UserProgrammeAuthModule,
+    TransformationImageAuthModule,
     GraphQLProvider,
   ],
 })

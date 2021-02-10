@@ -26,7 +26,7 @@ export class TransformationImageService {
       'putObject',
     );
     // Update the model
-    await TransformationImage.query().insertAndFetch({
+    await TransformationImage.query().insert({
       id,
       accountId: account.id,
       imageKey,
