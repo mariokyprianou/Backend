@@ -1,0 +1,19 @@
+enum ProgressType {
+  NEW_WEEK
+  WORKOUT_COMPLETE
+  NEW_PROGRAMME
+}
+
+type ProgressDay {
+  date: DateTime!
+  type: ProgressType!
+}
+
+type ProgressMonth {
+  startOfMonth: DateTime!
+  days: [ProgressDay]!
+}
+
+extend type Query {
+  progress: [ProgressMonth]!
+}

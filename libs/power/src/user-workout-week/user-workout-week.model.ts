@@ -17,16 +17,17 @@ export class UserWorkoutWeek extends BaseModel {
   createdAt: Date;
   updatedAt: Date;
 
-  userTrainingProgramme: UserProgramme;
+  // userTrainingProgramme: UserProgramme;
+  workouts: UserWorkout[];
   workout: UserWorkout;
 
   static relationMappings = {
-    userTrainingProgramme: {
-      relation: Model.BelongsToOneRelation,
-      modelClass: UserProgramme,
+    workouts: {
+      relation: Model.HasManyRelation,
+      modelClass: UserWorkout,
       join: {
-        from: 'user_workout_week.user_training_programme_id',
-        to: 'user_training_programme.id',
+        from: 'user_workout_week.id',
+        to: 'user_workout.user_workout_week_id',
       },
     },
     workout: {

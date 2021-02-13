@@ -17,6 +17,7 @@ import {
 import { ProgrammeWorkout, Workout, WorkoutService } from '../workout';
 import { GraphQLError } from 'graphql';
 import { v4 as uuid } from 'uuid';
+import { subDays } from 'date-fns';
 
 @Injectable()
 export class UserPowerService {
@@ -57,7 +58,7 @@ export class UserPowerService {
           id: each.id,
           isActive: userProgramme.id === account.userTrainingProgrammeId,
           latestWeek: weeks.reduce(
-            (prev, curr) => (prev > curr.weekNumber ? prev : curr.weekNumber),
+            (prev, curr) => (prev < curr.weekNumber ? prev : curr.weekNumber),
             1,
           ),
         };
@@ -210,17 +211,35 @@ export class UserPowerService {
         .withGraphJoined('[workout]');
 
       const currentWeek = this.returnCurrentWeek(weeks);
+      // Check if 7 days have passed since start of week
+      if (currentWeek.weekNumber === 1) {
+        if (currentWeek.createdAt > subDays(new Date(), 7)) {
+          throw new GraphQLError('7 days must pass before completing week');
+        }
+      } else {
+        const previousWeek = await UserWorkoutWeek.query()
+          .where('week_number', currentWeek.weekNumber - 1)
+          .andWhere(
+            'user_training_programme_id',
+            account.userTrainingProgrammeId,
+          )
+          .first();
+        if (!previousWeek.completedAt) {
+          throw new GraphQLError('An error occurred');
+        }
+        if (previousWeek.completedAt > subDays(new Date(), 7)) {
+          throw new GraphQLError('7 days must pass before completing week');
+        }
+      }
+
       const notCompleteWorkouts = currentWeek.workouts.filter(
         (each) => each.completedAt === null,
       );
       // if notCompleteWorkouts length > 0 then some workouts haven't been completed
       if (notCompleteWorkouts.length > 0) {
-        throw new Error('Incomplete workouts in week');
+        throw new GraphQLError('Incomplete workouts in week');
       }
-      // TODO Check whether 7 days past since first workout complete
-      // currentWeek.forEach((element: UserWorkoutWeek) => {
-      //     if
-      // });
+
       // if not we can update the current week to be completed at
       const idsToUpdate = weeks
         .filter((each) => each.weekNumber === currentWeek.weekNumber)
@@ -245,20 +264,20 @@ export class UserPowerService {
         return true;
       }
 
-      await Promise.all(
-        workouts.map(async (workout) => {
-          const week = await UserWorkoutWeek.query(trx).insertAndFetch({
-            userTrainingProgrammeId: account.userTrainingProgrammeId,
-            weekNumber: workout.weekNumber,
-          });
-
-          await UserWorkout.query(trx).insert({
-            userWorkoutWeekId: week.id,
+      const workoutWeeks = workouts.map((workout) => {
+        const weekId = uuid();
+        return {
+          id: weekId,
+          userTrainingProgrammeId: account.userTrainingProgrammeId,
+          weekNumber: workout.weekNumber,
+          workout: {
+            userWorkoutWeekId: weekId,
             workoutId: workout.workoutId,
             orderIndex: workout.orderIndex,
-          });
-        }),
-      );
+          },
+        };
+      });
+      await UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
 
       return true;
     });
@@ -277,11 +296,15 @@ export class UserPowerService {
       );
     }
     try {
-      const userWorkoutWeek = await this.userWorkoutWeekService
-        .findById(userWorkout.userWorkoutWeekId)
-        .withGraphJoined('userTrainingProgramme');
+      const userWorkoutWeek = await this.userWorkoutWeekService.findById(
+        userWorkout.userWorkoutWeekId,
+      );
 
-      if (userWorkoutWeek.userTrainingProgramme.accountId !== account.id) {
+      const userTrainingProgramme = await UserProgramme.query()
+        .where('id', userWorkoutWeek.userTrainingProgrammeId)
+        .first();
+
+      if (userTrainingProgramme.accountId !== account.id) {
         throw new Error('Not authorised');
       }
 
@@ -409,6 +432,7 @@ export class UserPowerService {
         if (a.weekNumber === 0) {
           return {
             weekNumber: b.weekNumber,
+            createdAt: b.createdAt,
             workouts: [b.workout],
           };
         }
@@ -421,6 +445,7 @@ export class UserPowerService {
         if (a.weekNumber > b.weekNumber) {
           return {
             weekNumber: b.weekNumber,
+            createdAt: b.createdAt,
             workouts: [b.workout],
           };
         }
@@ -428,6 +453,7 @@ export class UserPowerService {
       },
       {
         weekNumber: 0,
+        createdAt: new Date(),
         workouts: [],
       },
     );
@@ -439,6 +465,7 @@ export class UserPowerService {
         if (a.weekNumber === 0) {
           return {
             weekNumber: b.weekNumber,
+            createdAt: b.createdAt,
             workouts: [b.workout],
           };
         }
@@ -451,6 +478,7 @@ export class UserPowerService {
         if (a.weekNumber < b.weekNumber) {
           return {
             weekNumber: b.weekNumber,
+            createdAt: b.createdAt,
             workouts: [b.workout],
           };
         }
@@ -495,6 +523,21 @@ export class UserPowerService {
 
     // if the current weekNumber is 0 then there are no current weeks that haven't been completed
 
+    let startedAt: Date;
+    if (currentWeek.weekNumber === 1) {
+      startedAt = currentWeek.createdAt;
+    } else {
+      const prevWeek = await UserWorkoutWeek.query()
+        .where('week_number', currentWeek.weekNumber - 1)
+        .andWhere('user_training_programme_id', account.userTrainingProgrammeId)
+        .first();
+
+      if (!prevWeek.completedAt) {
+        throw new GraphQLError('An error occurred');
+      }
+      startedAt = prevWeek.completedAt;
+    }
+
     return {
       id: account.userTrainingProgrammeId,
       trainer: originalProgramme.trainer,
@@ -507,10 +550,12 @@ export class UserPowerService {
       ).description,
       currentWeek: currentWeek.weekNumber !== 0 && {
         weekNumber: currentWeek.weekNumber,
+        startedAt,
         workouts: this.buildWeek(currentWeek, language, account),
       },
       nextWeek: nextWeek.weekNumber !== 0 && {
         weekNumber: currentWeek.weekNumber,
+        startedAt: null,
         workouts: this.buildWeek(nextWeek, language, account),
       },
       programmeImage:
