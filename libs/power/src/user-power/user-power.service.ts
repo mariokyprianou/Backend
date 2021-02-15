@@ -554,7 +554,7 @@ export class UserPowerService {
         workouts: this.buildWeek(currentWeek, language, account),
       },
       nextWeek: nextWeek.weekNumber !== 0 && {
-        weekNumber: currentWeek.weekNumber,
+        weekNumber: nextWeek.weekNumber,
         startedAt: null,
         workouts: this.buildWeek(nextWeek, language, account),
       },
