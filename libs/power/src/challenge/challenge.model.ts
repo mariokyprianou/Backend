@@ -1,8 +1,8 @@
 import { BaseModel } from '@lib/database';
+import { ChallengeUnitType } from 'apps/cms/src/challenge/challenge.cms.resolver';
 import { Model, snakeCaseMappers } from 'objection';
+import { ChallengeType } from '../../../../apps/app/src/challenge/challenge.resolver';
 import { ChallengeTranslation } from './challenge-translation.model';
-
-export type ChallengeType = 'COUNTDOWN' | 'STOPWATCH' | 'OTHER';
 
 export class Challenge extends BaseModel {
   static tableName = 'challenge';
@@ -17,9 +17,14 @@ export class Challenge extends BaseModel {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
+  unitType: ChallengeUnitType;
   trainingProgrammeId: string;
 
   localisations: ChallengeTranslation[];
+
+  public getTranslation(language: string) {
+    return (this.localisations ?? []).find((tr) => tr.language === language);
+  }
 
   static relationMappings = () => ({
     localisations: {

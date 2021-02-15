@@ -1,8 +1,15 @@
 type Challenge {
   id: ID!
+  unitType: ChallengeUnitType
   type: ChallengeType!
   duration: Int
   localisations: [ChallengeLocalisation]
+}
+
+enum ChallengeUnitType {
+  WEIGHT
+  REPS
+  DISTANCE
 }
 
 enum ChallengeType {
@@ -20,6 +27,7 @@ type ChallengeLocalisation {
 
 input CreateChallengeInput {
   type: ChallengeType!
+  unitType: ChallengeUnitType
   duration: Int
   localisations: [ChallengeLocalisationInput!]!
   trainingProgrammeId: ID!
@@ -27,6 +35,7 @@ input CreateChallengeInput {
 
 input UpdateChallengeInput {
   id: ID!
+  unitType: ChallengeUnitType
   type: ChallengeType!
   duration: Int
   localisations: [ChallengeLocalisationInput!]!

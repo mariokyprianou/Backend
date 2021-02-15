@@ -1,0 +1,47 @@
+enum ChallengeType {
+  OTHER
+  COUNTDOWN
+  STOPWATCH
+}
+
+enum ChallengeUnitType {
+  WEIGHT
+  REPS
+  DISTANCE
+}
+
+type Challenge {
+  id: ID!
+  type: ChallengeType!
+  name: String!
+  fieldDescription: String!
+  fieldTitle: String!
+  createdAt: DateTime
+  duration: Int
+  unitType: ChallengeUnitType
+}
+
+input ChallengeResponseInput {
+  challengeId: ID!
+  result: String!
+}
+
+type ChallengeResult {
+  id: ID!
+  createdAt: DateTime!
+  value: String!
+}
+
+type ChallengeHistory {
+  challenge: Challenge!
+  history: [ChallengeResult!]!
+}
+
+extend type Query {
+  challenges: [Challenge!]!
+  challengeHistory: [ChallengeHistory!]!
+}
+
+extend type Mutation {
+  completeChallenge(input: ChallengeResponseInput!): Boolean!
+}

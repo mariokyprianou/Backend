@@ -1,13 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import {
+  ChallengeInput,
+  ChallengeInt,
+  ChallengeType,
+} from 'apps/app/src/challenge/challenge.resolver';
+import {
   CreateChallengeGraphQlInput,
   UpdateChallengeGraphQlInput,
 } from 'apps/cms/src/challenge/challenge.cms.resolver';
+import { GraphQLError } from 'graphql';
 import Objection from 'objection';
-import { Challenge, ChallengeType } from './challenge.model';
+import { Account, AccountService } from '../account';
+import { AuthContext } from '../types';
+import { UserProgramme } from '../user-programme';
+import { ChallengeHistory } from './challenge-history.model';
+import { Challenge } from './challenge.model';
 
 @Injectable()
 export class ChallengeService {
+  constructor(private accountService: AccountService) {}
+
   public findAll(
     page = 0,
     perPage = 25,
@@ -71,6 +83,111 @@ export class ChallengeService {
       .findById(id);
 
     return challenge;
+  }
+
+  public async submitChallenge(
+    input: ChallengeInput,
+    authContext: AuthContext,
+  ) {
+    const challenge = await Challenge.query()
+      .first()
+      .where('id', input.challengeId);
+    if (!challenge) {
+      throw new GraphQLError('Unknown challengeId');
+    }
+    try {
+      const account = await this.accountService.findBySub(authContext.sub);
+      // input the result
+      await ChallengeHistory.query().insert({
+        challengeId: input.challengeId,
+        quantity: input.result,
+        accountId: account.id,
+      });
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  public async findUserHistory(language = 'en', authContext: AuthContext) {
+    const account = await this.accountService.findBySub(authContext.sub);
+    const histories = await ChallengeHistory.query().where(
+      'account_id',
+      account.id,
+    );
+    const challengeList = [];
+    histories.forEach((val) => {
+      if (challengeList.includes(val.challengeId)) {
+        return;
+      }
+      challengeList.push(val.challengeId);
+    });
+    const challenges = await Challenge.query()
+      .whereIn('id', challengeList)
+      .withGraphFetched('localisations');
+
+    const formattedChallenges = challenges.map(
+      (challenge): ChallengeInt => {
+        const locale = challenge.getTranslation(language);
+        return {
+          id: challenge.id,
+          type: challenge.type,
+          name: locale.name,
+          fieldDescription: locale.fieldDescription,
+          fieldTitle: locale.fieldTitle,
+          createdAt: challenge.createdAt,
+          duration: challenge.duration,
+          unitType: challenge.unitType,
+        };
+      },
+    );
+
+    return challengeList.map((id) => {
+      const results = histories.filter((val) => val.challengeId === id);
+      const challenge = formattedChallenges.find((val) => val.id === id);
+      return {
+        challenge,
+        history: results.map((val) => ({
+          id: val.id,
+          createdAt: val.createdAt,
+          value: val.quantity,
+        })),
+      };
+    });
+  }
+
+  public async findUserChallenges(
+    language = 'en',
+    authContext: AuthContext,
+  ): Promise<ChallengeInt[]> {
+    // fetch the account
+    // fetch the user programme
+    // fetch the challenges for that programme
+    const account = await this.accountService.findBySub(authContext.sub);
+    const userProgramme = await UserProgramme.query()
+      .first()
+      .where('id', account.userTrainingProgrammeId);
+    const challenges = await Challenge.query()
+      .whereNull('deleted_at')
+      .andWhere('training_programme_id', userProgramme.trainingProgrammeId)
+      .withGraphFetched('localisations');
+
+    return challenges.map(
+      (challenge): ChallengeInt => {
+        const locale = challenge.getTranslation(language);
+        return {
+          id: challenge.id,
+          type: challenge.type,
+          name: locale.name,
+          fieldDescription: locale.fieldDescription,
+          fieldTitle: locale.fieldTitle,
+          createdAt: challenge.createdAt,
+          duration: challenge.duration,
+          unitType: challenge.unitType,
+        };
+      },
+    );
   }
 }
 

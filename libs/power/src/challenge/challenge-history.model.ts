@@ -13,6 +13,7 @@ export class ChallengeHistory extends BaseModel {
   accountId: string;
   challengeId: string;
   quantity: string;
+  unitType: string;
   createdAt: Date;
   updatedAt: Date;
 

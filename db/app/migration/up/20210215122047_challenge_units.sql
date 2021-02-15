@@ -1,0 +1,1 @@
+ALTER TABLE challenge ADD COLUMN unit_type TEXT NULL CHECK (unit_type IS NULL OR (unit_type IS NOT NULL AND type != 'STOPWATCH'));

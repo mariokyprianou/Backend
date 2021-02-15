@@ -25,6 +25,7 @@ import { ProfileAuthModule } from './profile/profile.module';
 import { UserProgrammeAuthModule } from './userProgramme/userProgramme.module';
 import { TransformationImageAuthModule } from './transformationImage/transformationImage.module';
 import { ProgressAppModule } from './progress/progress.module';
+import { ChallengeAuthModule } from './challenge/challenge.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -46,6 +47,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         UserProgrammeAuthModule,
         TransformationImageAuthModule,
         ProgressAppModule,
+        ChallengeAuthModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -81,6 +83,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     UserProgrammeAuthModule,
     TransformationImageAuthModule,
     ProgressAppModule,
+    ChallengeAuthModule,
     GraphQLProvider,
   ],
 })

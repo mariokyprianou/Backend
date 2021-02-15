@@ -4,7 +4,7 @@ import {
   ChallengeFilter,
   ChallengeService,
 } from '@lib/power/challenge/challenge.service';
-import { ChallengeType } from '@lib/power/challenge/challenge.model';
+import { ChallengeType } from 'apps/app/src/challenge/challenge.resolver';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
@@ -58,7 +58,14 @@ export class ChallengeResolver {
 interface ChallengeGraphQlType {
   id: string;
   type: ChallengeType;
+  unitType: ChallengeUnitType;
   localisations: ChallengeLocalisationGraphQlType[];
+}
+
+export enum ChallengeUnitType {
+  WEIGHT,
+  REPS,
+  DISTANCE,
 }
 
 interface ChallengeLocalisationGraphQlType {
@@ -71,6 +78,7 @@ interface ChallengeLocalisationGraphQlType {
 // TODO: move to common?
 export interface CreateChallengeGraphQlInput {
   type: ChallengeType;
+  unitType: ChallengeUnitType;
   duration: number;
   localisations: ChallengeLocalisationGraphQlType[];
   trainingProgrammeId: string;
