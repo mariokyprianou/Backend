@@ -24,12 +24,31 @@ export class ProgressService {
     // generate type
     const userProgrammes = await UserProgramme.query()
       .where('account_id', account.id)
-      .withGraphFetched('userWorkoutWeeks.workouts');
+      .withGraphFetched('userWorkoutWeeks.workout');
 
     // console.log(JSON.stringify(userProgrammes));
 
+    // Normalise the weeks
+    const normalisedProgrammes = userProgrammes.map((prog) => ({
+      ...prog,
+      userWorkoutWeeks: prog.userWorkoutWeeks.reduce((prev, week) => {
+        const exists = prev.find((a) => a.weekNumber === week.weekNumber);
+        if (exists) {
+          return prev.map((each) =>
+            each.id === exists.id
+              ? { ...exists, workouts: [...exists.workouts, week.workout] }
+              : each,
+          );
+        } else {
+          return [...prev, { ...week, workouts: [week.workout] }];
+        }
+      }, []),
+    }));
+
+    console.log(JSON.stringify(normalisedProgrammes));
+
     const progressMonths = {};
-    userProgrammes.forEach((prog) => {
+    normalisedProgrammes.forEach((prog) => {
       prog.userWorkoutWeeks.forEach((week) => {
         week.workouts.forEach((workout) => {
           if (!workout.completedAt) {
