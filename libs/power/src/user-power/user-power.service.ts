@@ -390,7 +390,9 @@ export class UserPowerService {
                 exercise: {
                   id: exercise.exercise.id,
                   name: R.path(['name'], exerciseLocalisation),
-                  coachingTips: coachingTipsLoc.coachingTips,
+                  coachingTips: coachingTipsLoc
+                    ? coachingTipsLoc.coachingTips
+                    : exerciseLocalisation.coachingTips,
                   weight: exercise.exercise.weight,
                   video:
                     exercise.exercise.videoKey &&
