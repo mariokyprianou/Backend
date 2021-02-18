@@ -1,7 +1,14 @@
 type Workout {
-    overviewImage: URL
-    intensity: IntensityEnum!
-    duration: Int!
-    name: String!
-    exercises: [WorkoutExercise]
+  overviewImage: URL
+  intensity: IntensityEnum!
+  duration: Int!
+  name: String!
+  exercises: [WorkoutExercise]
+}
+
+type WorkoutExercise {
+  setType: SetType!
+  sets: [WorkoutSet]
+  exercise: Exercise!
+  orderIndex: Int!
 }

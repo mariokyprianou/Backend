@@ -20,8 +20,17 @@ input WorkoutSetInput {
 input WorkoutExerciseInput {
   orderIndex: Int!
   setType: SetType!
+  localisations: [WorkoutExerciseLocalisationInput]
   sets: [WorkoutSetInput]
   exercise: ID!
+}
+
+type WorkoutExercise {
+  setType: SetType!
+  sets: [WorkoutSet]
+  localisations: [WorkoutExerciseLocalisation]
+  exercise: Exercise!
+  orderIndex: Int!
 }
 
 input WorkoutInput {
@@ -47,6 +56,17 @@ input WorkoutWeekFilter {
   environment: ID
   name: String
   week: Int
+}
+
+type WorkoutExerciseLocalisation {
+  id: ID
+  language: ISOLanguage!
+  coachingTips: String!
+}
+
+input WorkoutExerciseLocalisationInput {
+  language: ISOLanguage!
+  coachingTips: String!
 }
 
 extend type Mutation {

@@ -134,6 +134,12 @@ export interface WorkoutExercise {
   setType: SetType;
   sets: WorkoutSet[];
   exercise: string;
+  localisations: WorkoutExerciseLocalisation[];
+}
+
+export interface WorkoutExerciseLocalisation {
+  language: string;
+  coachingTips: string;
 }
 
 export interface WorkoutSet {

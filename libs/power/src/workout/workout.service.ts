@@ -16,6 +16,7 @@ export class WorkoutService {
         exerciseId: exercise.exercise,
         setType: exercise.setType,
         orderIndex: exercise.orderIndex,
+        localisations: exercise.localisations,
         sets: exercise.sets.map((set) => ({
           setNumber: set.setNumber,
           quantity: set.quantity,
@@ -30,10 +31,10 @@ export class WorkoutService {
       ? ProgrammeWorkout.query()
           .where('training_programme_workout.training_programme_id', programme)
           .withGraphJoined(
-            '[programme, workout.[localisations, exercises.[sets]]]',
+            '[programme, workout.[localisations, exercises.[sets, localisations]]]',
           )
       : ProgrammeWorkout.query().withGraphJoined(
-          '[programme, workout.[localisations, exercises.[sets]]]',
+          '[programme, workout.[localisations, exercises.[sets, localisations]]]',
         );
   }
 

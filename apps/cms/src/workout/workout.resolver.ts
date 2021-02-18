@@ -79,6 +79,7 @@ export class WorkoutResolver {
         workout.workout.exercises.map(async (each) => ({
           setType: each.setType,
           sets: each.sets,
+          localisations: each.localisations,
           exercise: await this.exercise.findById(each.exerciseId),
           orderIndex: each.orderIndex,
         })),

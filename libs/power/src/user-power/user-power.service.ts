@@ -379,6 +379,8 @@ export class UserPowerService {
                 .findOne('account_id', account.id)
                 .andWhere('exercise_id', exercise.exercise.id);
 
+              const coachingTipsLoc = exercise.getTranslation(language);
+
               const exerciseLocalisation = (
                 exercise.exercise.localisations ?? []
               ).find((tr) => tr.language === language);
@@ -388,7 +390,7 @@ export class UserPowerService {
                 exercise: {
                   id: exercise.exercise.id,
                   name: R.path(['name'], exerciseLocalisation),
-                  coachingTips: R.path(['coachingTips'], exerciseLocalisation),
+                  coachingTips: coachingTipsLoc.coachingTips,
                   weight: exercise.exercise.weight,
                   video:
                     exercise.exercise.videoKey &&
@@ -511,7 +513,7 @@ export class UserPowerService {
         account.userTrainingProgrammeId,
       )
       .withGraphJoined(
-        '[workout.[workout.[localisations, exercises.[sets, exercise.[localisations]]]]]',
+        '[workout.[workout.[localisations, exercises.[sets, localisations, exercise.[localisations]]]]]',
       );
 
     const currentWeek = this.returnCurrentWeek(weeks);
