@@ -91,6 +91,7 @@ type ProgrammeSharedImage {
 type ProgrammeSharedLocalisation {
   language: ISOLanguage!
   url: URL!
+  imageKey: String!
   colour: String
 }
 

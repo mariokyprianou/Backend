@@ -62,6 +62,9 @@ export class ProgrammeResolver {
 
   @ResolveField('shareMediaImages')
   async getShareMediaImages(@Parent() programme: Programme) {
+    if (!programme.shareMediaImages) {
+      return [];
+    }
     return Promise.all(
       programme.shareMediaImages.map(async (each) => ({
         id: each.id,
@@ -74,6 +77,7 @@ export class ProgrammeResolver {
               this.common.env().FILES_BUCKET,
               'getObject',
             ),
+            imageKey: locale.imageKey,
             colour: locale.colour,
           })),
         ),
@@ -91,6 +95,7 @@ export class ProgrammeResolver {
           this.common.env().FILES_BUCKET,
           'getObject',
         ),
+        imageKey: each.imageKey,
       })),
     );
   }

@@ -75,6 +75,7 @@ type VideoUpload {
 
 type ProgrammeImage {
   url: URL!
+  imageKey: String
   orderIndex: Int!
 }
 

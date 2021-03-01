@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
 import { isAfter } from 'date-fns';
+import { GraphQLError } from 'graphql';
 import { AccountService } from '../account';
+import { Programme } from '../programme';
 import {
   AuthContext,
   ChangeDevice,
@@ -26,6 +28,13 @@ export class AuthService {
   ) {}
 
   public async register(input: RegisterUserInput) {
+    const programme = await Programme.query()
+      .first()
+      .where('id', input.programme);
+
+    if (!programme) {
+      throw new GraphQLError('Programme does not exist.');
+    }
     // register with the auth provider
     const res = await this.authProvider.registerWithEmailVerificationLink(
       input.email,
