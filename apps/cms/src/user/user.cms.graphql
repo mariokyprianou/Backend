@@ -7,9 +7,8 @@ type User {
   region: Region
   timeZone: String!
   currentTrainingProgramme: CurrentTrainingProgramme
-  # TODO
-  # marketingPermissions
-  # subscriberStatus: UserSubscription!
+  emailMarketing: Boolean!
+  subscription: UserSubscription!
   # Current Week
   # Previous trainers
   # 30 day devise limit
@@ -61,10 +60,10 @@ extend type Query {
   ): ListMetadata!
 }
 
-# type UserSubscription {
-#   isSubscribed: Boolean!
-#   platform: SubscriptionPlatform!
-# }
+type UserSubscription {
+  isSubscribed: Boolean!
+  platform: SubscriptionPlatform!
+}
 
 extend type Mutation {
   #   updateUser(id: ID!): User

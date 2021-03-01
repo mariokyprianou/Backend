@@ -11,7 +11,10 @@ export class UserProgrammeService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: UserProgramFilter = {},
   ) {
-    const findAllQuery = applyFilter(UserProgramme.query(), filter);
+    const findAllQuery = applyFilter(
+      UserProgramme.query().withGraphFetched('trainingProgramme.localisations'),
+      filter,
+    );
 
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);
@@ -20,7 +23,10 @@ export class UserProgrammeService {
   }
 
   public findAllMeta(filter: UserProgramFilter = {}) {
-    return applyFilter(UserProgramme.query(), filter).resultSize();
+    return applyFilter(
+      UserProgramme.query().withGraphFetched('trainingProgramme.localisations'),
+      filter,
+    ).resultSize();
   }
 
   public findById(id: string) {

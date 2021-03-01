@@ -55,8 +55,6 @@ export class UserResolver {
 
   @ResolveField('currentTrainingProgramme')
   async getCurrentTrainingProgramme(@Parent() user: User) {
-    // TODO: this is where it is currently crashing with the user
-    // Queries as there wasn't data in the database yet
     const account = await this.accountService.findById(user.id);
 
     const currentUserProgram = await this.userProgramService.findById(
@@ -67,12 +65,28 @@ export class UserResolver {
       return {
         id: currentUserProgram.id,
         name: currentUserProgram.trainingProgramme.localisations.find(
-          (x) => x.language == 'en',
+          (x) => x.language === 'en',
         ).description,
       };
     } else {
       return null;
     }
+  }
+
+  @ResolveField('subscription')
+  async getCurrentSubscription() {
+    // TODO hook with subscription
+    return {
+      isSubscribed: true,
+      platform: 'ANDROID',
+    };
+  }
+
+  @ResolveField('emailMarketing')
+  async getEmailMarketing(@Parent() user: User) {
+    const account = await this.accountService.findBySub(user.cognitoSub);
+
+    return account.emails;
   }
 
   @Query('_allUsersMeta')
