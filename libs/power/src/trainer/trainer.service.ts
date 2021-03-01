@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Trainer } from './trainer.model';
-import { TrainerTranslation } from './trainer-tr.model';
+// import { TrainerTranslation } from './trainer-tr.model';
 import { TrainerLocalisation } from '../types';
 
 @Injectable()
@@ -30,9 +30,11 @@ export class TrainerService {
     // await TrainerTranslation.query().delete().where('trainer_id', trainerId);
     // return Trainer.query().deleteById(trainerId);
     // set deleted_at flag
-    return Trainer.query()
-      .patchAndFetch({ deletedAt: new Date() })
-      .where('id', trainerId);
+    await Trainer.query().patchAndFetchById(trainerId, {
+      deletedAt: new Date(),
+    });
+
+    return this.findById(trainerId);
   }
 
   // UPDATE TRAINER //
