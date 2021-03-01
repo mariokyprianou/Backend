@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
+import { AdminGetUserResponse } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 @Injectable()
 export class AdministratorService {
@@ -61,7 +62,16 @@ export class AdministratorService {
   public async findById(id: string) {
     const admin = await this.adminAuthProvider.getUser(id);
 
-    return this.buildUser(admin);
+    return {
+      id: admin.Username,
+      email:
+        admin.UserAttributes.find((x) => x.Name == 'email') &&
+        (admin.UserAttributes.find((x) => x.Name == 'email').Value as string),
+      name:
+        admin.UserAttributes.find((x) => x.Name == 'custom:name') &&
+        (admin.UserAttributes.find((x) => x.Name == 'custom:name')
+          .Value as string),
+    };
   }
 
   public async delete(id: string) {
