@@ -17,6 +17,7 @@ interface WorkoutFilter extends Filter {
   trainer: string;
   environment: string;
   week: number;
+  programmeId: string;
 }
 
 @Resolver('WorkoutWeek')
@@ -45,6 +46,12 @@ export class WorkoutResolver {
         query.where('week_number', filter.week);
       }
 
+      // if (filter.environment) {
+      //   query.where(
+      //     'training_programme_workout.programme.environment',
+      //     filter.environment,
+      //   );
+      // }
       // if (filter.environment) {
       //   query.where(
       //     'training_programme_workout.programme.environment',
@@ -111,7 +118,7 @@ export class WorkoutResolver {
     @Args('filter') filter: WorkoutFilter,
   ): Promise<ProgrammeWorkout[]> {
     const results = await this.constructFilters(
-      constructLimits(this.service.findAll(), {
+      constructLimits(this.service.findAll(filter.programmeId), {
         page,
         perPage,
         sortField,
@@ -120,23 +127,7 @@ export class WorkoutResolver {
       filter,
     );
     console.log('RESULTS', JSON.stringify(results));
-    if (filter.trainer) {
-      if (filter.environment) {
-        return results.filter(
-          (each) =>
-            each.programme.trainerId === filter.trainer &&
-            each.programme.environment === filter.environment,
-        );
-      }
-      return results.filter(
-        (each) => each.programme.trainerId === filter.trainer,
-      );
-    }
-    if (filter.environment) {
-      return results.filter(
-        (each) => each.programme.environment === filter.environment,
-      );
-    }
+
     return results;
   }
 

@@ -30,10 +30,10 @@ export class WorkoutService {
     return programme
       ? ProgrammeWorkout.query()
           .where('training_programme_workout.training_programme_id', programme)
-          .withGraphJoined(
+          .withGraphFetched(
             '[programme, workout.[localisations, exercises.[sets, localisations]]]',
           )
-      : ProgrammeWorkout.query().withGraphJoined(
+      : ProgrammeWorkout.query().withGraphFetched(
           '[programme, workout.[localisations, exercises.[sets, localisations]]]',
         );
   }

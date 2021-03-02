@@ -24,7 +24,7 @@ export class Account extends BaseModel {
 
   trainingProgramme: UserProgramme;
 
-  static relationMappings = () => ({
+  static relationMappings = {
     trainingProgramme: {
       relation: Model.HasOneRelation,
       modelClass: UserProgramme,
@@ -33,5 +33,5 @@ export class Account extends BaseModel {
         to: 'user_training_programme.id',
       },
     },
-  });
+  };
 }

@@ -84,7 +84,7 @@ export class ProgrammeService {
 
   public findAllShareMedia(programme: string, language?: string) {
     return ShareMedia.query()
-      .where('training_program_id', programme)
+      .where('training_programme_id', programme)
       .withGraphJoined('localisations')
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,

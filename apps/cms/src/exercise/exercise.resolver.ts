@@ -18,6 +18,7 @@ import {
 import { constructLimits } from '../constructLimits';
 import { CommonService } from '@lib/common';
 import { v4 as uuid } from 'uuid';
+import { S3 } from 'aws-sdk';
 
 interface ExerciseFilter extends Filter {
   name: string;
@@ -165,12 +166,14 @@ export class ExerciseResolver {
     url: string;
   }> {
     const key = `${uuid()}`;
-    const url = await this.common.getPresignedUrl(
-      `assets01/${key}`,
-      this.common.env().VIDEO_BUCKET_SOURCE,
-      'putObject',
-      'us-east-1',
-    );
+
+    const s3 = new S3({ region: 'us-east-1' });
+    const url = await s3.getSignedUrlPromise('putObject', {
+      Key: `assets01/${key}`,
+      Bucket: this.common.env().VIDEO_BUCKET_SOURCE,
+      Expires: 60 * 5,
+      ContentType: 'video/mp4',
+    });
 
     return {
       key,

@@ -14,10 +14,13 @@ import { IProgramme } from '../../../../libs/power/src/types';
 import { CommonService } from '@lib/common';
 import { TrainerService } from '@lib/power/trainer';
 import { ProgrammeImage } from '@lib/power/programme/programme-image.model';
+import { AccountService } from '@lib/power/account';
 
 interface ProgrammeFilter extends Filter {
   trainerId: string;
   environment: string;
+  id: string;
+  ids: string[];
 }
 
 @Resolver('Programme')
@@ -26,16 +29,17 @@ export class ProgrammeResolver {
     private service: ProgrammeService,
     private common: CommonService,
     private trainer: TrainerService,
+    private accountService: AccountService,
   ) {}
 
   constructFilters = (query: any, filter: ProgrammeFilter) => {
     if (filter) {
       if (filter.id) {
-        query.findByIds([filter.id]);
+        query.where('training_programme.id', filter.id);
       }
 
       if (filter.ids) {
-        query.whereIn('id', filter.ids);
+        query.whereIn('training_programme.id', filter.ids);
       }
 
       if (filter.trainerId) {
@@ -51,8 +55,16 @@ export class ProgrammeResolver {
 
   @ResolveField('subscribers')
   async getSubscriber(@Parent() programme: Programme) {
-    // TODO return subscribers
-    return 0;
+    // Find all account (and user training programmes)
+    // Filter by programme id
+    const accounts = await this.accountService
+      .findAll()
+      .withGraphFetched('trainingProgramme');
+
+    const activeProgs = accounts.filter(
+      (each) => each.trainingProgramme.trainingProgrammeId === programme.id,
+    );
+    return activeProgs.length;
   }
 
   @ResolveField('trainer')

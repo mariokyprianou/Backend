@@ -1,3 +1,12 @@
+type WorkoutWeek {
+  id: ID!
+  weekNumber: Int!
+  orderIndex: Int!
+  workout: Workout!
+  trainingProgrammeId: ID
+  programme: Programme
+}
+
 type Workout {
   overviewImage: URL
   intensity: IntensityEnum!
@@ -56,6 +65,7 @@ input WorkoutWeekFilter {
   environment: ID
   name: String
   week: Int
+  programmeId: ID
 }
 
 type WorkoutExerciseLocalisation {

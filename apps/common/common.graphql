@@ -79,14 +79,6 @@ type ProgrammeImage {
   orderIndex: Int!
 }
 
-type WorkoutWeek {
-  id: ID!
-  weekNumber: Int!
-  orderIndex: Int!
-  workout: Workout!
-  trainingProgrammeId: ID
-}
-
 enum IntensityEnum {
   LOW
   MOD
