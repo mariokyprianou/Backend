@@ -1,6 +1,6 @@
 type Feedback {
   id: ID!
-  trainerName: String!
+  trainerName: String
   week: Int!
   workoutName: String!
   emojis: [String!]!
@@ -14,6 +14,9 @@ type Feedback {
 input FeedbackFilter {
   id: ID
   ids: [ID!]
+  emoji: String
+  feedbackIntensity: Int
+  timeTaken: Int
 }
 
 extend type Query {
@@ -25,13 +28,7 @@ extend type Query {
     sortOrder: String
     filter: FeedbackFilter
   ): [Feedback!]!
-  _allFeedbacksMeta(
-    page: Int
-    perPage: Int
-    sortField: String
-    sortOrder: String
-    filter: FeedbackFilter
-  ): ListMetadata
+  _allFeedbacksMeta(filter: FeedbackFilter): ListMetadata
 }
 
 extend type Mutation {
