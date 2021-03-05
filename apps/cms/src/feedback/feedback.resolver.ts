@@ -9,7 +9,7 @@ import {
   UserWorkoutFeedbackFilter,
   UserWorkoutFeedbackService,
 } from '@lib/power/feedback';
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
@@ -41,6 +41,11 @@ export class FeedbackResolver {
   @Query('Feedback')
   async feedback(@Args('id') id: string): Promise<Feedback> {
     return this.feedbackService.feedback(id);
+  }
+
+  @Mutation('exportFeedback')
+  async export(): Promise<string> {
+    return this.feedbackService.export();
   }
 }
 

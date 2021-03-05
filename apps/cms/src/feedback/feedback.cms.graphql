@@ -28,7 +28,13 @@ extend type Query {
     sortOrder: String
     filter: FeedbackFilter
   ): [Feedback!]!
-  _allFeedbacksMeta(filter: FeedbackFilter): ListMetadata
+  _allFeedbacksMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: String
+    filter: FeedbackFilter
+  ): ListMetadata
 }
 
 extend type Mutation {

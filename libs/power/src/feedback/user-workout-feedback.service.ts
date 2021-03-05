@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { GenerateCsvReportService } from '@td/generate-csv-report';
+import { format } from 'date-fns';
 import Objection from 'objection';
 import { UserProgramme } from '../user-programme';
 // import { Feedback } from 'apps/cms/src/feedback/feedback.resolver';
@@ -7,6 +9,8 @@ import { UserWorkoutWeek } from '../user-workout-week';
 import { UserWorkoutFeedback } from './user-workout-feedback.model';
 @Injectable()
 export class UserWorkoutFeedbackService {
+  constructor(private generate: GenerateCsvReportService) {}
+
   public async all(
     page = 0,
     perPage = 25,
@@ -83,6 +87,59 @@ export class UserWorkoutFeedbackService {
       filter,
     ).resultSize();
     return { count: res };
+  }
+
+  public async export() {
+    const allFeedback = await UserWorkoutFeedback.query().withGraphFetched(
+      'account',
+    );
+    const workouts = allFeedback.map((each) => each.userWorkoutId);
+    // Separate db so can't do relationship
+    const fetchedWorkouts = await UserWorkout.query()
+      .whereIn('id', [...new Set(workouts)])
+      .withGraphFetched('workout.localisations');
+
+    const data = await Promise.all(
+      allFeedback.map(async (feedback: UserWorkoutFeedback) => {
+        const workout = fetchedWorkouts.find(
+          (workout) => workout.id === feedback.userWorkoutId,
+        );
+
+        const workoutWeek = await UserWorkoutWeek.query()
+          .where('id', workout.userWorkoutWeekId)
+          .first();
+        // .withGraphFetched(
+        //   'userTrainingProgramme.trainingProgramme.trainer.localisations',
+        // );
+        const trainingProgramme = await UserProgramme.query()
+          .first()
+          .where('id', workoutWeek.userTrainingProgrammeId)
+          .withGraphFetched('trainingProgramme.trainer.localisations');
+
+        // Fetch trainer
+        const trainerLoc = trainingProgramme.trainingProgramme.trainer.localisations.find(
+          (loc) => loc.language === 'en',
+        );
+
+        const workoutLoc = workout.workout.localisations.find(
+          (loc) => loc.language === 'en',
+        );
+        return {
+          id: feedback.id,
+          timeTaken: feedback.timeTaken,
+          workoutIntensity: feedback.feedbackIntensity,
+          week: workoutWeek.weekNumber,
+          trainerName: trainerLoc.name,
+          emojis: [feedback.emoji],
+          workoutName: workoutLoc.name,
+          userEmail: feedback.account.email,
+          environment: trainingProgramme.trainingProgramme.environment,
+          date: format(new Date(feedback.createdAt), 'dd/MM/yyyy'),
+        };
+      }),
+    );
+
+    return this.generate.generateAndUploadCsv(data);
   }
 }
 

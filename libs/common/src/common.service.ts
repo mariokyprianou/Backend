@@ -31,7 +31,6 @@ export class CommonService {
       .putObject({
         Bucket: bucket,
         Key: key,
-        Expires: new Date(Date.now() + 1000 * 60 * minutes),
         ContentType: contentType,
         ContentDisposition: 'attachment',
         Body: body,

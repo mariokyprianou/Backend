@@ -23,6 +23,7 @@ provider:
     APP_BACKEND_CLIENT_NAME: ${env:APP_BACKEND_CLIENT_NAME}
     VIDEO_BUCKET_DESTINATION: ${env:VIDEO_BUCKET_DESTINATION}
     FILES_BUCKET: ${env:FILES_BUCKET}
+    REPORTS_BUCKET: ${env:REPORTS_BUCKET}
   httpApi:
     payload: '1.0'
     cors: true
@@ -62,19 +63,19 @@ functions:
       - httpApi:
           method: POST
           path: /graphql
-  auth:
-    handler: apps/app/src/authHandler.default
-    events:
-      - httpApi:
-          method: GET
-          path: /auth
-          authorizer:
-            name: serviceAuthorizer
-      - httpApi:
-          method: POST
-          path: /auth
-          authorizer:
-            name: serviceAuthorizer
+  # auth:
+  #   handler: apps/app/src/authHandler.default
+  #   events:
+  #     - httpApi:
+  #         method: GET
+  #         path: /auth
+  #         authorizer:
+  #           name: serviceAuthorizer
+  #     - httpApi:
+  #         method: POST
+  #         path: /auth
+  #         authorizer:
+  #           name: serviceAuthorizer
   cms:
     handler: apps/cms/src/handler.default
     events:
@@ -82,12 +83,12 @@ functions:
           method: GET
           path: /cms
           authorizer:
-            name: cmsServiceAuthorizer
+            # name: cmsServiceAuthorizer
       - httpApi:
           method: POST
           path: /cms
           authorizer:
-            name: cmsServiceAuthorizer
+            # name: cmsServiceAuthorizer
 
 custom:
   serverless-offline:
