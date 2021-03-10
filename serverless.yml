@@ -63,19 +63,19 @@ functions:
       - httpApi:
           method: POST
           path: /graphql
-  # auth:
-  #   handler: apps/app/src/authHandler.default
-  #   events:
-  #     - httpApi:
-  #         method: GET
-  #         path: /auth
-  #         authorizer:
-  #           name: serviceAuthorizer
-  #     - httpApi:
-  #         method: POST
-  #         path: /auth
-  #         authorizer:
-  #           name: serviceAuthorizer
+  auth:
+    handler: apps/app/src/authHandler.default
+    events:
+      - httpApi:
+          method: GET
+          path: /auth
+          authorizer:
+            name: serviceAuthorizer
+      - httpApi:
+          method: POST
+          path: /auth
+          authorizer:
+            name: serviceAuthorizer
   cms:
     handler: apps/cms/src/handler.default
     events:
@@ -83,12 +83,12 @@ functions:
           method: GET
           path: /cms
           authorizer:
-            # name: cmsServiceAuthorizer
+            name: cmsServiceAuthorizer
       - httpApi:
           method: POST
           path: /cms
           authorizer:
-            # name: cmsServiceAuthorizer
+            name: cmsServiceAuthorizer
 
 custom:
   serverless-offline:
