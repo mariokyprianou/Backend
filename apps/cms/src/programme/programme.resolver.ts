@@ -171,22 +171,22 @@ export class ProgrammeResolver {
     return ProgrammeToDelete;
   }
 
-  @Mutation('createShareImage')
-  async createShareImage(
-    @Args('programme') programme: string,
-    @Args('media') media: IShareMedia,
-  ): Promise<Programme> {
-    return this.service.createShareMedia(programme, media);
-  }
+  // @Mutation('createShareImage')
+  // async createShareImage(
+  //   @Args('programme') programme: string,
+  //   @Args('media') media: IShareMedia,
+  // ): Promise<Programme> {
+  //   return this.service.createShareMedia(programme, media);
+  // }
 
-  @Mutation('updateShareImage')
-  async updateShareImage(
-    @Args('programme') programme: string,
-    @Args('id') id: string,
-    @Args('media') media: IShareMedia,
-  ): Promise<Programme> {
-    return this.service.updateShareMedia(programme, id, media);
-  }
+  // @Mutation('updateShareImage')
+  // async updateShareImage(
+  //   @Args('programme') programme: string,
+  //   @Args('id') id: string,
+  //   @Args('media') media: IShareMedia,
+  // ): Promise<Programme> {
+  //   return this.service.updateShareMedia(programme, id, media);
+  // }
 
   @Mutation('uploadMedia')
   async uploadMedia(@Args('input') input: UploadMediaInput) {

@@ -109,7 +109,7 @@ export class WorkoutResolver {
       this.service.findAll(filter.programmeId).resultSize(),
       filter,
     );
-    return count;
+    return { count };
   }
 
   @Query('allWorkoutWeeks')
