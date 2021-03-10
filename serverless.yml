@@ -90,6 +90,14 @@ functions:
           authorizer:
             name: cmsServiceAuthorizer
 
+  cognitoCustomMessage:
+    handler: apps/cognitoTriggers/src/customMessage.default
+    events:
+      - cognitoUserPool:
+          pool: ${env:USERPOOL_NAME}
+          trigger: CustomMessage
+          existing: true
+
 custom:
   serverless-offline:
     allowCache: true
