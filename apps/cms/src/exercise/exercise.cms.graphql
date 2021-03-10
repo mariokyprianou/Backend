@@ -3,8 +3,11 @@ type Exercise {
   localisations: [ExerciseLocalisations!]!
   weight: Boolean!
   video: URL!
+  videoKey: String!
   videoEasy: URL
+  videoEasyKey: String
   videoEasiest: URL
+  videoEasiestKey: String
   category: ExerciseCategory
   trainer: ID!
 }
@@ -24,7 +27,7 @@ input ExerciseLocalisationInput {
 input ExerciseInput {
   weight: Boolean!
   trainerId: ID!
-  videoKey: String!
+  videoKey: String
   videoKeyEasy: String
   videoKeyEasiest: String
   categoryId: ID

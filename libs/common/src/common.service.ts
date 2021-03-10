@@ -9,13 +9,21 @@ export class CommonService {
     operation = 'getObject',
     region = 'ap-south-1',
     minutes = 5,
+    contentType?: string,
   ): Promise<string> {
     const s3 = new S3({ region });
-    return s3.getSignedUrlPromise(operation, {
-      Bucket: bucket,
-      Key: imageKey,
-      Expires: 60 * minutes,
-    });
+    return contentType
+      ? s3.getSignedUrlPromise(operation, {
+          Bucket: bucket,
+          Key: imageKey,
+          Expires: 60 * minutes,
+          ContentType: contentType,
+        })
+      : s3.getSignedUrlPromise(operation, {
+          Bucket: bucket,
+          Key: imageKey,
+          Expires: 60 * minutes,
+        });
   }
 
   public async uploadObject(

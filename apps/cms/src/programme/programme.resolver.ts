@@ -187,4 +187,25 @@ export class ProgrammeResolver {
   ): Promise<Programme> {
     return this.service.updateShareMedia(programme, id, media);
   }
+
+  @Mutation('uploadMedia')
+  async uploadMedia(@Args('input') input: UploadMediaInput) {
+    return {
+      contentType: input.contentType,
+      key: input.key,
+      uploadUrl: await this.common.getPresignedUrl(
+        input.key,
+        this.common.env().FILES_BUCKET,
+        'putObject',
+        'ap-south-1',
+        5,
+        input.contentType,
+      ),
+    };
+  }
+}
+
+export interface UploadMediaInput {
+  contentType: string;
+  key: string;
 }

@@ -63,16 +63,28 @@ extend type Query {
   Programme(id: ID!): Programme!
 }
 
+input UploadMediaInput {
+  contentType: String!
+  key: String!
+}
+
+type UploadMedia {
+  contentType: String!
+  key: String!
+  uploadUrl: String!
+}
+
 extend type Mutation {
   createProgramme(programme: ProgrammeInput!): Programme!
   updateProgramme(id: ID!, programme: ProgrammeInput): Programme!
   deleteProgramme(id: ID!): Programme!
-  createShareImage(programme: ID!, media: ProgrammeSharedImageInput): Programme!
-  updateShareImage(
-    programme: ID!
-    id: ID!
-    media: ProgrammeSharedImageInput
-  ): Programme!
+  # createShareImage(programme: ID!, media: ProgrammeSharedImageInput): Programme!
+  # updateShareImage(
+  #   programme: ID!
+  #   id: ID!
+  #   media: ProgrammeSharedImageInput
+  # ): Programme!
+  uploadMedia(input: UploadMediaInput!): UploadMedia!
 }
 
 enum ProgrammeSharedImageType {

@@ -105,7 +105,10 @@ export class WorkoutResolver {
   async _allWorkoutsMeta(
     @Args('filter') filter: WorkoutFilter,
   ): Promise<ListMetadata> {
-    const [count] = await this.constructFilters(this.service.count(), filter);
+    const count = await this.constructFilters(
+      this.service.findAll(filter.programmeId).resultSize(),
+      filter,
+    );
     return count;
   }
 

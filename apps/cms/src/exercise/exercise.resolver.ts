@@ -67,6 +67,13 @@ export class ExerciseResolver {
       'us-east-1',
     );
   }
+  @ResolveField('videoKey')
+  video(@Parent() exercise: Exercise) {
+    if (!exercise.videoKey) {
+      return null;
+    }
+    return exercise.videoKey;
+  }
   @ResolveField('videoEasy')
   async getVideoEasy(@Parent() exercise: Exercise) {
     if (!exercise.videoKeyEasy) {
@@ -79,6 +86,13 @@ export class ExerciseResolver {
       'us-east-1',
     );
   }
+  @ResolveField('videoEasyKey')
+  videoEasy(@Parent() exercise: Exercise) {
+    if (!exercise.videoKeyEasy) {
+      return null;
+    }
+    return exercise.videoKeyEasy;
+  }
   @ResolveField('videoEasiest')
   async getVideoEasiest(@Parent() exercise: Exercise) {
     if (!exercise.videoKeyEasiest) {
@@ -90,6 +104,13 @@ export class ExerciseResolver {
       'getObject',
       'us-east-1',
     );
+  }
+  @ResolveField('videoEasiestKey')
+  videoEasiest(@Parent() exercise: Exercise) {
+    if (!exercise.videoKeyEasiest) {
+      return null;
+    }
+    return exercise.videoKeyEasiest;
   }
 
   @ResolveField('trainer')
@@ -169,7 +190,7 @@ export class ExerciseResolver {
 
     const s3 = new S3({ region: 'us-east-1' });
     const url = await s3.getSignedUrlPromise('putObject', {
-      Key: `assets01/${key}`,
+      Key: `assets01/${key}.mp4`,
       Bucket: this.common.env().VIDEO_BUCKET_SOURCE,
       Expires: 60 * 5,
       ContentType: 'video/mp4',
