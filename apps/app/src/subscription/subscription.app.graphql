@@ -1,0 +1,35 @@
+extend type Query {
+  subscription: Subscription
+}
+
+extend type Mutation {
+  registerAppStoreSubscription(
+    input: RegisterAppStoreSubscriptionInput!
+  ): RegisterAppStoreSubscriptionResponse
+  registerGooglePlaySubscription(
+    input: RegisterGooglePlaySubscriptionInput!
+  ): RegisterGooglePlaySubscriptionResponse
+}
+
+input RegisterAppStoreSubscriptionInput {
+  receiptData: String!
+}
+
+type RegisterAppStoreSubscriptionResponse {
+  success: Boolean!
+  subscription: Subscription
+}
+
+input RegisterGooglePlaySubscriptionInput {
+  productId: String!
+  purchaseToken: String!
+}
+
+type RegisterGooglePlaySubscriptionResponse {
+  success: Boolean!
+  subscription: Subscription
+}
+
+type Subscription {
+  isActive: Boolean!
+}

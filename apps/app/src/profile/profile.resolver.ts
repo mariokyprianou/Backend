@@ -70,8 +70,8 @@ export class ProfileResolver {
   @Mutation('updateEmail')
   async updateEmail(
     @Args('email') email: string,
-    @Context('authContext') authContext: AuthContext
+    @Context('authContext') authContext: AuthContext,
   ): Promise<boolean> {
-    return this.user.updateEmail(email, authContext)
+    return this.user.updateEmail(email, authContext);
   }
 }

@@ -14,6 +14,15 @@
         "tsConfigPath": "apps/app/tsconfig.app.json"
       }
     },
+    "auth": {
+      "type": "application",
+      "root": "apps/app",
+      "entryFile": "authHandler",
+      "sourceRoot": "apps/app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/app/tsconfig.app.json"
+      }
+    },
     "cms": {
       "type": "application",
       "root": "apps/cms",
