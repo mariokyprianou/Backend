@@ -1,18 +1,45 @@
 import { Onboarding } from '@lib/power/onboarding';
 import { Config, ConfigType } from '@lib/power/config';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { CmsConfigService, ConfigTranslationData } from './config.service.cms';
 import {
   CmsOnboardingService,
   OnboardingTranslationData,
 } from './onboarding.service.cms';
+import { CommonService } from '@lib/common';
 
 @Resolver('Configuration')
 export class ConfigResolver {
   constructor(
     private readonly configService: CmsConfigService,
     private readonly onboardingService: CmsOnboardingService,
+    private common: CommonService,
   ) {}
+
+  @ResolveField('onboardings')
+  async resolveOnboardings(@Parent() config: ConfigurationGraphQlType) {
+    return Promise.all(
+      config.localisations.map(async (locale) => ({
+        ...locale,
+        onboardings: await Promise.all(
+          locale.onboardings.map(async (onboarding) => ({
+            ...onboarding,
+            image: {
+              key: onboarding.image,
+              url: this.common.getPresignedUrl(onboarding.image, this.common.env().FILES_BUCKET),
+            },
+          })),
+        ),
+      })),
+    );
+  }
 
   @Query('Configuration')
   async Configuration(): Promise<ConfigurationGraphQlType> {

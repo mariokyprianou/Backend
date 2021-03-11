@@ -72,13 +72,16 @@ export class WorkoutResolver {
   @ResolveField('workout')
   async getWorkout(@Parent() workout: ProgrammeWorkout) {
     return {
-      overviewImage:
-        workout.workout.overviewImageKey &&
-        (await this.common.getPresignedUrl(
-          workout.workout.overviewImageKey,
-          this.common.env().FILES_BUCKET,
-          'getObject',
-        )),
+      overviewImage: {
+        key: workout.workout.overviewImageKey,
+        url:
+          workout.workout.overviewImageKey &&
+          (await this.common.getPresignedUrl(
+            workout.workout.overviewImageKey,
+            this.common.env().FILES_BUCKET,
+            'getObject',
+          )),
+      },
       intensity: workout.workout.intensity,
       duration: workout.workout.duration,
       localisations: workout.workout.localisations,

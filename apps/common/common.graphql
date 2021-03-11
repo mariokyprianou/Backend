@@ -60,6 +60,11 @@ type ListMetadata {
   count: Int!
 }
 
+type File {
+  key: String
+  url: URL
+}
+
 type Query {
   ping: String!
 }

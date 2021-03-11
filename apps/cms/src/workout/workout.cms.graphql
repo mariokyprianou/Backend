@@ -8,7 +8,7 @@ type WorkoutWeek {
 }
 
 type Workout {
-  overviewImage: URL
+  overviewImage: File
   intensity: IntensityEnum!
   duration: Int!
   localisations: [WorkoutLocalisation]
