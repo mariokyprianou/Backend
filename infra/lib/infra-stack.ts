@@ -3,8 +3,10 @@ import * as cognito from '@aws-cdk/aws-cognito';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as rds from '@aws-cdk/aws-rds';
 import * as s3 from '@aws-cdk/aws-s3';
+import * as sqs from '@aws-cdk/aws-sqs';
 import { CfnOutput, Duration, RemovalPolicy } from '@aws-cdk/core';
 import { DeploymentStage } from './interface';
+import * as _ from 'lodash';
 
 export interface InfraStackPropsVpcConfig {
   /**
@@ -74,6 +76,8 @@ export class InfraStack extends cdk.Stack {
 
     this.addS3Bucket('Assets');
     this.addS3Bucket('Reports');
+
+    this.addQueue('IncomingWebhooks');
   }
 
   get isProduction() {
@@ -351,5 +355,18 @@ export class InfraStack extends cdk.Stack {
       backendUserPoolClient.ref,
     );
     return userPool;
+  }
+
+  private addQueue(name: string) {
+    const queue = new sqs.Queue(this, `${name}Queue`, {
+      queueName: `${this.resourcePrefix}-${_.kebabCase(name)}`,
+      encryption: sqs.QueueEncryption.KMS_MANAGED,
+    });
+
+    this.addOutput(this, `${name}QueueArn`, queue.queueArn);
+    this.addOutput(this, `${name}QueueName`, queue.queueName);
+    this.addOutput(this, `${name}QueueUrl`, queue.queueUrl);
+
+    return queue;
   }
 }

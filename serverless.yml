@@ -24,6 +24,7 @@ provider:
     VIDEO_BUCKET_DESTINATION: ${env:VIDEO_BUCKET_DESTINATION}
     FILES_BUCKET: ${env:FILES_BUCKET}
     REPORTS_BUCKET: ${env:REPORTS_BUCKET}
+    WEBHOOK_QUEUE_URL: ${env:WEBHOOK_QUEUE_URL}
   httpApi:
     payload: '1.0'
     cors: true
@@ -97,6 +98,13 @@ functions:
           pool: ${env:USERPOOL_NAME}
           trigger: CustomMessage
           existing: true
+
+  webhooks:
+    handler: apps/webhook/src/handler.default
+    events:
+      - httpApi:
+          method: POST
+          path: /webhooks/{provider}/{name}
 
 custom:
   serverless-offline:

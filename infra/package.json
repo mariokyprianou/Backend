@@ -35,6 +35,7 @@
     "@aws-cdk/aws-s3": "^1.75.0",
     "@aws-cdk/core": "1.75.0",
     "envalid": "^6.0.2",
+    "lodash": "^4.17.21",
     "source-map-support": "^0.5.16"
   }
 }
