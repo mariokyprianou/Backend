@@ -23,7 +23,7 @@ export class ConfigResolver {
     private common: CommonService,
   ) {}
 
-  @ResolveField('onboardings')
+  @ResolveField('localisations')
   async resolveOnboardings(@Parent() config: ConfigurationGraphQlType) {
     return Promise.all(
       config.localisations.map(async (locale) => ({

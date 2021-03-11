@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
+import { ExerciseCategory } from '../exercise-category';
 import { ExerciseTranslation } from './exercise-tr.model';
 
 export class Exercise extends BaseModel {
@@ -22,6 +23,7 @@ export class Exercise extends BaseModel {
   deletedAt: Date;
 
   localisations: ExerciseTranslation[];
+  category: ExerciseCategory;
 
   public getTranslation(language: string) {
     return (this.localisations ?? []).find((tr) => tr.language === language);
@@ -34,6 +36,14 @@ export class Exercise extends BaseModel {
       join: {
         from: 'exercise.id',
         to: 'exercise_tr.exercise_id',
+      },
+    },
+    category: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: ExerciseCategory,
+      join: {
+        from: 'exercise.category_id',
+        to: 'exercise_category.id',
       },
     },
   };

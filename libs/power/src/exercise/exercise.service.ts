@@ -11,7 +11,7 @@ export class ExerciseService {
   public findAll(language?: string) {
     return Exercise.query()
       .whereNull('exercise.deleted_at')
-      .withGraphJoined('localisations')
+      .withGraphFetched('[localisations, category]')
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,
       );

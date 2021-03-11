@@ -12,7 +12,7 @@ export class ProgrammeService {
   public findAll(language?: string) {
     return Programme.query()
       .whereNull('training_programme.deleted_at')
-      .withGraphJoined(
+      .withGraphFetched(
         '[localisations, images, shareMediaImages.[localisations]]',
       )
       .modifyGraph('localisations', (qb) =>
@@ -53,7 +53,6 @@ export class ProgrammeService {
     // return Programme.query().deleteById(id);
 
     // Soft delete
-    // Potential TODO only soft delete if people are subscribed if not do a full clear up
     return Programme.query().patchAndFetchById(id, { deletedAt: new Date() });
   }
 
