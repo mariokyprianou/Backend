@@ -45,7 +45,7 @@ export class UserResolver {
 
   @Mutation('deleteUser')
   async deleteUser(@Args('id') id) {
-    const userToDelete = this.userService.findById(id);
+    const userToDelete = await this.userService.findById(id);
     // Moved to new auth service
     // await this.accountService.delete(id);
     // await this.userService.delete(id);

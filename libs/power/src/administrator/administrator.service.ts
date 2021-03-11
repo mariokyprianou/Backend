@@ -77,7 +77,16 @@ export class AdministratorService {
   public async delete(id: string) {
     const admin = await this.adminAuthProvider.delete(id);
 
-    return this.buildUser(admin);
+    return {
+      id: admin.Username,
+      email:
+        admin.UserAttributes.find((x) => x.Name == 'email') &&
+        (admin.UserAttributes.find((x) => x.Name == 'email').Value as string),
+      name:
+        admin.UserAttributes.find((x) => x.Name == 'custom:name') &&
+        (admin.UserAttributes.find((x) => x.Name == 'custom:name')
+          .Value as string),
+    };
   }
 
   public async create(name: string, email: string) {
