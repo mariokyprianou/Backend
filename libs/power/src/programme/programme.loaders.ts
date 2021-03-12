@@ -114,15 +114,7 @@ export class ProgrammeLoaders {
 
     return programmeIds.map((id) => {
       const result = results.find((result) => result.id === id);
-      if (result) {
-        return result;
-      } else {
-        return {
-          id,
-          isActive: false,
-          latestWeek: 0,
-        };
-      }
+      return result ?? null;
     });
   });
 

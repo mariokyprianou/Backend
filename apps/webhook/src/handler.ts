@@ -1,49 +1,38 @@
-import type { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { SQS } from 'aws-sdk';
+import type { SQSHandler } from 'aws-lambda';
+import { NestApplication, NestFactory } from '@nestjs/core';
+import { WebhookProcessingModule } from './webhooks.module';
+import {
+  GooglePlayNotification,
+  GooglePlayNotificationsService,
+  GooglePubSubPayload,
+  GOOGLE_PLAY_PROVIDER_NAME,
+} from '@td/subscriptions';
 
-const sqs = new SQS();
+let app: NestApplication = null;
 
-const providers = {
-  googleplay: {
-    verify: () => true,
-  },
-  appstore: {
-    verify: () => true,
-  },
-};
+const handler: SQSHandler = async (event) => {
+  console.log('webhook', JSON.stringify(event));
 
-const handler: APIGatewayProxyHandlerV2<void> = async (event, context) => {
-  console.log(
-    'webhook',
-    event.pathParameters?.provider,
-    event.pathParameters?.name,
-    JSON.stringify(event),
-  );
-
-  const provider = providers[event.pathParameters?.provider];
-  if (!provider) {
-    return { statusCode: 400 };
+  if (!app) {
+    app = await NestFactory.create(WebhookProcessingModule);
   }
 
-  if (!provider.verify(event.pathParameters?.name, event)) {
-    return { statusCode: 400 };
-  }
+  const jobs = event.Records.map(async (record) => {
+    const message: { provider: string; body: any } = JSON.parse(record.body);
 
-  try {
-    await sqs
-      .sendMessage({
-        QueueUrl: process.env.WEBHOOK_QUEUE_URL,
-        MessageBody: JSON.stringify({
-          provider: event.pathParameters?.provider,
-          name: event.pathParameters?.name,
-          body: event.body,
-        }),
-      })
-      .promise();
-    return { statusCode: 200 };
-  } catch (e) {
-    return { statusCode: 500 };
-  }
+    if (message.provider === GOOGLE_PLAY_PROVIDER_NAME) {
+      const payload = message.body as GooglePubSubPayload;
+      const json = Buffer.from(payload.message.data, 'base64').toString(
+        'utf-8',
+      );
+      const notification: GooglePlayNotification = JSON.parse(json);
+      console.log('google-play.notification', json);
+      const service = app.get(GooglePlayNotificationsService);
+      await service.handleRealtimeNotification(notification);
+    }
+  });
+
+  await Promise.all(jobs);
 };
 
 export default handler;

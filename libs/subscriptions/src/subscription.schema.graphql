@@ -1,0 +1,42 @@
+enum SubscriptionPlatform {
+  GOOGLE_PL
+  
+}
+
+type Subscription {
+    id: ID!
+    platform: 
+    sku: String!
+
+}
+
+input RegisterAppStoreSubscriptionInput {
+  receiptData: String!
+}
+
+type RegisterAppStoreSubscriptionResponse {
+  success: Boolean!
+}
+
+input RegisterGooglePlaySubscriptionInput {
+  productId: String!
+  purchaseToken: String!
+}
+
+type RegisterGooglePlaySubscriptionResponse {
+  success: Boolean!
+}
+
+extend type Query {
+  subscriptions: Subscription[]
+}
+
+extend type Mutation {
+  registerAppStoreSubscription(
+    input: RegisterAppStoreSubscriptionInput
+  ): RegisterAppStoreSubscriptionResponse
+
+  registerGooglePlaySubscription(
+    input: VerifyGooglePlayPurchaseInput
+  ): RegisterGooglePlaySubscriptionResponse
+}

@@ -23,7 +23,8 @@
       "@td/auth-provider": ["libs/auth-provider/src"],
       "@td/auth-provider/*": ["libs/auth-provider/src/*"],
       "@td/generate-csv-report": ["libs/generate-csv-report/src"],
-      "@td/generate-csv-report/*": ["libs/generate-csv-report/src/*"]
+      "@td/generate-csv-report/*": ["libs/generate-csv-report/src/*"],
+      "@td/subscriptions": ["libs/subscriptions/src"]
     }
   }
 }

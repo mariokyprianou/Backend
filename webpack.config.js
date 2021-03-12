@@ -28,6 +28,7 @@ module.exports = {
         __dirname,
         'libs/generate-csv-report/src',
       ),
+      '@td/subscriptions': path.resolve(__dirname, 'libs/subscriptions/src'),
     },
   },
   output: {

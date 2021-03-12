@@ -5,6 +5,10 @@
  */
 import { commonConfig, formatError } from '@lib/common';
 import { databaseConfig, DatabaseModule } from '@lib/database';
+import {
+  appStoreSubscriptionConfig,
+  googlePlaySubscriptionConfig,
+} from '@td/subscriptions';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -82,7 +86,13 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [commonConfig, databaseConfig, userAuthKeysConfig],
+      load: [
+        commonConfig,
+        databaseConfig,
+        userAuthKeysConfig,
+        appStoreSubscriptionConfig,
+        googlePlaySubscriptionConfig,
+      ],
     }),
     AuthAppModule,
     AuthProviderModule,

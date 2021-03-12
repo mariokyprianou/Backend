@@ -11,6 +11,14 @@ provider:
   useDotenv:
   environment:
     NODE_ENV: ${env:NODE_ENV}
+    APP_STORE_SHARED_SECRET: ${env:APP_STORE_SHARED_SECRET}
+    APP_STORE_MONTHLY_SUBSCRIPTION_PRODUCT_ID: ${env:APP_STORE_MONTHLY_SUBSCRIPTION_PRODUCT_ID,'app.power.subscription.monthly'}
+    APP_STORE_YEARLY_SUBSCRIPTION_PRODUCT_ID: ${env:APP_STORE_YEARLY_SUBSCRIPTION_PRODUCT_ID, 'app.power.subscription.yearly'}
+    GOOGLE_PLAY_PACKAGE_NAME: ${env:GOOGLE_PLAY_PACKAGE_NAME}
+    GOOGLE_PLAY_SERVICE_ACCOUNT_CLIENT_EMAIL: ${env:GOOGLE_PLAY_SERVICE_ACCOUNT_CLIENT_EMAIL}
+    GOOGLE_PLAY_SERVICE_ACCOUNT_PRIVATE_KEY: ${env:GOOGLE_PLAY_SERVICE_ACCOUNT_PRIVATE_KEY}
+    GOOGLE_PLAY_MONTHLY_SUBSCRIPTION_PRODUCT_ID: ${env:GOOGLE_PLAY_MONTHLY_SUBSCRIPTION_PRODUCT_ID, 'app.power.subscription.monthly'}
+    GOOGLE_PLAY_YEARLY_SUBSCRIPTION_PRODUCT_ID: ${env:GOOGLE_PLAY_YEARLY_SUBSCRIPTION_PRODUCT_ID,'app.power.subscription.yearly'}
     AUTH_REGION: ${env:AUTH_REGION}
     DB_HOST: ${env:DB_HOST}
     DB_DATABASE: ${env:DB_DATABASE}
@@ -55,27 +63,40 @@ provider:
         audience:
           - ${self:provider.environment.CMS_FRONTEND_CLIENT}
           - ${self:provider.environment.CMS_BACKEND_CLIENT}
-  iamRoleStatements:
-    - Sid: 'GrantS3Access'
-      Effect: 'Allow'
-      Resource:
-        - arn:aws:s3:::${env:FILES_BUCKET}
-        - arn:aws:s3:::${env:FILES_BUCKET}/*
-        - arn:aws:s3:::${env:REPORTS_BUCKET}
-        - arn:aws:s3:::${env:REPORTS_BUCKET}/*
-        - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}
-        - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}/*
-        - arn:aws:s3:::${env:VIDEO_BUCKET_DESTINATION}/*
-      Action:
-        - 's3:GetObject'
-        - 's3:PutObject'
-    - Sid: 'GrantCognitoAccess'
-      Effect: 'Allow'
-      Resource:
-        - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:USERPOOL_ID}
-        - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:CMS_USERPOOL_ID}
-      Action:
-        - 'cognito-idp:*'
+      googleAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: https://accounts.google.com
+        audience:
+          - power.app
+  iam:
+    role:
+      statements:
+        - Sid: 'GrantS3Access'
+          Effect: 'Allow'
+          Resource:
+            - arn:aws:s3:::${env:FILES_BUCKET}
+            - arn:aws:s3:::${env:FILES_BUCKET}/*
+            - arn:aws:s3:::${env:REPORTS_BUCKET}
+            - arn:aws:s3:::${env:REPORTS_BUCKET}/*
+            - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}
+            - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}/*
+            - arn:aws:s3:::${env:VIDEO_BUCKET_DESTINATION}/*
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+        - Sid: 'GrantCognitoAccess'
+          Effect: 'Allow'
+          Resource:
+            - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:USERPOOL_ID}
+            - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:CMS_USERPOOL_ID}
+          Action:
+            - 'cognito-idp:*'
+        - Sid: 'WebhookQueueAccess'
+          Effect: 'Allow'
+          Resource:
+            - ${env:WEBHOOK_QUEUE_ARN}
+          Action:
+            - sqs:SendMessage
 plugins:
   - serverless-prune-plugin
   - serverless-webpack
@@ -122,12 +143,23 @@ functions:
           trigger: CustomMessage
           existing: true
 
-  webhooks:
-    handler: apps/webhook/src/handler.default
+  googlePlayWebhooks:
+    handler: apps/webhook/src/google-play-handler.default
     events:
       - httpApi:
           method: POST
-          path: /webhooks/{provider}/{name}
+          path: /webhooks/google-play
+          authorizer:
+            name: googleAuthorizer
+
+  processWebhooks:
+    timeout: 20
+    reservedConcurrency: 5
+    handler: apps/webhook/src/handler.default
+    events:
+      - sqs:
+          arn: ${env:WEBHOOK_QUEUE_ARN}
+          batchSize: 1
 
 custom:
   serverless-offline:
