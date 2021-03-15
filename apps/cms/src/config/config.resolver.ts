@@ -8,13 +8,21 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { CmsConfigService, ConfigTranslationData } from './config.service.cms';
+import {
+  CmsConfigService,
+  ConfigTranslationData,
+  ConfigurationServiceType,
+} from './config.service.cms';
 import {
   CmsOnboardingService,
+  OnboardingServiceType,
   OnboardingTranslationData,
 } from './onboarding.service.cms';
 import { CommonService } from '@lib/common';
 
+// Previous implementation of this didn't work
+// The original didn't update the locales
+// I've tried to remove as much code as possible without breaking
 @Resolver('Configuration')
 export class ConfigResolver {
   constructor(
@@ -33,7 +41,10 @@ export class ConfigResolver {
             ...onboarding,
             image: {
               key: onboarding.image,
-              url: this.common.getPresignedUrl(onboarding.image, this.common.env().FILES_BUCKET),
+              url: this.common.getPresignedUrl(
+                onboarding.image,
+                this.common.env().FILES_BUCKET,
+              ),
             },
           })),
         ),
@@ -50,28 +61,6 @@ export class ConfigResolver {
   async updateConfiguration(
     @Args('input') input: ConfigurationGraphQlType,
   ): Promise<ConfigurationGraphQlType> {
-    const termsAndConditionTranslations: ConfigTranslationData[] = input.localisations.map(
-      (localisation) => {
-        return {
-          type: ConfigType.TERMS,
-          language: localisation.language,
-          value: localisation.termsAndConditions,
-          title: 'Terms and Conditions', // Note: not sure what's a good default or where to set it
-        };
-      },
-    );
-
-    const privacyPolicyTranslations: ConfigTranslationData[] = input.localisations.map(
-      (localisation) => {
-        return {
-          type: ConfigType.PRIVACY,
-          language: localisation.language,
-          value: localisation.privacyPolicy,
-          title: 'Privacy Policy', // Note: not sure what's a good default or where to set it
-        };
-      },
-    );
-
     const notificationTranslations: ConfigTranslationData[] = input.localisations.flatMap(
       (localisation) => {
         return localisation.notifications.map((notification) => {
@@ -84,12 +73,6 @@ export class ConfigResolver {
         });
       },
     );
-
-    const allConfigurationTranslations = [
-      ...termsAndConditionTranslations,
-      ...privacyPolicyTranslations,
-      ...notificationTranslations,
-    ];
 
     const onboardingTranslations: OnboardingTranslationData[] = input.localisations.flatMap(
       (localisation) => {
@@ -105,8 +88,111 @@ export class ConfigResolver {
       },
     );
 
-    await this.configService.updateTranslations(allConfigurationTranslations);
-    await this.onboardingService.updateTranslations(onboardingTranslations);
+    const onboarding: OnboardingServiceType[] = onboardingTranslations.reduce(
+      (prev, curr) => {
+        const existing = prev.find(
+          (each) => each.orderIndex === curr.orderIndex,
+        );
+
+        if (!existing) {
+          return [
+            ...prev,
+            {
+              orderIndex: curr.orderIndex,
+              localisations: [
+                {
+                  language: curr.language,
+                  title: curr.title,
+                  description: curr.description,
+                  imageKey: curr.image,
+                },
+              ],
+            },
+          ];
+        }
+
+        return [
+          ...prev.filter((filt) => filt.orderIndex !== existing.orderIndex),
+          {
+            ...existing,
+            localisations: [
+              ...existing.localisations,
+              {
+                language: curr.language,
+                title: curr.title,
+                description: curr.description,
+                imageKey: curr.image,
+              },
+            ],
+          },
+        ];
+      },
+      [],
+    );
+
+    await this.onboardingService.updateTranslations(onboarding);
+
+    const termsAndConditions: ConfigurationServiceType = {
+      type: ConfigType.TERMS,
+      localisations: input.localisations.map((localisation) => {
+        return {
+          language: localisation.language,
+          value: localisation.termsAndConditions,
+          title: 'Terms and Conditions',
+        };
+      }),
+    };
+    const privacyPolicy: ConfigurationServiceType = {
+      type: ConfigType.PRIVACY,
+      localisations: input.localisations.map((localisation) => {
+        return {
+          language: localisation.language,
+          value: localisation.privacyPolicy,
+          title: 'Privacy Policy',
+        };
+      }),
+    };
+    const notification: ConfigurationServiceType[] = notificationTranslations.reduce(
+      (prev, curr) => {
+        const existing = prev.find((each) => each.type === curr.type);
+
+        if (!existing) {
+          return [
+            ...prev,
+            {
+              type: curr.type,
+              localisations: [
+                {
+                  language: curr.language,
+                  title: curr.title,
+                  value: curr.value,
+                },
+              ],
+            },
+          ];
+        }
+
+        return [
+          ...prev.filter((filt) => filt.type !== existing.type),
+          {
+            ...existing,
+            localisations: [
+              ...existing.localisations,
+              { language: curr.language, title: curr.title, value: curr.value },
+            ],
+          },
+        ];
+      },
+      [],
+    );
+
+    const config: ConfigurationServiceType[] = [
+      ...notification,
+      termsAndConditions,
+      privacyPolicy,
+    ];
+
+    await this.configService.updateTranslations(config);
 
     return this.fetchConfiguration();
   }
@@ -164,33 +250,41 @@ const createConfigurationLocalisationGraphQlType = (
     language: language,
     termsAndConditions: termsConfigTranslation.value,
     privacyPolicy: privacyConfigTranslation.value,
-    onboardings: onboardings.map((onboarding) => {
-      const onboardingTranslation = onboarding.translations.find(
-        (translation) => translation.language == language,
-      );
+    onboardings:
+      onboardings &&
+      onboardings.map((onboarding) => {
+        const onboardingTranslation = onboarding.translations.find(
+          (translation) => translation.language == language,
+        );
 
-      return {
-        orderIndex: onboarding.orderIndex,
-        title: onboardingTranslation.title,
-        description: onboardingTranslation.description,
-        image: onboardingTranslation.imageKey,
-      };
-    }),
-    notifications: notificationTypes.map((notificationType) => {
-      const notification = configurations.find(
-        (configuration) => configuration.type == notificationType,
-      );
+        return {
+          orderIndex: onboarding.orderIndex,
+          title: onboardingTranslation.title,
+          description: onboardingTranslation.description,
+          image: onboardingTranslation.imageKey,
+        };
+      }),
+    notifications: notificationTypes
+      .map((notificationType) => {
+        const notification = configurations.find(
+          (configuration) => configuration.type == notificationType,
+        );
 
-      const notificationTranslation = notification.translations.find(
-        (translation) => translation.language == language,
-      );
+        if (!notification) {
+          return;
+        }
 
-      return {
-        type: (notification.type as unknown) as PushNotificationTypeGraphQlType,
-        title: notificationTranslation.title,
-        body: notificationTranslation.value,
-      };
-    }),
+        const notificationTranslation = notification.translations.find(
+          (translation) => translation.language == language,
+        );
+
+        return {
+          type: (notification.type as unknown) as PushNotificationTypeGraphQlType,
+          title: notificationTranslation.title,
+          body: notificationTranslation.value,
+        };
+      })
+      .filter((each) => each),
   };
 };
 

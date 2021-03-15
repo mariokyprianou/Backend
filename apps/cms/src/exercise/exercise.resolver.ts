@@ -43,7 +43,7 @@ export class ExerciseResolver {
       }
 
       if (filter.ids) {
-        query.whereIn('exercise.id', filter.ids);
+        query.findByIds(filter.ids);
       }
 
       if (filter.name) {
@@ -131,7 +131,7 @@ export class ExerciseResolver {
     @Context('language') language: string,
     @Args('page') page: number,
     @Args('perPage') perPage: number,
-    @Args('sortField') sortField: string,
+    @Args('sortField') sortField = 'id',
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
     @Args('filter') filter: ExerciseFilter,
   ): Promise<Exercise[]> {

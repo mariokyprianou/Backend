@@ -20,7 +20,12 @@ export class Config extends BaseModel {
   createdAt: Date;
   updatedAt: Date;
 
+  // Why two?
+  // The person who did this first didn't follow the convention of the rest of the
+  // app and whilst fixing another problem I didn't want to break anything after I realised
+  // this situation
   translations: Translation[];
+  localisations: Translation[];
 
   public getTranslation(language: string) {
     return (this.translations ?? []).find((tr) => tr.language === language);
@@ -28,6 +33,14 @@ export class Config extends BaseModel {
 
   static relationMappings = () => ({
     translations: {
+      relation: BaseModel.HasManyRelation,
+      modelClass: Translation,
+      join: {
+        from: 'config.id',
+        to: 'config_tr.config_id',
+      },
+    },
+    localisations: {
       relation: BaseModel.HasManyRelation,
       modelClass: Translation,
       join: {

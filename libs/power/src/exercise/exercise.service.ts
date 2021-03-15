@@ -7,7 +7,6 @@ import { ExerciseLocalisation, IExercise } from '../types';
 export class ExerciseService {
   // FIND ALL Exercise
 
-  // TODO filter deleted
   public findAll(language?: string) {
     return Exercise.query()
       .whereNull('exercise.deleted_at')
