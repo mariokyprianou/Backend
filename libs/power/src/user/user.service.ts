@@ -17,7 +17,7 @@ export class UserService {
     filter: UserFilter = {},
   ) {
     const findAllQuery = applyFilter(
-      User.query().withGraphJoined('country').withGraphJoined('region'),
+      User.query().withGraphFetched('country, region'),
       filter,
     );
 
@@ -123,7 +123,7 @@ const applyFilter = (
   }
 
   if (filter.country) {
-    query.where('country', 'ilike', `%${filter.country}%`);
+    query.where('account.country.country', 'ilike', `%${filter.country}%`);
   }
 
   return query;

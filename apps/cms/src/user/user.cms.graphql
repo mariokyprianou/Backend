@@ -24,7 +24,7 @@ type CurrentTrainingProgramme {
 input UserFilter {
   id: ID
   ids: [ID!]
-  email: EmailAddress
+  email: String
   country: String
   # subscriberStatus
   # Current Trainer
