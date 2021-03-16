@@ -8,12 +8,12 @@ const onCustomMessageHandler: CustomMessageTriggerHandler = async (
 
   if (event.triggerSource === 'CustomMessage_ForgotPassword') {
     const resetUrl =
-      process.env.DEEP_LINK_BASE_URL +
+      (process.env.DEEP_LINK_BASE_URL ?? 'power://') +
       'forgotPassword?code=' +
       event.request.codeParameter;
 
     event.response.emailSubject = 'Forgotten Password';
-    event.response.emailMessage = `Your password reset verification code is ${event.request.codeParameter}. Click the link to reset your password using the PASMA app: <a href="${resetUrl}">${resetUrl}</a>`;
+    event.response.emailMessage = `Your password reset verification code is ${event.request.codeParameter}. Click the link to reset your password using the Power app: <a href="${resetUrl}">${resetUrl}</a>`;
   }
 
   return event;
