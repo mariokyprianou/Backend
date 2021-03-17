@@ -1,9 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { AuthProviderService } from '@td/auth-provider';
+import { Injectable } from '@nestjs/common';
 import { addDays, isAfter } from 'date-fns';
 import Objection from 'objection';
-import { AccountService } from '../account';
-import { AuthService } from '../auth';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
 import { User } from './user.model';
 
@@ -16,10 +13,8 @@ export class UserService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: UserFilter = {},
   ) {
-    const findAllQuery = applyFilter(
-      User.query().withGraphFetched('[country, region]'),
-      filter,
-    );
+    const query = User.query().withGraphJoined('[country, region]');
+    const findAllQuery = applyFilter(query, filter);
 
     findAllQuery.limit(perPage).offset(perPage * page);
     findAllQuery.orderBy(sortField, sortOrder);
