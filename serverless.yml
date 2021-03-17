@@ -110,6 +110,7 @@ custom:
   serverless-offline:
     allowCache: true
     noPrependStageInUrl: true
+    ignoreJWTSignature: true
   webpack:
     includeModules:
       # Include dynamically imported modules
