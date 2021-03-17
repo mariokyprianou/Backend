@@ -26,11 +26,9 @@
         "libs/database/src/*"
       ],
       "@lib/power": [
-        "libs/database/src",
         "libs/power/src"
       ],
       "@lib/power/*": [
-        "libs/database/src/*",
         "libs/power/src/*"
       ],
       "@td/auth-provider": [
