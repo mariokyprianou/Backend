@@ -9,9 +9,9 @@ type User {
   currentTrainingProgramme: CurrentTrainingProgramme
   emailMarketing: Boolean!
   subscription: UserSubscription!
-  # Current Week
-  # Previous trainers
-  # 30 day devise limit
+  currentWeek: Int
+  previousTrainers: [ID]
+  deviceLimit: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
 }

@@ -31,7 +31,7 @@ export class TrainerResolver {
       }
 
       if (filter.name) {
-        query.where('name', 'ilike', `%${filter.name}%`);
+        query.where('trainer.localisations.name', 'ilike', `%${filter.name}%`);
       }
     }
 

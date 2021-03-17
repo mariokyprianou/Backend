@@ -53,6 +53,28 @@ export class UserResolver {
     return userToDelete;
   }
 
+  @ResolveField('currentWeek')
+  async getCurrentWeek(@Parent() user: User): Promise<number> {
+    const account = await this.accountService.findById(user.id);
+    return this.userProgramService.fetchCurrentUserWeek(account);
+  }
+
+  @ResolveField('previousTrainers')
+  async getPreviousTrainers(@Parent() user: User) {
+    const account = await this.accountService.findById(user.id);
+    const allProgrammes = await this.userProgramService.allUserProgrammes(
+      account.id,
+    );
+    return [
+      ...new Set(allProgrammes.map((each) => each.trainingProgramme.trainerId)),
+    ];
+  }
+
+  @ResolveField('deviceLimit')
+  getDeviceLimit(@Parent() user: User) {
+    return user.deviceChange;
+  }
+
   @ResolveField('currentTrainingProgramme')
   async getCurrentTrainingProgramme(@Parent() user: User) {
     const account = await this.accountService.findById(user.id);

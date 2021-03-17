@@ -17,7 +17,7 @@ export class UserService {
     filter: UserFilter = {},
   ) {
     const findAllQuery = applyFilter(
-      User.query().withGraphFetched('country, region'),
+      User.query().withGraphFetched('[country, region]'),
       filter,
     );
 

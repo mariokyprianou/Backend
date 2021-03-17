@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
+import { Account, AccountService } from '../account';
+import { UserWorkoutWeek } from '../user-workout-week';
 import { UserProgramme } from './user-programme.model';
 
 @Injectable()
@@ -31,6 +33,38 @@ export class UserProgrammeService {
 
   public findById(id: string) {
     return this.findAll().findById(id);
+  }
+
+  public async allUserProgrammes(account: string) {
+    return UserProgramme.query()
+      .withGraphFetched('trainingProgramme')
+      .where('account_id', account);
+  }
+
+  public async fetchCurrentUserWeek(account: Account) {
+    const weeks = await UserWorkoutWeek.query()
+      .whereNull('user_workout_week.completed_at')
+      .andWhere(
+        'user_workout_week.user_training_programme_id',
+        account.userTrainingProgrammeId,
+      );
+
+    return this.returnCurrentWeekNumber(weeks);
+  }
+
+  private returnCurrentWeekNumber(weeks) {
+    return weeks.reduce((a, b) => {
+      if (a === 0) {
+        return b.weekNumber;
+      }
+      if (a === b.weekNumber) {
+        return a;
+      }
+      if (a > b.weekNumber) {
+        return b.weekNumber;
+      }
+      return a;
+    }, 0);
   }
 }
 

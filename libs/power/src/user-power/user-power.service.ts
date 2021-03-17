@@ -342,8 +342,6 @@ export class UserPowerService {
         },
       );
 
-    console.log(JSON.stringify(account));
-
     // return userProgramme
     return this.buildUserProgramme(account, language);
   }
