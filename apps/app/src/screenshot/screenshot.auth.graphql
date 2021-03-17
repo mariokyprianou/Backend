@@ -1,0 +1,12 @@
+extend type UserProfile {
+  screenshotsTaken: Int
+}
+
+type ScreenshotTakenResponse {
+  success: Boolean!
+  screenshotsTaken: Int
+}
+
+extend type Mutation {
+  screenshotTaken: ScreenshotTakenResponse
+}
