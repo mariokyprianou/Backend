@@ -1,10 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { IProgramme, IShareMedia, ShareMediaType } from '../types';
-import { ProgrammeImage } from './programme-image.model';
-import { ProgrammeTranslation } from './programme-tr.model';
+import { PartialModelGraph } from 'objection';
+import { IProgramme } from '../types';
+import { UpdateProgrammeParams } from './programme.interface';
+
 import { Programme } from './programme.model';
 import { ShareMediaTranslation } from './share-media-tr.model';
+import { ShareMediaImage } from './share-media.interface';
 import { ShareMedia } from './share-media.model';
+
+const toShareImageModelGraph = (
+  image: ShareMediaImage,
+): PartialModelGraph<ShareMedia> => {
+  const patch: PartialModelGraph<ShareMedia> = {
+    id: image.id,
+    type: image.type,
+  };
+
+  if (image.localisations) {
+    patch.localisations = image.localisations.map<
+      PartialModelGraph<ShareMediaTranslation>
+    >((localisation) => ({
+      language: localisation.language,
+      imageKey: localisation.imageKey,
+      colour: localisation.colour,
+    }));
+  }
+
+  return patch;
+};
 
 @Injectable()
 export class ProgrammeService {
@@ -13,7 +36,7 @@ export class ProgrammeService {
     return Programme.query()
       .whereNull('training_programme.deleted_at')
       .withGraphFetched(
-        '[localisations, images, shareMediaImages.[localisations]]',
+        '[localisations, images, shareMediaImages.localisations]',
       )
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,
@@ -26,7 +49,9 @@ export class ProgrammeService {
 
   // CREATE PROGRAMME //
   public async create(programme: IProgramme) {
-    return Programme.query().insertGraphAndFetch(programme);
+    return Programme.transaction((trx) => {
+      return Programme.query(trx).insertGraphAndFetch(programme);
+    });
   }
 
   public findById(id: string, language?: string) {
@@ -56,35 +81,46 @@ export class ProgrammeService {
     return Programme.query().patchAndFetchById(id, { deletedAt: new Date() });
   }
 
-  public async update(id: string, programme: IProgramme) {
-    return Programme.query().upsertGraphAndFetch({ id: id, ...programme });
-  }
+  public async updateProgramme(
+    params: UpdateProgrammeParams,
+  ): Promise<Programme> {
+    const programme = await Programme.query()
+      .findById(params.id)
+      .throwIfNotFound();
 
-  public async createShareMedia(programme: string, shareMedia: IShareMedia) {
-    await ShareMedia.query().insertGraphAndFetch({
-      ...shareMedia,
-      trainingProgrammeId: programme,
+    const patch: PartialModelGraph<Programme> = {
+      id: programme.id,
+      trainerId: params.trainerId,
+      fatLoss: params.fatLoss,
+      fitness: params.fitness,
+      muscle: params.muscle,
+      environment: params.environment,
+      status: params.status,
+    };
+
+    if (params.images) {
+      patch.images = params.images;
+    }
+
+    if (params.localisations) {
+      patch.localisations = params.localisations;
+    }
+
+    if (params.shareMediaImages) {
+      patch.shareMediaImages = params.shareMediaImages.map(
+        toShareImageModelGraph,
+      );
+    }
+
+    return Programme.transaction((trx) => {
+      return Programme.query(trx).upsertGraphAndFetch(patch);
     });
-    return this.findById(programme);
   }
 
-  public async updateShareMedia(
-    programme: string,
-    id: string,
-    shareMedia: IShareMedia,
-  ) {
-    await ShareMedia.query().upsertGraphAndFetch({
-      id,
-      ...shareMedia,
-      trainingProgrammeId: programme,
-    });
-    return this.findById(programme);
-  }
-
-  public findAllShareMedia(programme: string, language?: string) {
+  public findAllShareMedia(programmeId: string, language?: string) {
     return ShareMedia.query()
-      .where('training_programme_id', programme)
-      .withGraphJoined('localisations')
+      .where('training_programme_id', programmeId)
+      .withGraphFetched('localisations')
       .modifyGraph('localisations', (qb) =>
         language ? qb.where('language', language) : qb,
       );

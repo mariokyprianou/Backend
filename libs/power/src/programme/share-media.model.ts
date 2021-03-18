@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { ShareMediaType } from '../types';
 import { ShareMediaTranslation } from './share-media-tr.model';
+import { ShareMediaImageType } from './share-media.interface';
 
 export class ShareMedia extends BaseModel {
   static tableName = 'share_media_image';
@@ -13,7 +13,7 @@ export class ShareMedia extends BaseModel {
 
   id: string;
   trainingProgrammeId: string;
-  type: ShareMediaType;
+  type: ShareMediaImageType;
 
   localisations: ShareMediaTranslation[];
 

@@ -313,7 +313,7 @@ CREATE TABLE share_media_image_tr (
   colour text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_share_media_image_smi FOREIGN KEY (share_media_image_id) REFERENCES share_media_image (id),
+  CONSTRAINT fk_share_media_image_smi FOREIGN KEY (share_media_image_id) REFERENCES share_media_image (id) ON DELETE CASCADE,
   CONSTRAINT uq_share_media_image_smi_language UNIQUE (share_media_image_id, language)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON share_media_image_tr FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

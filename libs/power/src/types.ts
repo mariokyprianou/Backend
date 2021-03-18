@@ -1,3 +1,5 @@
+import { ShareMediaImage } from './programme/share-media.interface';
+
 export interface ExerciseNote {
   exercise: string;
   note: string;
@@ -66,7 +68,8 @@ export interface IProgramme {
   muscle: number;
   environment: ProgrammeEnvironment;
   status: PublishStatus;
-  images: ProgrammeImages[];
+  images?: ProgrammeImages[];
+  shareMediaImages?: ShareMediaImage[];
   localisations: ProgrammeLocalisation[];
 }
 
@@ -85,21 +88,9 @@ export enum PublishStatus {
   PUBLISHED,
 }
 
-export interface IShareMedia {
-  type: ShareMediaType;
-  localisations: ShareMediaLocalisations[];
-}
-
-export interface ShareMediaLocalisations {
+export interface ShareMediaLocalisation {
   imageKey: string;
   colour: string;
-}
-
-export enum ShareMediaType {
-  PROGRAMME_START,
-  WEEK_COMPLETE,
-  CHALLENGE_COMPLETE,
-  PROGRESS,
 }
 
 export enum IntensityEnum {

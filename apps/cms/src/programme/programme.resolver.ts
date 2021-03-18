@@ -7,7 +7,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { constructLimits } from '../constructLimits';
-import { Filter, IShareMedia, ListMetadata } from '@lib/power/types';
+import { Filter, ListMetadata } from '@lib/power/types';
 import { Programme } from '@lib/power/programme';
 import { ProgrammeService } from '@lib/power/programme/programme.service';
 import { IProgramme } from '../../../../libs/power/src/types';
@@ -78,13 +78,13 @@ export class ProgrammeResolver {
       return [];
     }
     return Promise.all(
-      programme.shareMediaImages.map(async (each) => ({
-        id: each.id,
-        type: each.type,
-        localisations: await Promise.all(
-          each.localisations.map(async (locale) => ({
+      programme.shareMediaImages.map(async (image) => {
+        return {
+          id: image.id,
+          type: image.type,
+          localisations: image.localisations.map((locale) => ({
             language: locale.language,
-            url: await this.common.getPresignedUrl(
+            url: this.common.getPresignedUrl(
               locale.imageKey,
               this.common.env().FILES_BUCKET,
               'getObject',
@@ -92,8 +92,8 @@ export class ProgrammeResolver {
             imageKey: locale.imageKey,
             colour: locale.colour,
           })),
-        ),
-      })),
+        };
+      }),
     );
   }
 
@@ -160,7 +160,7 @@ export class ProgrammeResolver {
     @Args('id') id: string,
     @Args('programme') programme: IProgramme,
   ): Promise<Programme> {
-    return this.service.update(id, programme);
+    return this.service.updateProgramme({ id, ...programme });
   }
 
   @Mutation('deleteProgramme')
@@ -170,23 +170,6 @@ export class ProgrammeResolver {
 
     return ProgrammeToDelete;
   }
-
-  // @Mutation('createShareImage')
-  // async createShareImage(
-  //   @Args('programme') programme: string,
-  //   @Args('media') media: IShareMedia,
-  // ): Promise<Programme> {
-  //   return this.service.createShareMedia(programme, media);
-  // }
-
-  // @Mutation('updateShareImage')
-  // async updateShareImage(
-  //   @Args('programme') programme: string,
-  //   @Args('id') id: string,
-  //   @Args('media') media: IShareMedia,
-  // ): Promise<Programme> {
-  //   return this.service.updateShareMedia(programme, id, media);
-  // }
 
   @Mutation('uploadMedia')
   async uploadMedia(@Args('input') input: UploadMediaInput) {

@@ -4,7 +4,7 @@ type Programme {
   environment: ProgrammeEnvironment!
   subscribers: Int!
   images: [ProgrammeImage]!
-  shareMediaImages: [ProgrammeSharedImage]
+  shareMediaImages: [ProgrammeShareMediaImage]
   localisations: [ProgrammeLocalisation]
   status: PublishStatus!
   fatLoss: Int!
@@ -13,12 +13,13 @@ type Programme {
 }
 
 input ProgrammeInput {
-  trainerId: ID!
-  fatLoss: Int!
-  fitness: Int!
-  muscle: Int!
-  environment: ProgrammeEnvironment!
+  trainerId: ID
+  fatLoss: Int
+  fitness: Int
+  muscle: Int
+  environment: ProgrammeEnvironment
   images: [ProgrammeImageInput]
+  shareMediaImages: [ProgrammeShareMediaImageInput!]
   localisations: [ProgrammeLocalisationInput]
   status: PublishStatus
 }
@@ -78,42 +79,37 @@ extend type Mutation {
   createProgramme(programme: ProgrammeInput!): Programme!
   updateProgramme(id: ID!, programme: ProgrammeInput): Programme!
   deleteProgramme(id: ID!): Programme!
-  # createShareImage(programme: ID!, media: ProgrammeSharedImageInput): Programme!
-  # updateShareImage(
-  #   programme: ID!
-  #   id: ID!
-  #   media: ProgrammeSharedImageInput
-  # ): Programme!
   uploadMedia(input: UploadMediaInput!): UploadMedia!
 }
 
-enum ProgrammeSharedImageType {
+enum ProgrammeShareMediaImageType {
   PROGRAMME_START
   WEEK_COMPLETE
   CHALLENGE_COMPLETE
   PROGRESS
 }
 
-type ProgrammeSharedImage {
+type ProgrammeShareMediaImage {
   id: ID!
-  type: ProgrammeSharedImageType!
-  localisations: [ProgrammeSharedLocalisation!]
+  type: ProgrammeShareMediaImageType!
+  localisations: [ProgrammeShareMediaImageLocalisation!]
 }
 
-type ProgrammeSharedLocalisation {
+type ProgrammeShareMediaImageLocalisation {
   language: ISOLanguage!
   url: URL!
   imageKey: String!
   colour: String
 }
 
-input ProgrammeSharedLocalisationInput {
+input ProgrammeShareMediaImageLocalisationInput {
   language: ISOLanguage!
   imageKey: String!
   colour: String
 }
 
-input ProgrammeSharedImageInput {
-  type: ProgrammeSharedImageType!
-  localisations: [ProgrammeSharedLocalisationInput!]
+input ProgrammeShareMediaImageInput {
+  id: ID
+  type: ProgrammeShareMediaImageType!
+  localisations: [ProgrammeShareMediaImageLocalisationInput!]
 }

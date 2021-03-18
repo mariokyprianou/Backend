@@ -41,12 +41,26 @@ provider:
         audience:
           - ${self:provider.environment.CMS_FRONTEND_CLIENT}
           - ${self:provider.environment.CMS_BACKEND_CLIENT}
-
   iamRoleStatements:
-    - Effect: 'Allow'
-      Resource: '*'
+    - Sid: 'GrantS3Access'
+      Effect: 'Allow'
+      Resource:
+        - arn:aws:s3:::${env:FILES_BUCKET}
+        - arn:aws:s3:::${env:FILES_BUCKET}/*
+        - arn:aws:s3:::${env:REPORTS_BUCKET}
+        - arn:aws:s3:::${env:REPORTS_BUCKET}/*
+        - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}
+        - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}/*
+        - arn:aws:s3:::${env:VIDEO_BUCKET_DESTINATION}/*
       Action:
-        - 's3:*'
+        - 's3:GetObject'
+        - 's3:PutObject'
+    - Sid: 'GrantCognitoAccess'
+      Effect: 'Allow'
+      Resource:
+        - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:USERPOOL_ID}
+        - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:CMS_USERPOOL_ID}
+      Action:
         - 'cognito-idp:*'
 plugins:
   - serverless-dotenv-plugin

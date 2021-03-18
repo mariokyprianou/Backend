@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonService } from '@lib/common/common.service';
-import { AuthContext, ShareMediaType } from '@lib/power/types';
+import { AuthContext } from '@lib/power';
 import { ProgrammeService } from '@lib/power/programme';
 import { Trainer } from '@lib/power/trainer';
 import {
