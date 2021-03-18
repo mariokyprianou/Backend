@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UpdateUserInput } from 'apps/cms/src/user/user.resolver';
 import { addDays, isAfter } from 'date-fns';
 import Objection from 'objection';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
@@ -77,6 +78,23 @@ export class UserService {
     return profile.$query().patchAndFetch({
       email,
     });
+  }
+
+  public async adminUpdate(id: string, input: UpdateUserInput) {
+    try {
+      const profile = await User.query().findById(id);
+      await profile.$query().patch({
+        firstName: input.firstName,
+        lastName: input.lastName,
+        countryId: input.country,
+        regionId: input.region,
+        timeZone: input.timezone,
+        deviceChange: input.deviceLimit
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   public async updateDevice(input: ChangeDevice, sub: string) {

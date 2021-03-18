@@ -11,6 +11,7 @@ import { ListMetadata } from '@lib/power/types';
 import { UserProgrammeService } from '@lib/power/user-programme/user-programme.service';
 import { AccountService } from '@lib/power/account';
 import { AuthService } from '@lib/power/auth';
+import { GraphQLError } from 'graphql';
 
 @Resolver('User')
 export class UserResolver {
@@ -40,7 +41,7 @@ export class UserResolver {
 
   @Query('User')
   async User(@Args('id') id) {
-    return await this.userService.findById(id);
+    return this.userService.findById(id);
   }
 
   @Mutation('deleteUser')
@@ -119,4 +120,43 @@ export class UserResolver {
       count: await this.userService.findAllMeta(filter),
     };
   }
+
+  @Mutation('updateEmail')
+  async updateEmail(@Args('id') id: string, @Args('email') email: string) {
+    const account = await this.userService.findById(id);
+    if (account.email === email) {
+      return this.User(id);
+    }
+    const res = await this.authService.updateEmail(email, {
+      sub: account.cognitoSub,
+    });
+
+    if (res) {
+      return this.User(id);
+    } else {
+      throw new GraphQLError('Unable to update email');
+    }
+  }
+
+  @Mutation('updateUser')
+  async updateUser(
+    @Args('id') id: string,
+    @Args('input') input: UpdateUserInput,
+  ) {
+    const res = await this.userService.adminUpdate(id, input);
+    if (res) {
+      return this.User(id);
+    } else {
+      throw new GraphQLError('Unable to update user');
+    }
+  }
+}
+
+export interface UpdateUserInput {
+  firstName: string;
+  lastName: string;
+  country: string;
+  region?: string;
+  timezone: string;
+  deviceLimit: Date;
 }

@@ -33,14 +33,14 @@ input UserFilter {
   # User Timezone
 }
 
-# input UpdateUserInput {
-#   id: ID!
-#   firstName: String!
-#   lastName: String!
-#   email: EmailAddress!
-#   country: String!
-#   region: String!
-# }
+input UpdateUserInput {
+  firstName: String!
+  lastName: String!
+  country: ID!
+  region: ID
+  timezone: String!
+  deviceLimit: DateTime!
+}
 
 extend type Query {
   User(id: ID!): User
@@ -66,6 +66,7 @@ type UserSubscription {
 }
 
 extend type Mutation {
-  #   updateUser(id: ID!): User
+  updateUser(id: ID!, input: UpdateUserInput): User
+  updateEmail(id: ID!, email: EmailAddress!): User
   deleteUser(id: ID!): User
 }
