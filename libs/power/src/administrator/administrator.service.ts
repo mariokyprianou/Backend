@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
-import { AdminGetUserResponse } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 @Injectable()
 export class AdministratorService {
@@ -91,7 +90,10 @@ export class AdministratorService {
 
   public async create(name: string, email: string) {
     await this.adminAuthProvider.register(email, null, {
-      UserAttributes: [{ Name: 'custom:name', Value: name }],
+      UserAttributes: [
+        { Name: 'custom:name', Value: name },
+        { Name: 'email_verified', Value: 'true' },
+      ],
     });
 
     return this.findById(email);
