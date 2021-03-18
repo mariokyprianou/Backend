@@ -30,11 +30,10 @@ export class TrainerService {
     // await TrainerTranslation.query().delete().where('trainer_id', trainerId);
     // return Trainer.query().deleteById(trainerId);
     // set deleted_at flag
-    await Trainer.query().patchAndFetchById(trainerId, {
+
+    return Trainer.query().patchAndFetchById(trainerId, {
       deletedAt: new Date(),
     });
-
-    return this.findById(trainerId);
   }
 
   // UPDATE TRAINER //
