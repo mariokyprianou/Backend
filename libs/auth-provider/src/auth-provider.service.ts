@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
+import { AdminCreateUserRequest } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 @Injectable()
 export class AuthProviderService {
@@ -24,7 +25,11 @@ export class AuthProviderService {
     this.ClientId = this.config.get(this.options.clientId);
   }
 
-  public async register(Username: string, Password?: string, options?: any) {
+  public async register(
+    Username: string,
+    Password?: string,
+    options?: Partial<AdminCreateUserRequest>,
+  ) {
     // Use aws sdk to register a user as admin
     const ap = {
       UserPoolId: this.UserPoolId,

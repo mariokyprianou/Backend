@@ -91,6 +91,7 @@ export class AdministratorService {
   public async create(name: string, email: string) {
     await this.adminAuthProvider.register(email, null, {
       UserAttributes: [
+        { Name: 'email', Value: email },
         { Name: 'custom:name', Value: name },
         { Name: 'email_verified', Value: 'true' },
       ],
