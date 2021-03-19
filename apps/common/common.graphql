@@ -93,7 +93,7 @@ enum IntensityEnum {
 type WorkoutSet {
   setNumber: Int!
   quantity: Int!
-  restTime: Int!
+  restTime: Int
 }
 
 enum SetType {

@@ -23,7 +23,7 @@ type WorkoutLocalisation {
 input WorkoutSetInput {
   setNumber: Int!
   quantity: Int!
-  restTime: Int!
+  restTime: Int
 }
 
 input WorkoutExerciseInput {
