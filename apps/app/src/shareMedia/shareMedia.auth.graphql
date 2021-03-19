@@ -1,0 +1,9 @@
+enum ShareMediaType {
+  WEEK_COMPLETE
+  CHALLENGE_COMPLETE
+  PROGRESS
+}
+
+extend type Query {
+  shareMedia(type: ShareMediaType): ProgrammeShareImage!
+}

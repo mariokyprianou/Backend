@@ -28,6 +28,7 @@ import { ProgressAppModule } from './progress/progress.module';
 import { ChallengeAuthModule } from './challenge/challenge.module';
 import { SubscriptionAppModule } from './subscription/subscription.module';
 import { ScreenshotAppModule } from './screenshot/screenshot.module';
+import { ShareMediaAuthModule } from './shareMedia/shareMedia.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -52,6 +53,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         ChallengeAuthModule,
         SubscriptionAppModule,
         ScreenshotAppModule,
+        ShareMediaAuthModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -91,6 +93,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     SubscriptionAppModule,
     GraphQLProvider,
     ScreenshotAppModule,
+    ShareMediaAuthModule,
   ],
 })
 export class AuthModule {}
