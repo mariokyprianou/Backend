@@ -1,18 +1,16 @@
 import { AuthService } from '@lib/power/auth';
 import { RegisterUserInput } from '@lib/power/types';
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
 
 @Resolver('LoginResponse')
 export class AuthResolver {
-  constructor(private user: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Mutation('registerUser')
   async registerUser(
-    // @Context('language') language: string,
     @Args('input') input: RegisterUserInput,
   ): Promise<boolean> {
-    const user = await this.user.register(input);
-    console.log(user);
+    const user = await this.authService.register(input);
     if (!user) {
       return false;
     }
@@ -24,7 +22,7 @@ export class AuthResolver {
     @Args('email') email: string,
   ): Promise<boolean> {
     try {
-      await this.user.sendVerification(email);
+      await this.authService.sendVerification(email);
       return true;
     } catch (err) {
       return false;
@@ -36,7 +34,7 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<TokenResponse> {
-    return this.user.login(email, password);
+    return this.authService.login(email, password);
   }
 }
 

@@ -28,13 +28,11 @@ export class AuthService {
   ) {}
 
   public async register(input: RegisterUserInput) {
-    const programme = await Programme.query()
-      .first()
-      .where('id', input.programme);
-
+    const programme = await Programme.query().findById(input.programme);
     if (!programme) {
       throw new GraphQLError('Programme does not exist.');
     }
+
     // register with the auth provider
     const res = await this.authProvider.registerWithEmailVerificationLink(
       input.email,

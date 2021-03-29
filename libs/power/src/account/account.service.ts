@@ -1,26 +1,23 @@
-import { UserModel } from '@lib/database';
 import { Injectable } from '@nestjs/common';
-import { UserProgramme } from '../user-programme';
 import { WorkoutService } from '../workout';
 import { Account } from './account.model';
 import { v4 as uuid } from 'uuid';
 import { UserWorkoutWeek } from '../user-workout-week';
-import { UserWorkout } from '../user-workout';
 import { UserPreference } from '../types';
 
 @Injectable()
 export class AccountService {
-  constructor(private workout: WorkoutService) {}
+  constructor(private workoutService: WorkoutService) {}
   public findAll() {
     return Account.query();
   }
 
   public findById(id: string) {
-    return this.findAll().findById(id);
+    return Account.query().findById(id);
   }
 
   public findBySub(sub: string) {
-    return this.findAll().findOne('cognito_username', sub);
+    return Account.query().findOne('cognito_username', sub);
   }
 
   public delete(id: string) {
@@ -34,7 +31,7 @@ export class AccountService {
   }
 
   public async create(
-    programme: string,
+    programmeId: string,
     cognitoUsername: string,
     accountId: string,
   ) {
@@ -55,8 +52,8 @@ export class AccountService {
     // accountId is the map from the segregated user table
 
     // Fetch user workouts
-    const workouts = await this.workout
-      .findAll(programme)
+    const workouts = await this.workoutService
+      .findAll(programmeId)
       .whereIn('week_number', [1, 2]);
 
     await Account.transaction(async (trx) => {
@@ -70,7 +67,7 @@ export class AccountService {
         userTrainingProgrammeId,
         trainingProgramme: {
           id: userTrainingProgrammeId,
-          trainingProgrammeId: programme,
+          trainingProgrammeId: programmeId,
           accountId,
         },
       });

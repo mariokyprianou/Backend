@@ -148,12 +148,18 @@ export interface HmcQuestionLocalisationGraphQlType {
   answer4: string;
 }
 
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+}
+
 export interface RegisterUserInput {
   givenName: string;
   familyName: string;
   email: string;
   password: string;
-  gender: string;
+  gender: Gender;
   dateOfBirth: Date;
   country: string;
   region: string;

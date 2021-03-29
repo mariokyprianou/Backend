@@ -1,6 +1,7 @@
 enum Gender {
   male
   female
+  other
 }
 
 input RegisterUserInput {
