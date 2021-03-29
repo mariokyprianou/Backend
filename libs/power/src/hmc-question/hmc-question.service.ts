@@ -18,22 +18,21 @@ export class HmcQuestionService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: HmcQuestionFilter = {},
   ) {
-    const findAllQuery = applyFilter(
-      HmcQuestion.query()
-        .withGraphJoined('localisations')
-        .withGraphJoined('programmeScores'),
-      filter,
+    const query = HmcQuestion.query().withGraphFetched(
+      '[localisations,programmeScores]',
     );
 
-    findAllQuery.limit(perPage).offset(perPage * page);
-    findAllQuery.orderBy(sortField, sortOrder);
+    applyFilter(query, filter);
 
-    return findAllQuery;
+    query.limit(perPage).offset(perPage * page);
+    query.orderBy(sortField, sortOrder);
+
+    return query;
   }
 
-  public findAllQuestions(language = 'en') {
+  public async findAllQuestions(language = 'en'): Promise<HmcQuestion[]> {
     return HmcQuestion.query()
-      .withGraphJoined('localisations')
+      .withGraphFetched('localisations')
       .modifyGraph('localisations', (qb) => qb.where('language', language));
   }
 
@@ -60,9 +59,7 @@ export class HmcQuestionService {
   public async update(hmcQuestion: UpdateHmcQuestionGraphQlInput) {
     const hmcQuestionModel = await HmcQuestion.query().upsertGraphAndFetch(
       hmcQuestion,
-      {
-        relate: true,
-      },
+      { relate: true },
     );
 
     return this.findById(hmcQuestionModel.id);
@@ -71,9 +68,7 @@ export class HmcQuestionService {
   public async create(hmcQuestion: CreateHmcQuestionGraphQlInput) {
     const hmcQuestionModel = await HmcQuestion.query().insertGraphAndFetch(
       hmcQuestion,
-      {
-        relate: true,
-      },
+      { relate: true },
     );
 
     return this.findById(hmcQuestionModel.id);

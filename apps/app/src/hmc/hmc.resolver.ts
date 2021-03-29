@@ -32,10 +32,10 @@ export class HMCResolver {
     @Context('language') language: string,
   ): Promise<ProgrammeQuestionnaire[]> {
     const questionnaire = await this.service.findAllQuestions(language);
-    return questionnaire.map((each) => ({
-      id: each.id,
-      orderIndex: each.orderIndex,
-      question: each.localisations[0],
+    return questionnaire.map((question) => ({
+      id: question.id,
+      orderIndex: question.orderIndex,
+      question: question.localisations[0],
     }));
   }
 
