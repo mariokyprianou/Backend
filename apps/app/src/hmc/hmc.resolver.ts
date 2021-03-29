@@ -2,16 +2,8 @@ import {
   HmcQuestionLocalisationGraphQlType,
   ProgrammeEnvironment,
 } from '@lib/power/types';
-import { HmcQuestionService } from '@lib/power/hmc-question';
-import {
-  Args,
-  Context,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { HmcQuestionService, QuestionAnswer } from '@lib/power';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ProgrammeService } from '@lib/power/programme';
 import { WorkoutService } from '@lib/power/workout';
 import { CommonService } from '@lib/common';
@@ -20,18 +12,18 @@ import { TrainerService } from '@lib/power/trainer';
 @Resolver('ProgrammeQuestion')
 export class HMCResolver {
   constructor(
-    private service: HmcQuestionService,
-    private programme: ProgrammeService,
-    private workout: WorkoutService,
-    private common: CommonService,
-    private trainer: TrainerService,
+    private questionService: HmcQuestionService,
+    private programmeService: ProgrammeService,
+    private workoutService: WorkoutService,
+    private commonService: CommonService,
+    private trainerService: TrainerService,
   ) {}
 
   @Query('programmeQuestionnaire')
   async programmeQuestionnaire(
     @Context('language') language: string,
   ): Promise<ProgrammeQuestionnaire[]> {
-    const questionnaire = await this.service.findAllQuestions(language);
+    const questionnaire = await this.questionService.findAllQuestions(language);
     return questionnaire.map((question) => ({
       id: question.id,
       orderIndex: question.orderIndex,
@@ -49,14 +41,17 @@ export class HMCResolver {
     },
   ) {
     const { answers, environment } = input;
-    const programmeId = await this.service.calculateProgrammeScores(
+    const programmeId = await this.questionService.calculateProgrammeScores(
       answers,
       environment,
     );
     // console.log(programmeId);
 
     // resolve the programme data
-    const programme = await this.programme.findById(programmeId, language);
+    const programme = await this.programmeService.findById(
+      programmeId,
+      language,
+    );
     if (!programme) {
       throw new Error("Couldn't match a programme");
     }
@@ -66,7 +61,7 @@ export class HMCResolver {
     );
     const image = images && images.getTranslation(language);
 
-    const firstWeek = await this.workout
+    const firstWeek = await this.workoutService
       .findAll(programme.id)
       .where('week_number', 1);
     // const week = firstWeek[0];
@@ -75,12 +70,12 @@ export class HMCResolver {
       (image) => image.orderIndex === 0,
     );
 
-    const count = await this.workout.findAll(programme.id);
+    const count = await this.workoutService.findAll(programme.id);
 
     return {
       programme: {
         id: programme.id,
-        trainer: this.trainer.findById(programme.trainerId, language),
+        trainer: this.trainerService.findById(programme.trainerId, language),
         environment: programme.environment,
         fatLoss: programme.fatLoss,
         fitness: programme.fitness,
@@ -89,9 +84,9 @@ export class HMCResolver {
         progressStartShareMediaImage: image && {
           url:
             image.imageKey &&
-            (await this.common.getPresignedUrl(
+            (await this.commonService.getPresignedUrl(
               image.imageKey,
-              this.common.env().FILES_BUCKET,
+              this.commonService.env().FILES_BUCKET,
               'getObject',
             )),
           colour: image.colour,
@@ -102,9 +97,9 @@ export class HMCResolver {
             workout: {
               overviewImage:
                 week.workout.overviewImageKey &&
-                (await this.common.getPresignedUrl(
+                (await this.commonService.getPresignedUrl(
                   week.workout.overviewImageKey,
-                  this.common.env().FILES_BUCKET,
+                  this.commonService.env().FILES_BUCKET,
                   'getObject',
                 )),
               intensity: week.workout.intensity,
@@ -116,9 +111,9 @@ export class HMCResolver {
         ),
         programmeImage:
           primaryProgrammeImage &&
-          (await this.common.getPresignedUrl(
+          (await this.commonService.getPresignedUrl(
             primaryProgrammeImage.imageKey,
-            this.common.env().FILES_BUCKET,
+            this.commonService.env().FILES_BUCKET,
             'getObject',
           )),
         numberOfWeeks: count.length,
@@ -135,5 +130,5 @@ interface ProgrammeQuestionnaire {
 
 interface SubmitPQInput {
   question: string;
-  answer: string;
+  answer: QuestionAnswer;
 }

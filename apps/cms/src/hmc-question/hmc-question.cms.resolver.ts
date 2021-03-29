@@ -1,6 +1,9 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { HmcQuestionFilter, HmcQuestionService } from '@lib/power/hmc-question';
-import { HmcQuestionLocalisationGraphQlType, ListMetadata } from '@lib/power/types';
+import {
+  HmcQuestionLocalisationGraphQlType,
+  ListMetadata,
+} from '@lib/power/types';
 
 @Resolver('HmcQuestion')
 export class HmcQuestionResolver {
@@ -19,7 +22,7 @@ export class HmcQuestionResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: HmcQuestionFilter = {},
   ): Promise<HmcQuestionGraphQlType[]> {
-    const findAllQuery = this.service.findAll(
+    const questions = await this.service.findAll(
       page,
       perPage,
       sortField,
@@ -27,7 +30,7 @@ export class HmcQuestionResolver {
       filter,
     );
 
-    return await findAllQuery;
+    return questions;
   }
 
   @Query('_allHmcQuestionsMeta')

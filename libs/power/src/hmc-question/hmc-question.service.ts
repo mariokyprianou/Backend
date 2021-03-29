@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   CreateHmcQuestionGraphQlInput,
   UpdateHmcQuestionGraphQlInput,
-} from 'apps/cms/src/hmc-question/hmc-question.cms.resolve';
+} from 'apps/cms/src/hmc-question/hmc-question.cms.resolver';
 import Objection from 'objection';
 import { ProgrammeEnvironment } from '../types';
 import { HmcQuestionScore } from './hmc-question-score.model';
 import { HmcQuestionTranslation } from './hmc-question-translation.model';
+import { QuestionAnswer } from './hmc-question.interface';
 import { HmcQuestion } from './hmc-question.model';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class HmcQuestionService {
     applyFilter(query, filter);
 
     query.limit(perPage).offset(perPage * page);
-    query.orderBy(sortField, sortOrder);
+    query.orderBy('order_index', sortOrder ?? 'ASC');
 
     return query;
   }
@@ -77,7 +78,7 @@ export class HmcQuestionService {
   public async calculateProgrammeScores(
     answers: {
       question: string;
-      answer: string;
+      answer: QuestionAnswer;
     }[],
     environment: ProgrammeEnvironment,
   ) {
@@ -95,10 +96,10 @@ export class HmcQuestionService {
 
         // answer can be ONE, TWO, THREE, or FOUR
         const answers = {
-          ONE: 'answer1Score',
-          TWO: 'answer2Score',
-          THREE: 'answer3Score',
-          FOUR: 'answer4Score',
+          [QuestionAnswer.One]: 'answer1Score',
+          [QuestionAnswer.Two]: 'answer2Score',
+          [QuestionAnswer.Three]: 'answer3Score',
+          [QuestionAnswer.Four]: 'answer4Score',
         };
 
         // This loops over each score and updates the value the programme id in programmeScores

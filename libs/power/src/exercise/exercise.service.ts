@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Exercise } from './exercise.model';
-import { ExerciseTranslation } from './exercise-tr.model';
 import { ExerciseLocalisation, IExercise } from '../types';
 
 @Injectable()
@@ -8,12 +7,15 @@ export class ExerciseService {
   // FIND ALL Exercise
 
   public findAll(language?: string) {
-    return Exercise.query()
+    const query = Exercise.query()
       .whereNull('exercise.deleted_at')
-      .withGraphFetched('[localisations, category]')
-      .modifyGraph('localisations', (qb) =>
-        language ? qb.where('language', language) : qb,
-      );
+      .withGraphFetched('[localisations, category]');
+
+    if (language) {
+      query.modifyGraph('localisations', (qb) => qb.where({ language }));
+    }
+
+    return query;
   }
 
   public count() {
