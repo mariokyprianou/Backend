@@ -5,7 +5,7 @@ frameworkVersion: '2'
 provider:
   name: aws
   region: ap-south-1
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   stage: ${opt:stage, 'development'}
   profile: power
   environment:
