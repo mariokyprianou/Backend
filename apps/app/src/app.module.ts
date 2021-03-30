@@ -16,6 +16,7 @@ import { HMCAppModule } from './hmc/hmc.module';
 import { OnboardingAppModule } from './onboarding/onboarding.module';
 import { RegionAppModule } from './region/region.module';
 import { TrainerAppModule } from './trainer/trainer.module';
+import { ProgrammeAppModule } from './programme/programme.app.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -33,6 +34,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         RegionAppModule,
         CountryAppModule,
         AuthAppModule,
+        ProgrammeAppModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
