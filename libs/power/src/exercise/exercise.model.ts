@@ -29,22 +29,34 @@ export class Exercise extends BaseModel {
     return (this.localisations ?? []).find((tr) => tr.language === language);
   }
 
-  static relationMappings = {
-    localisations: {
-      relation: Model.HasManyRelation,
-      modelClass: ExerciseTranslation,
-      join: {
-        from: 'exercise.id',
-        to: 'exercise_tr.exercise_id',
+  static get relationMappings() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { Trainer } = require('../trainer/trainer.model');
+    return {
+      trainer: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Trainer,
+        join: {
+          from: 'exercise.trainer_id',
+          to: 'trainer.id',
+        },
       },
-    },
-    category: {
-      relation: Model.BelongsToOneRelation,
-      modelClass: ExerciseCategory,
-      join: {
-        from: 'exercise.category_id',
-        to: 'exercise_category.id',
+      localisations: {
+        relation: Model.HasManyRelation,
+        modelClass: ExerciseTranslation,
+        join: {
+          from: 'exercise.id',
+          to: 'exercise_tr.exercise_id',
+        },
       },
-    },
-  };
+      category: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: ExerciseCategory,
+        join: {
+          from: 'exercise.category_id',
+          to: 'exercise_category.id',
+        },
+      },
+    };
+  }
 }

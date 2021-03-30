@@ -13,6 +13,12 @@ interface TrainerQueryParams extends ICmsParams<TrainerFilter> {
 
 function baseQuery(params: TrainerQueryParams) {
   const query = Trainer.query()
+    .joinRaw(
+      `left join trainer_tr on (
+        trainer.id = trainer_tr.trainer_id AND 
+        trainer_tr.language = 'en'
+      )`,
+    )
     .withGraphFetched('localisations')
     .whereNull('trainer.deleted_at');
 
@@ -42,7 +48,12 @@ function baseQuery(params: TrainerQueryParams) {
     }
   }
 
-  applyPagination(query, params);
+  applyPagination(query, {
+    page: params.page ?? 0,
+    perPage: params.perPage ?? 25,
+    sortField: 'name',
+    sortOrder: params.sortOrder,
+  });
 
   return query;
 }

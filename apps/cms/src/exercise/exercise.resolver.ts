@@ -10,20 +10,15 @@ import {
 } from '@nestjs/graphql';
 import { ExerciseService } from '@lib/power/exercise/exercise.service';
 import {
-  Filter,
   ListMetadata,
   ExerciseLocalisation,
   IExercise,
 } from '@lib/power/types';
 import { applyPagination } from '@lib/database';
-import { CommonService } from '@lib/common';
+import { CmsParams, CommonService } from '@lib/common';
 import { v4 as uuid } from 'uuid';
 import { S3 } from 'aws-sdk';
-
-interface ExerciseFilter extends Filter {
-  name: string;
-  trainer: string;
-}
+import { ExerciseFilter } from '@lib/power/exercise/exercise.interface';
 
 function returnKey(key) {
   return `${key}_1080.mp4`;
@@ -32,8 +27,8 @@ function returnKey(key) {
 @Resolver('Exercise')
 export class ExerciseResolver {
   constructor(
-    private service: ExerciseService,
-    private common: CommonService,
+    private readonly exerciseService: ExerciseService,
+    private readonly commonService: CommonService,
   ) {}
 
   constructFilters = (query: any, filter: ExerciseFilter) => {
@@ -60,13 +55,14 @@ export class ExerciseResolver {
 
   @ResolveField('video')
   async getVideo(@Parent() exercise: Exercise) {
-    return this.common.getPresignedUrl(
+    return this.commonService.getPresignedUrl(
       returnKey(exercise.videoKey),
-      this.common.env().VIDEO_BUCKET_DESTINATION,
+      this.commonService.env().VIDEO_BUCKET_DESTINATION,
       'getObject',
       'us-east-1',
     );
   }
+
   @ResolveField('videoKey')
   video(@Parent() exercise: Exercise) {
     if (!exercise.videoKey) {
@@ -74,18 +70,20 @@ export class ExerciseResolver {
     }
     return exercise.videoKey;
   }
+
   @ResolveField('videoEasy')
   async getVideoEasy(@Parent() exercise: Exercise) {
     if (!exercise.videoKeyEasy) {
       return null;
     }
-    return this.common.getPresignedUrl(
+    return this.commonService.getPresignedUrl(
       returnKey(exercise.videoKeyEasy),
-      this.common.env().VIDEO_BUCKET_DESTINATION,
+      this.commonService.env().VIDEO_BUCKET_DESTINATION,
       'getObject',
       'us-east-1',
     );
   }
+
   @ResolveField('videoEasyKey')
   videoEasy(@Parent() exercise: Exercise) {
     if (!exercise.videoKeyEasy) {
@@ -93,18 +91,20 @@ export class ExerciseResolver {
     }
     return exercise.videoKeyEasy;
   }
+
   @ResolveField('videoEasiest')
   async getVideoEasiest(@Parent() exercise: Exercise) {
     if (!exercise.videoKeyEasiest) {
       return null;
     }
-    return this.common.getPresignedUrl(
+    return this.commonService.getPresignedUrl(
       returnKey(exercise.videoKeyEasiest),
-      this.common.env().VIDEO_BUCKET_DESTINATION,
+      this.commonService.env().VIDEO_BUCKET_DESTINATION,
       'getObject',
       'us-east-1',
     );
   }
+
   @ResolveField('videoEasiestKey')
   videoEasiest(@Parent() exercise: Exercise) {
     if (!exercise.videoKeyEasiest) {
@@ -120,35 +120,30 @@ export class ExerciseResolver {
 
   @Query('_allExercisesMeta')
   async _allExercisesMeta(
-    @Args('filter') filter: ExerciseFilter,
+    @Args() params: CmsParams<ExerciseFilter>,
   ): Promise<ListMetadata> {
-    const [count] = await this.constructFilters(this.service.count(), filter);
-    return count;
+    const { count } = await this.exerciseService.findCount(params);
+    return { count };
   }
 
   @Query('allExercises')
   async allExercises(
     @Context('language') language: string,
-    @Args('page') page: number,
-    @Args('perPage') perPage: number,
-    @Args('sortField') sortField = 'id',
-    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
-    @Args('filter') filter: ExerciseFilter,
+    @Args() params: CmsParams<ExerciseFilter>,
   ): Promise<Exercise[]> {
-    return this.constructFilters(
-      applyPagination(this.service.findAll(language), {
-        page,
-        perPage,
-        sortField,
-        sortOrder,
-      }),
-      filter,
-    );
+    return this.exerciseService.findAll({
+      language,
+      page: params.page,
+      perPage: params.perPage,
+      filter: params.filter,
+      sortField: params.sortField,
+      sortOrder: params.sortOrder,
+    });
   }
 
   @Query('Exercise')
   async Exercise(@Args('id') id: string): Promise<Exercise> {
-    return this.service.findById(id);
+    return this.exerciseService.findById(id);
   }
 
   @Mutation('createExercise')
@@ -159,7 +154,7 @@ export class ExerciseResolver {
     if (!exercise.trainerId) {
       throw new Error('exercise.trainerId is required on createExercise');
     }
-    return this.service.create(exercise, localisations);
+    return this.exerciseService.create(exercise, localisations);
   }
 
   @Mutation('updateExercise')
@@ -168,7 +163,7 @@ export class ExerciseResolver {
     @Args('exercise') exercise: IExercise,
     @Args('localisations') localisations: ExerciseLocalisation[],
   ): Promise<Exercise> {
-    return this.service.update(id, exercise, localisations);
+    return this.exerciseService.update(id, exercise, localisations);
   }
 
   @Mutation('deleteExercise')
@@ -178,7 +173,7 @@ export class ExerciseResolver {
 
     // TODO: Tidy up S3 bucket(s)
 
-    return this.service.delete(id);
+    return this.exerciseService.delete(id);
   }
 
   @Mutation('requestVideoUpload')
@@ -191,7 +186,7 @@ export class ExerciseResolver {
     const s3 = new S3({ region: 'us-east-1' });
     const url = await s3.getSignedUrlPromise('putObject', {
       Key: `assets01/${key}.mp4`,
-      Bucket: this.common.env().VIDEO_BUCKET_SOURCE,
+      Bucket: this.commonService.env().VIDEO_BUCKET_SOURCE,
       Expires: 60 * 5,
       ContentType: 'video/mp4',
     });
