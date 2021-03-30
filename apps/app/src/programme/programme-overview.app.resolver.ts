@@ -20,7 +20,9 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
 
   @ResolveField('numberOfWeeks')
   public getNumberOfWeeks(@Parent() programme: Programme) {
-    return this.workoutService.findAll(programme.id).resultSize();
+    return this.workoutService
+      .findByProgramme({ programmeId: programme.id })
+      .resultSize();
   }
 
   @ResolveField('firstWeek')
@@ -28,9 +30,10 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
     @Parent() programme: Programme,
     @Context('language') language: string,
   ) {
-    const firstWeek = await this.workoutService
-      .findAll(programme.id)
-      .where('week_number', 1);
+    const firstWeek = await this.workoutService.findByProgramme({
+      programmeId: programme.id,
+      weeks: [1],
+    });
 
     return firstWeek.map((week) => ({
       ...week,

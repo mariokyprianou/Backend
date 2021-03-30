@@ -3,7 +3,7 @@ import { Exercise } from './exercise.model';
 import { ExerciseLocalisation, IExercise } from '../types';
 import { ICmsParams } from '@lib/common';
 import { ExerciseFilter } from './exercise.interface';
-import { applyPagination, joinTranslation } from '@lib/database';
+import { applyPagination } from '@lib/database';
 import { ExerciseTranslation } from './exercise-tr.model';
 import { raw } from 'objection';
 
@@ -29,7 +29,7 @@ function baseQuery(params: FindExerciseParams) {
     }
 
     if (filter.ids) {
-      query.whereIn('trainer.id', filter.ids);
+      query.findByIds(filter.ids);
     }
 
     if (filter.name) {
@@ -37,7 +37,7 @@ function baseQuery(params: FindExerciseParams) {
         'exercise.id',
         ExerciseTranslation.query()
           .select('exercise_id')
-          .where('name', 'ilike', raw(`'%' || ?|| '%'`, filter.name)),
+          .where('name', 'ilike', raw(`'%' || ? || '%'`, filter.name)),
       );
     }
 

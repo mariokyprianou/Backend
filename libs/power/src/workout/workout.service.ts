@@ -1,7 +1,19 @@
+import { ICmsParams } from '@lib/common';
+import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
+import { raw } from 'objection';
 import { IProgrammeWorkout } from '../types';
 import { ProgrammeWorkout } from './programme-workout.model';
+import { WorkoutFilter } from './workout.interface';
 import { Workout } from './workout.model';
+
+export interface FindByProgrammeParams {
+  programmeId: string;
+  weeks?: number[];
+}
+interface FindAllWorkoutsParams extends ICmsParams<WorkoutFilter> {
+  language?: string;
+}
 
 @Injectable()
 export class WorkoutService {
@@ -26,16 +38,86 @@ export class WorkoutService {
     });
   }
 
-  public findAll(programme?: string) {
-    return programme
-      ? ProgrammeWorkout.query()
-          .where('training_programme_workout.training_programme_id', programme)
-          .withGraphFetched(
-            '[programme, workout.[localisations, exercises.[sets, localisations]]]',
-          )
-      : ProgrammeWorkout.query().withGraphFetched(
-          '[programme, workout.[localisations, exercises.[sets, localisations]]]',
+  public findById(id: string): Promise<ProgrammeWorkout> {
+    return this.baseQuery({
+      filter: { id },
+    })
+      .limit(1)
+      .first();
+  }
+
+  public findByProgramme(params: FindByProgrammeParams) {
+    const query = ProgrammeWorkout.query()
+      .where(
+        'training_programme_workout.training_programme_id',
+        params.programmeId,
+      )
+      .withGraphFetched(
+        '[programme, workout.[localisations, exercises.[sets, localisations]]]',
+      );
+
+    if (params.weeks) {
+      query.whereIn('week_number', params.weeks);
+    }
+
+    return query;
+  }
+
+  public async findAll(params: FindAllWorkoutsParams) {
+    const query = this.baseQuery(params);
+    applyPagination(query, params);
+    return await query;
+  }
+
+  private baseQuery(params: FindAllWorkoutsParams) {
+    const query = ProgrammeWorkout.query()
+      .withGraphFetched(
+        '[programme, workout.[localisations, exercises.[sets, localisations]]]',
+      )
+      .joinRelated('[programme,workout]')
+      .joinRaw(
+        `LEFT JOIN workout_tr ON (workout.id = workout_tr.workout_id AND language = 'en')`,
+      );
+
+    if (params.filter) {
+      if (params.filter.id) {
+        query.findById(params.filter.id);
+      }
+      if (params.filter.ids) {
+        query.findByIds(params.filter.ids);
+      }
+      if (params.filter.week) {
+        query.where('week_number', params.filter.week);
+      }
+      if (params.filter.weeks) {
+        query.whereIn('week_number', params.filter.weeks);
+      }
+
+      if (params.filter.environment) {
+        query.where('programme.environment', params.filter.environment);
+      }
+
+      if (params.filter.name) {
+        query.where(
+          'workout_tr.name',
+          'ilike',
+          raw(`'%' || ? || '%'`, [params.filter.name]),
         );
+      }
+
+      if (params.filter.trainer) {
+        query.where('programme.trainer_id', params.filter.trainer);
+      }
+
+      if (params.filter.programmeId) {
+        query.where(
+          'training_programme_workout.training_programme_id',
+          params.filter.programmeId,
+        );
+      }
+    }
+
+    return query;
   }
 
   public async create(workout: IProgrammeWorkout) {
@@ -51,16 +133,9 @@ export class WorkoutService {
     return this.findById(programmeWorkout.id);
   }
 
-  public count(programme?: string) {
-    return programme
-      ? ProgrammeWorkout.query()
-          .where('training_programme_id', programme)
-          .count()
-      : ProgrammeWorkout.query().count();
-  }
-
-  public findById(id: string) {
-    return this.findAll().findById(id);
+  public async findCount(params: FindAllWorkoutsParams) {
+    const count = await this.baseQuery(params).resultSize();
+    return { count };
   }
 
   public async update(id: string, workout: IProgrammeWorkout) {

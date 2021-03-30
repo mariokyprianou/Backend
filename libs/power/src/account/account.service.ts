@@ -52,9 +52,10 @@ export class AccountService {
     // accountId is the map from the segregated user table
 
     // Fetch user workouts
-    const workouts = await this.workoutService
-      .findAll(programmeId)
-      .whereIn('week_number', [1, 2]);
+    const workouts = await this.workoutService.findByProgramme({
+      programmeId,
+      weeks: [1, 2],
+    });
 
     await Account.transaction(async (trx) => {
       const userTrainingProgrammeId = uuid();

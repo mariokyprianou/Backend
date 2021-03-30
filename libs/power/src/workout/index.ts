@@ -1,3 +1,4 @@
+export * from './workout.interface';
 export * from './workout.service';
 export * from './programme-workout.model';
 export * from './workout.module';

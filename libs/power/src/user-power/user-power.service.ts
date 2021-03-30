@@ -92,11 +92,12 @@ export class UserPowerService {
     }
   }
 
-  public async startProgramme(programme: string, authContext: AuthContext) {
+  public async startProgramme(programmeId: string, authContext: AuthContext) {
     const account = await this.accountService.findBySub(authContext.sub);
-    const workouts = await this.workoutService
-      .findAll(programme)
-      .whereIn('week_number', [1, 2]);
+    const workouts = await this.workoutService.findByProgramme({
+      programmeId,
+      weeks: [1, 2],
+    });
 
     await Account.transaction(async (trx) => {
       const userTrainingProgrammeId = uuid();
@@ -108,7 +109,7 @@ export class UserPowerService {
       });
       await UserProgramme.query(trx).insert({
         id: userTrainingProgrammeId,
-        trainingProgrammeId: programme,
+        trainingProgrammeId: programmeId,
         accountId: account.id,
       });
 
@@ -132,13 +133,15 @@ export class UserPowerService {
     return true;
   }
 
-  public async restartProgramme(programme: string, authContext: AuthContext) {
+  public async restartProgramme(programmeId: string, authContext: AuthContext) {
     // fetch account
     // clean up workout existing workout data
     // start programme
-    const workouts = await this.workoutService
-      .findAll(programme)
-      .whereIn('week_number', [1, 2]);
+    const workouts = await this.workoutService.findByProgramme({
+      programmeId,
+      weeks: [1, 2],
+    });
+
     try {
       // delete user workout
       // if the user is restarting an active workout we need to handle that
@@ -155,13 +158,13 @@ export class UserPowerService {
         // should cascade
         await UserProgramme.query(trx)
           .delete()
-          .where('training_programme_id', programme)
+          .where('training_programme_id', programmeId)
           .andWhere('account_id', account.id);
 
         //
         await UserProgramme.query(trx).insert({
           id: userTrainingProgrammeId,
-          trainingProgrammeId: programme,
+          trainingProgrammeId: programmeId,
           accountId: account.id,
         });
 

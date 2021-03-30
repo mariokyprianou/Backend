@@ -57,8 +57,8 @@ export interface ListMetadata {
 }
 
 export enum ProgrammeEnvironment {
-  GYM,
-  HOME,
+  GYM = 'GYM',
+  HOME = 'HOME',
 }
 
 export interface IProgramme {
