@@ -6,9 +6,9 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { constructLimits } from '../constructLimits';
+import { applyPagination } from '@lib/database';
 import { Filter, IProgrammeWorkout, ListMetadata } from '@lib/power/types';
-import { ProgrammeWorkout, Workout, WorkoutService } from '@lib/power/workout';
+import { ProgrammeWorkout, WorkoutService } from '@lib/power/workout';
 import { CommonService } from '@lib/common';
 import { ExerciseService } from '@lib/power/exercise';
 
@@ -124,7 +124,7 @@ export class WorkoutResolver {
     @Args('filter') filter: WorkoutFilter,
   ): Promise<ProgrammeWorkout[]> {
     const results = await this.constructFilters(
-      constructLimits(this.service.findAll(filter.programmeId), {
+      applyPagination(this.service.findAll(filter.programmeId), {
         page,
         perPage,
         sortField,
@@ -132,7 +132,6 @@ export class WorkoutResolver {
       }),
       filter,
     );
-    console.log('RESULTS', JSON.stringify(results));
 
     return results;
   }

@@ -1,72 +1,44 @@
 import { Trainer } from '@lib/power/trainer';
-import {
-  Args,
-  Context,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { TrainerService } from '@lib/power/trainer/trainer.service';
-import { Filter, ListMetadata, TrainerLocalisation } from '@lib/power/types';
-import { constructLimits } from '../constructLimits';
-
-interface TrainerFilter extends Filter {
-  name: string;
-}
+import { TrainerFilter, ListMetadata, TrainerLocalisation } from '@lib/power';
+import { CmsParams } from '@lib/common';
 
 @Resolver('Trainer')
 export class TrainerResolver {
   constructor(private trainerService: TrainerService) {}
 
-  constructFilters = (query: any, filter: TrainerFilter) => {
-    if (filter) {
-      if (filter.id) {
-        query.findByIds([filter.id]);
-      }
-
-      if (filter.ids) {
-        query.whereIn('trainer.id', filter.ids);
-      }
-
-      if (filter.name) {
-        query.where('trainer.localisations.name', 'ilike', `%${filter.name}%`);
-      }
-    }
-
-    return query;
-  };
-
   @Query('_allTrainersMeta')
   async _allTrainersMeta(
-    @Args('filter') filter: TrainerFilter,
+    @Context('language') language: string,
+    @Args() params: CmsParams<TrainerFilter>,
   ): Promise<ListMetadata> {
-    const [count] = await this.constructFilters(
-      this.trainerService.count(),
-      filter,
-    );
-    return count;
+    const { count } = await this.trainerService.findTrainerCount({
+      language,
+      page: params.page,
+      perPage: params.perPage,
+      filter: params.filter,
+      sortField: params.sortField,
+      sortOrder: params.sortOrder,
+    });
+    return { count };
   }
 
   @Query('allTrainers')
   async allTrainers(
     @Context('language') language: string,
-    @Args('page') page: number,
-    @Args('perPage') perPage: number,
-    @Args('sortField') sortField: string,
-    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
-    @Args('filter') filter: TrainerFilter,
+    @Args() params: CmsParams<TrainerFilter>,
   ): Promise<Trainer[]> {
-    return this.constructFilters(
-      constructLimits(this.trainerService.findAll(language), {
-        page,
-        perPage,
-        sortField,
-        sortOrder,
-      }),
-      filter,
-    );
+    const trainers = await this.trainerService.findAll({
+      language,
+      page: params.page,
+      perPage: params.perPage,
+      filter: params.filter,
+      sortField: params.sortField,
+      sortOrder: params.sortOrder,
+    });
+
+    return trainers;
   }
 
   @Query('Trainer')

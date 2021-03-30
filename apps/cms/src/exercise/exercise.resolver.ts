@@ -15,7 +15,7 @@ import {
   ExerciseLocalisation,
   IExercise,
 } from '@lib/power/types';
-import { constructLimits } from '../constructLimits';
+import { applyPagination } from '@lib/database';
 import { CommonService } from '@lib/common';
 import { v4 as uuid } from 'uuid';
 import { S3 } from 'aws-sdk';
@@ -136,7 +136,7 @@ export class ExerciseResolver {
     @Args('filter') filter: ExerciseFilter,
   ): Promise<Exercise[]> {
     return this.constructFilters(
-      constructLimits(this.service.findAll(language), {
+      applyPagination(this.service.findAll(language), {
         page,
         perPage,
         sortField,

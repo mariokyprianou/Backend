@@ -6,7 +6,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { constructLimits } from '../constructLimits';
+import { applyPagination } from '@lib/database';
 import { Filter, ListMetadata } from '@lib/power/types';
 import { Programme } from '@lib/power/programme';
 import { ProgrammeService } from '@lib/power/programme/programme.service';
@@ -140,7 +140,7 @@ export class ProgrammeResolver {
     @Args('filter') filter: ProgrammeFilter,
   ): Promise<Programme[]> {
     return this.constructFilters(
-      constructLimits(this.service.findAll(), {
+      applyPagination(this.service.findAll(), {
         page,
         perPage,
         sortField,

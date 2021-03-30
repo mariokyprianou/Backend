@@ -13,18 +13,20 @@ import { TrainerService } from '../../../../libs/power/src/trainer/trainer.servi
 @Resolver('Trainer')
 export class TrainerResolver {
   constructor(
-    private service: TrainerService,
+    private trainerService: TrainerService,
     private programmeService: ProgrammeService,
   ) {}
 
   @Query('getTrainers')
   async getTrainer(@Context('language') language: string) {
-    return this.service.findAll(language);
+    return this.trainerService.findAll({
+      language,
+    });
   }
 
   @ResolveField('name')
   name(@Parent() trainer: Trainer, @Context('language') language: string) {
-    return trainer.getTranslation(language).name;
+    return trainer.getTranslation(language)?.name;
   }
 
   @ResolveField('programmes')

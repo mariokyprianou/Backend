@@ -26,7 +26,10 @@ async function bootstrap(module: any): Promise<Server> {
 
   await app.init();
   app.enableCors({
-    origin: ['https://7dljjjdaud.execute-api.ap-south-1.amazonaws.com/cms'],
+    origin: [
+      'http://localhost:3001',
+      'https://7dljjjdaud.execute-api.ap-south-1.amazonaws.com/cms',
+    ],
   });
 
   return createServer(expressApp);

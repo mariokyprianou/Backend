@@ -1,5 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { constructLimits } from '../constructLimits';
+import { applyPagination } from '@lib/database';
 import { Filter, ListMetadata } from '@lib/power/types';
 import { ExerciseCategory } from '@lib/power/exercise-category';
 import { ExerciseCategoryService } from '@lib/power/exercise-category/exercise-category.service';
@@ -47,7 +47,7 @@ export class ExerciseCategoryResolver {
     @Args('filter') filter: ExerciseCategoryFilter,
   ): Promise<ExerciseCategory[]> {
     return this.constructFilters(
-      constructLimits(this.service.findAll(), {
+      applyPagination(this.service.findAll(), {
         page,
         perPage,
         sortField,

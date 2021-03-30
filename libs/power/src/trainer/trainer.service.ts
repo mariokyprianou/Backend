@@ -1,28 +1,74 @@
 import { Injectable } from '@nestjs/common';
 import { Trainer } from './trainer.model';
-// import { TrainerTranslation } from './trainer-tr.model';
 import { TrainerLocalisation } from '../types';
+import { TrainerFilter } from './trainer.interface';
+import { applyPagination } from '@lib/database';
+import { ICmsParams } from '@lib/common';
+import { TrainerTranslation } from './trainer-tr.model';
+import { raw } from 'objection';
+
+interface TrainerQueryParams extends ICmsParams<TrainerFilter> {
+  language?: string;
+}
+
+function baseQuery(params: TrainerQueryParams) {
+  const query = Trainer.query()
+    .withGraphFetched('localisations')
+    .whereNull('trainer.deleted_at');
+
+  if (params.language) {
+    query.modifyGraph('localisations', (qb) =>
+      qb.where('language', params.language),
+    );
+  }
+
+  if (params.filter) {
+    const { filter } = params;
+    if (filter.id) {
+      query.findByIds([filter.id]);
+    }
+
+    if (filter.ids) {
+      query.whereIn('trainer.id', filter.ids);
+    }
+
+    if (filter.name) {
+      query.whereIn(
+        'trainer.id',
+        TrainerTranslation.query()
+          .select('trainer_id')
+          .where('name', 'ilike', raw(`'%' || ?|| '%'`, filter.name)),
+      );
+    }
+  }
+
+  applyPagination(query, params);
+
+  return query;
+}
 
 @Injectable()
 export class TrainerService {
   // FIND ALL TRAINERS //
   // Can be used in cms for chaining filters.
-  public findAll(language?: string) {
-    return Trainer.query()
-      .whereNull('trainer.deleted_at')
-      .withGraphJoined('localisations')
-      .modifyGraph('localisations', (qb) =>
-        language ? qb.where('language', language) : qb,
-      );
+  public findAll(params: TrainerQueryParams) {
+    const query = baseQuery(params);
+    return query;
   }
 
-  public count() {
-    return Trainer.query().count().whereNull('trainer.deleted_at');
+  public async findTrainerCount(params: TrainerQueryParams) {
+    const count = await baseQuery(params).resultSize();
+    return { count };
   }
 
   // FIND SINGLE TRAINER //
-  public findById(id: string, language?: string) {
-    return this.findAll(language).findById(id);
+  public async findById(id: string, language?: string): Promise<Trainer> {
+    return await baseQuery({
+      language,
+      filter: { id },
+    })
+      .limit(1)
+      .first();
   }
 
   // DELETE TRAINER //

@@ -1,8 +1,16 @@
 import { ArgsType } from '@nestjs/graphql';
 import { IsIn, IsInt, IsOptional, Min } from 'class-validator';
 
+export interface ICmsParams<T> {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  filter?: T;
+}
+
 @ArgsType()
-export class CmsParams<T> {
+export class CmsParams<T> implements ICmsParams<T> {
   @IsInt()
   @Min(0)
   @IsOptional()
