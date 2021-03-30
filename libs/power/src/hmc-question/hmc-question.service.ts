@@ -4,6 +4,7 @@ import {
   UpdateHmcQuestionGraphQlInput,
 } from 'apps/cms/src/hmc-question/hmc-question.cms.resolver';
 import Objection from 'objection';
+import { Programme } from '../programme';
 import { ProgrammeEnvironment } from '../types';
 import { HmcQuestionScore } from './hmc-question-score.model';
 import { HmcQuestionTranslation } from './hmc-question-translation.model';
@@ -76,50 +77,76 @@ export class HmcQuestionService {
   }
 
   public async calculateProgrammeScores(
-    answers: {
+    responses: {
       question: string;
       answer: QuestionAnswer;
     }[],
     environment: ProgrammeEnvironment,
   ) {
-    const programmeScores = {};
-    // map over the answers
-    // for each answer find the score for each programme
-    await Promise.all(
-      answers.map(async (each) => {
-        const { question, answer } = each;
-        // select all scores
-        const questionScores = await HmcQuestionScore.query()
-          .where('hmc_question_id', question)
-          .withGraphJoined('trainingProgramme')
-          .where('trainingProgramme.environment', environment);
+    const answerMapping = {
+      [QuestionAnswer.One]: 'answer1Score',
+      [QuestionAnswer.Two]: 'answer2Score',
+      [QuestionAnswer.Three]: 'answer3Score',
+      [QuestionAnswer.Four]: 'answer4Score',
+    };
 
-        // answer can be ONE, TWO, THREE, or FOUR
-        const answers = {
-          [QuestionAnswer.One]: 'answer1Score',
-          [QuestionAnswer.Two]: 'answer2Score',
-          [QuestionAnswer.Three]: 'answer3Score',
-          [QuestionAnswer.Four]: 'answer4Score',
-        };
+    const questionScores = await HmcQuestionScore.query()
+      .whereIn(
+        'hmc_question_id',
+        responses.map((answer) => answer.question),
+      )
+      .joinRelated('trainingProgramme')
+      .where('trainingProgramme.environment', environment);
 
-        // This loops over each score and updates the value the programme id in programmeScores
-        // It's fairly short hand but is in essence id = id.value + new.value
-        questionScores.forEach((score) => {
-          programmeScores[score.trainingProgrammeId] = programmeScores[
-            score.trainingProgrammeId
-          ]
-            ? programmeScores[score.trainingProgrammeId] +
-              parseInt(score[answers[answer]])
-            : 0 + parseInt(score[answers[answer]]);
+    const scoresByProgrammeId = responses.reduce<{
+      [programmeId: string]: number;
+    }>((scoresByProgrammeId, response) => {
+      questionScores
+        .filter((qs) => qs.hmcQuestionId === response.question)
+        .forEach((qs) => {
+          const scoreField = answerMapping[response.answer];
+          if (!scoresByProgrammeId[qs.trainingProgrammeId]) {
+            scoresByProgrammeId[qs.trainingProgrammeId] = 0;
+          }
+
+          const score = parseInt(qs[scoreField]);
+          scoresByProgrammeId[qs.trainingProgrammeId] += score;
         });
-      }),
-    );
+
+      return scoresByProgrammeId;
+    }, {});
 
     // reduce the keys down to get the key that is the highest value
-    const programmeId = Object.keys(programmeScores).reduce(
-      (a, b) => (programmeScores[a] > programmeScores[b] ? a : b),
+    let programmeId = Object.keys(scoresByProgrammeId).reduce(
+      (currentMaxProgrammeId, programmeId) => {
+        return scoresByProgrammeId[currentMaxProgrammeId] >
+          scoresByProgrammeId[programmeId]
+          ? currentMaxProgrammeId
+          : programmeId;
+      },
       null,
     );
+
+    // If no match, return a random programme from the matching environment
+    if (!programmeId) {
+      const programme = await Programme.query()
+        .where('environment', environment)
+        .orderByRaw('RANDOM()')
+        .limit(1)
+        .first();
+
+      programmeId = programme?.id;
+    }
+
+    // If _still_ no match, return any random programme
+    if (!programmeId) {
+      const programme = await Programme.query()
+        .orderByRaw('RANDOM()')
+        .limit(1)
+        .first();
+
+      programmeId = programme?.id;
+    }
 
     return programmeId;
   }
