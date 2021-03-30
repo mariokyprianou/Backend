@@ -13,7 +13,7 @@ import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 @Resolver('UserProgramme')
 export class UserProgrammeResolver {
   constructor(
-    private userPower: UserPowerService,
+    private userPowerService: UserPowerService,
     private userExerciseHistory: UserExerciseHistoryService,
     private userExerciseNote: UserExerciseNoteService,
   ) {}
@@ -23,7 +23,10 @@ export class UserProgrammeResolver {
     @Context('authContext') authContext: AuthContext,
     @Context('language') language: string,
   ) {
-    return this.userPower.currentUserProgramme(authContext.sub, language);
+    return this.userPowerService.currentUserProgramme(
+      authContext.sub,
+      language,
+    );
   }
 
   @Query('getExerciseWeight')
@@ -39,7 +42,7 @@ export class UserProgrammeResolver {
     @Context('authContext') authContext: AuthContext,
     @Args('input') input: WorkoutOrder[],
   ): Promise<boolean> {
-    return this.userPower.updateOrder(input, authContext.sub);
+    return this.userPowerService.updateOrder(input, authContext.sub);
   }
 
   @Mutation('addExerciseWeight')
@@ -55,12 +58,12 @@ export class UserProgrammeResolver {
     @Args('input') input: CompleteWorkout,
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPower.completeWorkout(input, authContext.sub);
+    return this.userPowerService.completeWorkout(input, authContext.sub);
   }
 
   @Mutation('completeWorkoutWeek')
   async completeWorkoutWeek(@Context('authContext') authContext: AuthContext) {
-    return this.userPower.completeWorkoutWeek(authContext.sub);
+    return this.userPowerService.completeWorkoutWeek(authContext.sub);
   }
 
   @Mutation('updateExerciseNote')
@@ -76,7 +79,10 @@ export class UserProgrammeResolver {
     @Args('input') input: { programme: string },
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPower.continueProgramme(input.programme, authContext);
+    return this.userPowerService.continueProgramme(
+      input.programme,
+      authContext,
+    );
   }
 
   @Mutation('startProgramme')
@@ -84,7 +90,7 @@ export class UserProgrammeResolver {
     @Args('input') input: { programme: string },
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPower.startProgramme(input.programme, authContext);
+    return this.userPowerService.startProgramme(input.programme, authContext);
   }
 
   @Mutation('restartProgramme')
@@ -92,6 +98,6 @@ export class UserProgrammeResolver {
     @Args('input') input: { programme: string },
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPower.restartProgramme(input.programme, authContext);
+    return this.userPowerService.restartProgramme(input.programme, authContext);
   }
 }

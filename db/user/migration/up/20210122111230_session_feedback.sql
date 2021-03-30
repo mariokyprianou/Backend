@@ -4,6 +4,12 @@ CREATE TABLE user_workout_feedback (
   emoji text NULL,
   feedback_intensity integer NOT NULL,
   time_taken integer NOT NULL,
+  trainer_id uuid,
+	trainer_name text default 'Unknown' not null,
+  workout_id uuid,
+  workout_name text default 'Unknown' not null,
+  workout_week_number integer default -1,
+  environment text,
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW()
 );

@@ -10,37 +10,28 @@ import {
   UserWorkoutFeedbackService,
 } from '@lib/power/feedback';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CmsParams } from '@lib/common';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
   constructor(private feedbackService: UserWorkoutFeedbackService) {}
   @Query('allFeedbacks')
   async allFeedbacks(
-    @Args('page') page = 0,
-    @Args('perPage') perPage = 25,
-    @Args('sortField') sortField = 'created_at',
-    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
-    @Args('filter') filter: UserWorkoutFeedbackFilter = {},
+    @Args() params: CmsParams<UserWorkoutFeedbackFilter>,
   ): Promise<Feedback[]> {
-    return this.feedbackService.all(
-      page,
-      perPage,
-      sortField,
-      sortOrder,
-      filter,
-    );
+    return this.feedbackService.findAll(params);
   }
 
   @Query('_allFeedbacksMeta')
   async allMeta(
-    @Args('filter') filter: UserWorkoutFeedbackFilter = {},
+    @Args() params: CmsParams<UserWorkoutFeedbackFilter>,
   ): Promise<ListMetadata> {
-    return this.feedbackService.count(filter);
+    return this.feedbackService.findCount(params);
   }
 
   @Query('Feedback')
-  async feedback(@Args('id') id: string): Promise<Feedback> {
-    return this.feedbackService.feedback(id);
+  async feedback(@Args('id') id: string) {
+    return this.feedbackService.findById(id);
   }
 
   @Mutation('exportFeedback')

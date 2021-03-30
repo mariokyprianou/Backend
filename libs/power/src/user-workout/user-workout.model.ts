@@ -21,7 +21,6 @@ export class UserWorkout extends BaseModel {
 
   workout: Workout;
   userWorkoutWeek: UserWorkoutWeek;
-  // feedback: UserWorkoutFeedbackEmoji[];
 
   static relationMappings = {
     workout: {
@@ -40,13 +39,5 @@ export class UserWorkout extends BaseModel {
         to: 'user_workout_week.id',
       },
     },
-    // feedback: {
-    //   relation: Model.HasManyRelation,
-    //   modelClass: UserWorkoutFeedbackEmoji,
-    //   join: {
-    //     from: 'user_workout.id',
-    //     to: 'user_workout_feedback.user_workout_id',
-    //   },
-    // },
   };
 }

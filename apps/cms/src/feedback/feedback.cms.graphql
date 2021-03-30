@@ -1,14 +1,14 @@
 type Feedback {
   id: ID!
-  trainerName: String
-  week: Int!
-  workoutName: String!
-  emojis: [String!]!
-  userEmail: String!
-  timeTaken: Int
-  workoutIntensity: Int
   date: Date
+  emojis: [String!]!
   environment: ProgrammeEnvironment
+  timeTaken: Int
+  trainerName: String
+  userEmail: String!
+  week: Int!
+  workoutIntensity: Int
+  workoutName: String!
 }
 
 input FeedbackFilter {
@@ -17,6 +17,12 @@ input FeedbackFilter {
   emoji: String
   feedbackIntensity: Int
   timeTaken: Int
+  trainerId: ID
+  weekNumber: Int
+  workoutName: String
+  userEmail: String
+  dateFrom: DateTime
+  dateTo: DateTime
 }
 
 extend type Query {

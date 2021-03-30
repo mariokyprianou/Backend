@@ -31,30 +31,6 @@ export class UserWorkoutService {
     return this.findAll().findById(id);
   }
 
-  public addFeedback(userWorkout: string, emoji: string) {
-    return;
-  }
-
-  public async completeWorkout(input: CompleteWorkout, sub: string) {
-    await UserWorkout.query()
-      .patch({
-        completedAt: input.date,
-      })
-      .where('id', input.workoutId);
-
-    const user = await User.query().findOne('cognito_sub', sub);
-
-    await UserWorkoutFeedback.query().insertAndFetch({
-      accountId: user.id,
-      userWorkoutId: input.workoutId,
-      emoji: input.emoji,
-      feedbackIntensity: input.intensity,
-      timeTaken: input.timeTaken,
-    });
-
-    return true;
-  }
-
   public updateOrder(input: WorkoutOrder) {
     return UserWorkout.query()
       .patch({ orderIndex: input.index })

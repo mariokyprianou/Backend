@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Account, AccountService } from '../account';
-import { UserProgramme, UserProgrammeService } from '../user-programme';
+import { UserProgramme } from '../user-programme';
 import * as R from 'ramda';
 import { Programme } from '../programme';
 import { CommonService } from '@lib/common';
@@ -12,12 +12,14 @@ import {
   AuthContext,
   CompleteWorkout,
   DownloadQuality,
+  ProgrammeEnvironment,
   WorkoutOrder,
 } from '../types';
 import { ProgrammeWorkout, Workout, WorkoutService } from '../workout';
 import { GraphQLError } from 'graphql';
 import { v4 as uuid } from 'uuid';
 import { subDays } from 'date-fns';
+import { UserWorkoutFeedback } from '../feedback';
 
 @Injectable()
 export class UserPowerService {
@@ -35,6 +37,7 @@ export class UserPowerService {
   ) {
     // Fetch user
     const account = await this.accountService.findBySub(authContext.sub);
+
     // Fetch user training_programmes
     const userProgrammes = await UserProgramme.query().where(
       'account_id',
@@ -287,31 +290,40 @@ export class UserPowerService {
   }
 
   public async completeWorkout(input: CompleteWorkout, sub: string) {
-    // fetch account
-    // ensure authenticated to perform the request
-    // update workout
-    // update feedback
     const account = await this.accountService.findBySub(sub);
-    const userWorkout = await this.userWorkoutService.findById(input.workoutId);
-    if (!userWorkout) {
-      throw new GraphQLError(
-        'Workout of workout id ' + input.workoutId + ' does not exist',
-      );
+
+    const workoutInfo = await findWorkoutInfo({
+      userWorkoutId: input.workoutId,
+      userId: account.id,
+    });
+    if (!workoutInfo) {
+      throw new GraphQLError(`User workout does not exist: ${input.workoutId}`);
     }
+
     try {
-      const userWorkoutWeek = await this.userWorkoutWeekService.findById(
-        userWorkout.userWorkoutWeekId,
-      );
-
-      const userTrainingProgramme = await UserProgramme.query()
-        .where('id', userWorkoutWeek.userTrainingProgrammeId)
-        .first();
-
-      if (userTrainingProgramme.accountId !== account.id) {
-        throw new Error('Not authorised');
+      if (!workoutInfo) {
+        return false;
       }
 
-      return this.userWorkoutService.completeWorkout(input, sub);
+      await UserWorkout.query()
+        .findById(input.workoutId)
+        .patch({ completedAt: input.date });
+
+      await UserWorkoutFeedback.query().insert({
+        accountId: account.id,
+        environment: workoutInfo.environment,
+        userWorkoutId: input.workoutId,
+        workoutId: workoutInfo.workoutId,
+        workoutName: workoutInfo.workoutName,
+        emoji: input.emoji,
+        trainerId: workoutInfo.trainerId,
+        trainerName: workoutInfo.trainerName,
+        workoutWeekNumber: workoutInfo.workoutWeekNumber,
+        feedbackIntensity: input.intensity,
+        timeTaken: input.timeTaken,
+      });
+
+      return true;
     } catch (error) {
       console.log(error);
       return false;
@@ -523,9 +535,6 @@ export class UserPowerService {
 
     const nextWeek = this.returnNextWeek(weeks);
 
-    console.log(JSON.stringify(currentWeek));
-    console.log(JSON.stringify(nextWeek));
-
     // if the current weekNumber is 0 then there are no current weeks that haven't been completed
 
     let startedAt: Date;
@@ -571,4 +580,56 @@ export class UserPowerService {
         )),
     };
   }
+}
+
+async function findWorkoutInfo(params: {
+  userWorkoutId: string;
+  userId: string;
+}) {
+  type WorkoutInfoRecord = {
+    environment: ProgrammeEnvironment;
+    trainerId: string;
+    trainerName: string;
+    workoutId: string;
+    workoutName: string;
+    workoutWeekNumber: number;
+  };
+
+  const db = UserWorkout.knex();
+  return db
+    .select(
+      'training_programme.environment as environment',
+      'trainer_tr.trainer_id as trainerId',
+      'trainer_tr.name as trainerName',
+      'workout_tr.workout_id as workoutId',
+      'workout_tr.name as workoutName',
+      'user_workout_week.week_number as workoutWeekNumber',
+    )
+    .from('user_workout')
+    .join(
+      'user_workout_week',
+      'user_workout.user_workout_week_id',
+      'user_workout_week.id',
+    )
+    .join(
+      'user_training_programme',
+      'user_workout_week.user_training_programme_id',
+      'user_training_programme.id',
+    )
+    .join(
+      'training_programme',
+      'user_training_programme.training_programme_id',
+      'training_programme.id',
+    )
+    .leftJoin('trainer_tr', function () {
+      this.on('training_programme.trainer_id', '=', 'trainer_tr.trainer_id');
+      this.on('trainer_tr.language', '=', db.raw('?', ['en']));
+    })
+    .leftJoin('workout_tr', function () {
+      this.on('user_workout.workout_id', '=', 'workout_tr.workout_id');
+      this.on('workout_tr.language', '=', db.raw('?', ['en']));
+    })
+    .where('user_workout.id', params.userWorkoutId)
+    .andWhere('user_training_programme.account_id', params.userId)
+    .first<WorkoutInfoRecord>();
 }

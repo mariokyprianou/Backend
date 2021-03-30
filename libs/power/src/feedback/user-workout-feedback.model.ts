@@ -1,5 +1,6 @@
 import { UserModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
+import { ProgrammeEnvironment } from '../types';
 import { User } from '../user';
 
 export class UserWorkoutFeedback extends UserModel {
@@ -12,9 +13,16 @@ export class UserWorkoutFeedback extends UserModel {
   id: string;
   userWorkoutId: string;
   emoji: string;
+  environment: ProgrammeEnvironment;
   timeTaken: number;
   feedbackIntensity: number;
   accountId: string;
+  trainerId: string;
+  trainerName: string;
+  workoutId: string;
+  workoutName: string;
+  workoutWeekNumber: number;
+
   createdAt: Date;
   updatedAt: Date;
 
