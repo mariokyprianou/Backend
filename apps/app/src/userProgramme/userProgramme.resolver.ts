@@ -1,6 +1,5 @@
 import {
   AuthContext,
-  CompleteWorkout,
   ExerciseNote,
   ExerciseWeight,
   WorkoutOrder,
@@ -9,13 +8,14 @@ import { UserExerciseHistoryService } from '@lib/power/user-exercise-history/use
 import { UserExerciseNoteService } from '@lib/power/user-exercise-note/user-exercise-note.service';
 import { UserPowerService } from '@lib/power/user-power';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CompleteWorkoutInputDto } from './dto/complete-workout.dto';
 
 @Resolver('UserProgramme')
 export class UserProgrammeResolver {
   constructor(
     private userPowerService: UserPowerService,
-    private userExerciseHistory: UserExerciseHistoryService,
-    private userExerciseNote: UserExerciseNoteService,
+    private exerciseHistoryService: UserExerciseHistoryService,
+    private exerciseNoteService: UserExerciseNoteService,
   ) {}
 
   @Query('getProgramme')
@@ -31,10 +31,24 @@ export class UserProgrammeResolver {
 
   @Query('getExerciseWeight')
   async getExerciseWeight(
-    @Args('exercise') exercise: string,
     @Context('authContext') authContext: AuthContext,
+    @Args('exercise') excerciseId: string,
   ): Promise<ExerciseWeight[]> {
-    return this.userExerciseHistory.findByExercise(exercise, authContext.sub);
+    const weightRecords = await this.exerciseHistoryService.findByExercise(
+      excerciseId,
+      authContext.sub,
+    );
+
+    return weightRecords.map((record) => ({
+      id: record.id,
+      exerciseId: record.exerciseId,
+      weight: record.weight,
+      reps: record.quantity,
+      quantity: record.quantity,
+      setNumber: record.setNumber,
+      setType: record.setType,
+      createdAt: record.createdAt,
+    }));
   }
 
   @Mutation('updateOrder')
@@ -45,17 +59,9 @@ export class UserProgrammeResolver {
     return this.userPowerService.updateOrder(input, authContext.sub);
   }
 
-  @Mutation('addExerciseWeight')
-  async addExerciseWeight(
-    @Args('input') input: ExerciseWeight,
-    @Context('authContext') authContext: AuthContext,
-  ): Promise<ExerciseWeight> {
-    return this.userExerciseHistory.addHistory(input, authContext.sub);
-  }
-
   @Mutation('completeWorkout')
   async completeWorkout(
-    @Args('input') input: CompleteWorkout,
+    @Args('input') input: CompleteWorkoutInputDto,
     @Context('authContext') authContext: AuthContext,
   ) {
     return this.userPowerService.completeWorkout(input, authContext.sub);
@@ -71,7 +77,7 @@ export class UserProgrammeResolver {
     @Context('authContext') authContext: AuthContext,
     @Args('input') input: ExerciseNote,
   ) {
-    return this.userExerciseNote.addExerciseNote(input, authContext.sub);
+    return this.exerciseNoteService.addExerciseNote(input, authContext.sub);
   }
 
   @Mutation('continueProgramme')

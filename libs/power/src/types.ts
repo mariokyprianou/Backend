@@ -10,20 +10,32 @@ export interface WorkoutOrder {
   index: number;
 }
 
-export interface CompleteWorkout {
+export interface WorkoutSetWeightInput {
+  exerciseId: string;
+  weight: number;
+  setNumber: number;
+  setType: SetType;
+  quantity: number;
+}
+
+export interface CompleteWorkoutInput {
   workoutId: string;
   date: Date;
   intensity: number;
   emoji: string;
   timeTaken: number;
+  weightsUsed: WorkoutSetWeightInput[];
 }
 
 export interface ExerciseWeight {
-  id?: string;
+  id: string;
   exerciseId: string;
   weight: number;
+  /** @deprecated */
   reps: number;
   setNumber: number;
+  setType: SetType;
+  quantity: number;
   createdAt?: Date;
 }
 
@@ -100,8 +112,8 @@ export enum IntensityEnum {
 }
 
 export enum SetType {
-  REPS,
-  TIME,
+  REPS = 'REPS',
+  TIME = 'TIME',
 }
 
 export interface IProgrammeWorkout {

@@ -39,6 +39,7 @@ export class AuthService {
       input.password,
       {},
     );
+
     // add to the user table
     const user = await this.userService.create(input, res.UserSub);
     // add to the account table

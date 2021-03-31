@@ -10,16 +10,18 @@ import { WorkoutExercise } from '../workout/workout-exercise.model';
 import { UserExerciseNote } from '../user-exercise-note/user-exercise-note.model';
 import {
   AuthContext,
-  CompleteWorkout,
+  CompleteWorkoutInput,
   DownloadQuality,
   ProgrammeEnvironment,
   WorkoutOrder,
 } from '../types';
-import { ProgrammeWorkout, Workout, WorkoutService } from '../workout';
+import { ProgrammeWorkout, WorkoutService } from '../workout';
 import { GraphQLError } from 'graphql';
 import { v4 as uuid } from 'uuid';
 import { subDays } from 'date-fns';
 import { UserWorkoutFeedback } from '../feedback';
+import { PartialModelObject } from 'objection';
+import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
 
 @Injectable()
 export class UserPowerService {
@@ -289,7 +291,7 @@ export class UserPowerService {
     });
   }
 
-  public async completeWorkout(input: CompleteWorkout, sub: string) {
+  public async completeWorkout(input: CompleteWorkoutInput, sub: string) {
     const account = await this.accountService.findBySub(sub);
 
     const workoutInfo = await findWorkoutInfo({
@@ -305,9 +307,27 @@ export class UserPowerService {
         return false;
       }
 
-      await UserWorkout.query()
-        .findById(input.workoutId)
-        .patch({ completedAt: input.date });
+      await UserWorkout.transaction(async (trx) => {
+        const updateWorkout = UserWorkout.query(trx)
+          .findById(input.workoutId)
+          .patch({ completedAt: input.date });
+
+        const weightsUsed = (input.weightsUsed ?? []).map<
+          PartialModelObject<UserExerciseHistory>
+        >((record) => ({
+          accountId: account.id,
+          exerciseId: record.exerciseId,
+          setType: record.setType,
+          setNumber: record.setNumber,
+          quantity: record.quantity,
+          weight: record.weight,
+        }));
+        const updateWeightHistory = await UserExerciseHistory.query(trx).insert(
+          weightsUsed,
+        );
+
+        await Promise.all([updateWorkout, updateWeightHistory]);
+      });
 
       await UserWorkoutFeedback.query().insert({
         accountId: account.id,

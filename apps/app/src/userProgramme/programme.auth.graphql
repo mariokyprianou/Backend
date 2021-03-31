@@ -47,10 +47,15 @@ type WorkoutOrder {
   index: Int!
 }
 
-# input ChangeProgrammeInput {
+input WorkoutSetWeightInput {
+  exerciseId: ID!
+  weight: Int!
+  setNumber: Int!
+  setType: SetType!
+  quantity: Int!
+}
 
-# }
-
+### Deprecated input, use ExerciseSetWeightInput instead ###
 input ExerciseWeightInput {
   exerciseId: ID!
   weight: Int!
@@ -62,8 +67,10 @@ type ExerciseWeight {
   id: ID!
   exerciseId: ID!
   weight: Int!
-  reps: Int!
+  reps: Int! @deprecated(reason: "Moved to quantity")
   setNumber: Int!
+  setType: SetType!
+  quantity: Int!
   createdAt: DateTime!
 }
 
@@ -73,6 +80,7 @@ input CompleteWorkoutInput {
   intensity: Int!
   emoji: String!
   timeTaken: Int!
+  weightsUsed: [WorkoutSetWeightInput!]
 }
 
 input ExerciseNoteInput {

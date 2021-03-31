@@ -1,6 +1,7 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
 import { Exercise } from '../exercise';
+import { SetType } from '../types';
 
 export class UserExerciseHistory extends BaseModel {
   static tableName = 'user_exercise_history';
@@ -13,21 +14,24 @@ export class UserExerciseHistory extends BaseModel {
   accountId: string;
   exerciseId: string;
   weight: number;
-  reps: number;
+  setType: SetType;
   setNumber: number;
+  quantity: number;
   createdAt: Date;
   updatedAt: Date;
 
   exercise: Exercise;
 
-  static relationMappings = () => ({
-    exercise: {
-      relation: Model.BelongsToOneRelation,
-      modelClass: Exercise,
-      join: {
-        from: 'user_exercise_history.exercise_id',
-        to: 'exercise.id',
+  static get relationMappings() {
+    return {
+      exercise: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Exercise,
+        join: {
+          from: 'user_exercise_history.exercise_id',
+          to: 'exercise.id',
+        },
       },
-    },
-  });
+    };
+  }
 }

@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
-import { UserWorkoutFeedback } from '../feedback/user-workout-feedback.model';
-import { CompleteWorkout, WorkoutOrder } from '../types';
-import { User } from '../user/user.model';
+import { WorkoutOrder } from '../types';
 import { UserWorkout } from './user-workout.model';
 
 // Note: this is untested

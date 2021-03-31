@@ -56,18 +56,16 @@ export class AuthProviderService {
   public async registerWithEmailVerificationLink(
     Username: string,
     Password: string,
-    options?: any,
+    options?: Partial<CognitoIdentityServiceProvider.SignUpRequest>,
   ) {
-    // Use aws sdk to register a user as admin
-    const ap = {
-      ClientId: this.ClientId,
-      Password,
-      Username,
-      ...options,
-    };
-    const user = await this.cognito.signUp(ap).promise();
-
-    return user;
+    return this.cognito
+      .signUp({
+        ClientId: this.ClientId,
+        Password,
+        Username,
+        ...options,
+      })
+      .promise();
   }
 
   public async resendEmailVerificationLink(Username: string) {

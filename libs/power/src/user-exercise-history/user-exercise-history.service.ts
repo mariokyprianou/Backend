@@ -5,22 +5,29 @@ import { UserExerciseHistory } from './user-exercise-history.model';
 
 @Injectable()
 export class UserExerciseHistoryService {
-  public async addHistory(input: ExerciseWeight, sub: string) {
+  private async findAccountIdBySub(sub: string) {
     const account = await Account.query()
-      .first()
-      .where('cognito_username', sub);
+      .findOne('cognito_username', sub)
+      .select('id')
+      .throwIfNotFound();
+
+    return account?.id;
+  }
+
+  public async addHistory(input: ExerciseWeight, cognitoSub: string) {
+    const accountId = await this.findAccountIdBySub(cognitoSub);
     return UserExerciseHistory.query().insertAndFetch({
       ...input,
-      accountId: account.id,
+      accountId,
     });
   }
 
-  public async findByExercise(exercise: string, sub: string) {
-    const account = await Account.query()
-      .first()
-      .where('cognito_username', sub);
+  public async findByExercise(exerciseId: string, cognitoSub: string) {
+    const accountId = await this.findAccountIdBySub(cognitoSub);
     return UserExerciseHistory.query()
-      .where('exercise_id', exercise)
-      .andWhere('account_id', account.id);
+      .where('exercise_id', exerciseId)
+      .andWhere('account_id', accountId)
+      .orderBy('created_at', 'DESC')
+      .orderBy('set_number', 'DESC');
   }
 }
