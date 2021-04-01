@@ -1,4 +1,4 @@
-import { commonConfig } from '@lib/common';
+import { commonConfig, formatError } from '@lib/common';
 import { databaseConfig, DatabaseModule } from '@lib/database';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -50,6 +50,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         './apps/common/common.graphql',
       ],
       path: '/cms',
+      formatError,
       resolvers: {
         ...scalars,
       },

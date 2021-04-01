@@ -1,5 +1,6 @@
 import { CompleteWorkoutInput, SetType } from '@lib/power';
 import { ArgsType } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
 import {
   IsDate,
   IsIn,
@@ -33,7 +34,8 @@ export class CompleteWorkoutInputDto implements CompleteWorkoutInput {
   timeTaken: number;
 
   @IsOptional()
-  @ValidateNested({ each: true })
+  @ValidateNested()
+  @Type(() => WorkoutSetWeightInputDto)
   weightsUsed: WorkoutSetWeightInputDto[];
 }
 

@@ -3,7 +3,7 @@
  * Created: Thu, 17th December 202020
  * Copyright 2020 - The Distance
  */
-import { commonConfig } from '@lib/common';
+import { commonConfig, formatError } from '@lib/common';
 import { databaseConfig, DatabaseModule } from '@lib/database';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -66,6 +66,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
       resolvers: {
         ...scalars,
       },
+      formatError: formatError,
       context: createContext,
     };
   },
