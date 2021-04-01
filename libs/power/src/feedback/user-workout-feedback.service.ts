@@ -58,6 +58,7 @@ export class UserWorkoutFeedbackService {
 
   private baseQuery(params: ICmsParams<UserWorkoutFeedbackFilter>) {
     const query = UserWorkoutFeedback.query()
+      .alias('feedback')
       .joinRelated('account')
       .withGraphFetched('account');
 
@@ -69,32 +70,35 @@ export class UserWorkoutFeedbackService {
         query.findByIds(params.filter.ids);
       }
       if (params.filter.emoji) {
-        query.where('emoji', params.filter.emoji);
+        query.where('feedback.emoji', params.filter.emoji);
       }
 
       if (params.filter.feedbackIntensity) {
-        query.where('feedback_intensity', params.filter.feedbackIntensity);
+        query.where(
+          'feedback.feedback_intensity',
+          params.filter.feedbackIntensity,
+        );
       }
 
       if (params.filter.timeTaken) {
-        query.where('time_taken', params.filter.timeTaken);
+        query.where('feedback.time_taken', params.filter.timeTaken);
       }
 
       if (params.filter.environment) {
-        query.where('environment', params.filter.environment);
+        query.where('feedback.environment', params.filter.environment);
       }
 
       if (params.filter.trainerId) {
-        query.where('trainer_id', params.filter.trainerId);
+        query.where('feedback.trainer_id', params.filter.trainerId);
       }
 
       if (params.filter.weekNumber) {
-        query.where('trainer_id', params.filter.weekNumber);
+        query.where('feedback.workout_week_number', params.filter.weekNumber);
       }
 
       if (params.filter.workoutName) {
         query.where(
-          'workout_name',
+          'feedback.workout_name',
           'ilike',
           raw(`'%' || ? || '%'`, [params.filter.workoutName]),
         );
@@ -109,10 +113,10 @@ export class UserWorkoutFeedbackService {
       }
 
       if (params.filter.dateFrom) {
-        query.where('completed_at', '>=', params.filter.dateFrom);
+        query.where('feedback.created_at', '>=', params.filter.dateFrom);
       }
       if (params.filter.dateTo) {
-        query.where('completed_at', '<', params.filter.dateTo);
+        query.where('feedback.created_at', '<', params.filter.dateTo);
       }
     }
 
@@ -120,7 +124,7 @@ export class UserWorkoutFeedbackService {
   }
 
   public async findById(feedbackId: string) {
-    const feedback = await this.findAll({
+    const feedback = await this.baseQuery({
       filter: { id: feedbackId },
     });
 
