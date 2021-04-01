@@ -1,9 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
-import { UserInputError } from 'apollo-server-errors';
+import { UserInputError, ValidationError } from 'apollo-server-errors';
 import { GraphQLError } from 'graphql';
+import { NotFoundError } from 'objection';
 
 export const formatError = (error: GraphQLError) => {
-  console.log(error.originalError);
   const { originalError } = error;
   if (originalError instanceof BadRequestException) {
     const data = originalError.getResponse();
@@ -12,5 +12,16 @@ export const formatError = (error: GraphQLError) => {
       messages: typeof data === 'string' ? data : (data as any).message,
     });
   }
+
+  // ObjectionJS Error Conversion
+  if (originalError instanceof NotFoundError) {
+    if (originalError.data?.modelClass) {
+      // User facing
+      return new ValidationError(
+        `${originalError.data?.modelClass.name} not found.`,
+      );
+    }
+  }
+
   return error;
 };

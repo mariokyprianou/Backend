@@ -79,16 +79,14 @@ export class TrainerService {
       filter: { id },
     })
       .limit(1)
-      .first();
+      .first()
+      .throwIfNotFound();
   }
 
   // DELETE TRAINER //
   public async deleteTrainer(trainerId: string) {
-    // await TrainerTranslation.query().delete().where('trainer_id', trainerId);
-    // return Trainer.query().deleteById(trainerId);
-    // set deleted_at flag
-
-    return Trainer.query().patchAndFetchById(trainerId, {
+    const trainer = await this.findById(trainerId);
+    return trainer.$query().patchAndFetchById(trainerId, {
       deletedAt: new Date(),
     });
   }
@@ -96,11 +94,12 @@ export class TrainerService {
   // UPDATE TRAINER //
   public async updateTrainer(
     trainerId: string,
-    localisation: TrainerLocalisation[],
+    localisations: TrainerLocalisation[],
   ) {
-    return Trainer.query().upsertGraphAndFetch({
+    const trainer = await this.findById(trainerId);
+    return trainer.$query().upsertGraphAndFetch({
       id: trainerId,
-      localisations: localisation,
+      localisations,
     });
   }
 

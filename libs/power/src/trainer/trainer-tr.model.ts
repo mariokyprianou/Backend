@@ -10,7 +10,7 @@ export class TrainerTranslation extends BaseModel {
   }
 
   id: string;
-  trainer: string;
+  trainerId: string;
   language: string;
   name: string;
 }

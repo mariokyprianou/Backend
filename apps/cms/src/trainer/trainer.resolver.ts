@@ -1,12 +1,31 @@
-import { Trainer } from '@lib/power/trainer';
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Trainer, TrainerTranslation } from '@lib/power/trainer';
+import {
+  Args,
+  Context,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { TrainerService } from '@lib/power/trainer/trainer.service';
 import { TrainerFilter, ListMetadata, TrainerLocalisation } from '@lib/power';
 import { CmsParams } from '@lib/common';
+import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 
 @Resolver('Trainer')
 export class TrainerResolver {
-  constructor(private trainerService: TrainerService) {}
+  constructor(
+    private trainerService: TrainerService,
+    private trainerLoaders: TrainerLoaders,
+  ) {}
+
+  @ResolveField('localisations')
+  async getLocalisations(
+    @Parent() trainer: Trainer,
+  ): Promise<TrainerTranslation[]> {
+    return this.trainerLoaders.findLocalisationsByTrainerId.load(trainer.id);
+  }
 
   @Query('_allTrainersMeta')
   async _allTrainersMeta(
@@ -63,9 +82,6 @@ export class TrainerResolver {
 
   @Mutation('deleteTrainer')
   async deleteTrainer(@Args('id') id: string): Promise<Trainer> {
-    // const trainerToDelete = await this.trainerService.findById(id);
-    // await this.trainerService.deleteTrainer(id);
-
     return this.trainerService.deleteTrainer(id);
   }
 }
