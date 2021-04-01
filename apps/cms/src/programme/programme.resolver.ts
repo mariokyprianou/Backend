@@ -26,9 +26,9 @@ interface ProgrammeFilter extends Filter {
 @Resolver('Programme')
 export class ProgrammeResolver {
   constructor(
-    private service: ProgrammeService,
-    private common: CommonService,
-    private trainer: TrainerService,
+    private programmeService: ProgrammeService,
+    private commonService: CommonService,
+    private trainerService: TrainerService,
     private accountService: AccountService,
   ) {}
 
@@ -69,7 +69,7 @@ export class ProgrammeResolver {
 
   @ResolveField('trainer')
   async getTrainer(@Parent() programme: Programme) {
-    return this.trainer.findById(programme.trainerId);
+    return this.trainerService.findById(programme.trainerId);
   }
 
   @ResolveField('shareMediaImages')
@@ -84,9 +84,9 @@ export class ProgrammeResolver {
           type: image.type,
           localisations: image.localisations.map((locale) => ({
             language: locale.language,
-            url: this.common.getPresignedUrl(
+            url: this.commonService.getPresignedUrl(
               locale.imageKey,
-              this.common.env().FILES_BUCKET,
+              this.commonService.env().FILES_BUCKET,
               'getObject',
             ),
             imageKey: locale.imageKey,
@@ -102,9 +102,9 @@ export class ProgrammeResolver {
     return Promise.all(
       programme.images.map(async (each: ProgrammeImage) => ({
         orderIndex: each.orderIndex,
-        url: await this.common.getPresignedUrl(
+        url: await this.commonService.getPresignedUrl(
           each.imageKey,
-          this.common.env().FILES_BUCKET,
+          this.commonService.env().FILES_BUCKET,
           'getObject',
         ),
         imageKey: each.imageKey,
@@ -120,7 +120,10 @@ export class ProgrammeResolver {
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
     @Args('filter') filter: ProgrammeFilter,
   ): Promise<ListMetadata> {
-    const [count] = await this.constructFilters(this.service.count(), filter);
+    const [count] = await this.constructFilters(
+      this.programmeService.count(),
+      filter,
+    );
     return count;
   }
 
@@ -128,7 +131,7 @@ export class ProgrammeResolver {
   async createProgramme(
     @Args('programme') programme: IProgramme,
   ): Promise<Programme> {
-    return this.service.create(programme);
+    return this.programmeService.create(programme);
   }
 
   @Query('allProgrammes')
@@ -140,7 +143,7 @@ export class ProgrammeResolver {
     @Args('filter') filter: ProgrammeFilter,
   ): Promise<Programme[]> {
     return this.constructFilters(
-      applyPagination(this.service.findAll(), {
+      applyPagination(this.programmeService.findAll(), {
         page,
         perPage,
         sortField,
@@ -152,7 +155,7 @@ export class ProgrammeResolver {
 
   @Query('Programme')
   async Programme(@Args('id') id: string): Promise<Programme> {
-    return this.service.findById(id);
+    return this.programmeService.findById(id);
   }
 
   @Mutation('updateProgramme')
@@ -160,13 +163,13 @@ export class ProgrammeResolver {
     @Args('id') id: string,
     @Args('programme') programme: IProgramme,
   ): Promise<Programme> {
-    return this.service.updateProgramme({ id, ...programme });
+    return this.programmeService.updateProgramme({ id, ...programme });
   }
 
   @Mutation('deleteProgramme')
   async deleteProgramme(@Args('id') id: string): Promise<Programme> {
-    const ProgrammeToDelete = await this.service.findById(id);
-    await this.service.delete(id);
+    const ProgrammeToDelete = await this.programmeService.findById(id);
+    await this.programmeService.delete(id);
 
     return ProgrammeToDelete;
   }
@@ -176,9 +179,9 @@ export class ProgrammeResolver {
     return {
       contentType: input.contentType,
       key: input.key,
-      uploadUrl: await this.common.getPresignedUrl(
+      uploadUrl: await this.commonService.getPresignedUrl(
         input.key,
-        this.common.env().FILES_BUCKET,
+        this.commonService.env().FILES_BUCKET,
         'putObject',
         'ap-south-1',
         5,

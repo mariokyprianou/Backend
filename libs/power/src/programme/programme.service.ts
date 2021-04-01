@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ShareMediaEnum } from 'apps/app/src/shareMedia/shareMedia.resolver';
 import { PartialModelGraph } from 'objection';
-import { IProgramme } from '../types';
+import { IProgramme, ProgrammeEnvironment } from '../types';
 import { UpdateProgrammeParams } from './programme.interface';
 
 import { Programme } from './programme.model';
 import { ShareMediaTranslation } from './share-media-tr.model';
 import { ShareMediaImage } from './share-media.interface';
 import { ShareMedia } from './share-media.model';
+import { ValidationError } from 'apollo-server-errors';
 
 const toShareImageModelGraph = (
   image: ShareMediaImage,
@@ -30,6 +31,24 @@ const toShareImageModelGraph = (
   return patch;
 };
 
+async function ensureProgrammeTypeAvailable(params: {
+  trainerId: string;
+  environment: ProgrammeEnvironment;
+}) {
+  const programme = await Programme.query()
+    .findOne({
+      trainer_id: params.trainerId,
+      environment: params.environment,
+    })
+    .whereNull('deleted_at');
+
+  if (programme) {
+    throw new ValidationError(
+      'Trainer already has a programme for this environment.',
+    );
+  }
+}
+
 @Injectable()
 export class ProgrammeService {
   // FIND ALL PROGRAMMES
@@ -50,6 +69,11 @@ export class ProgrammeService {
 
   // CREATE PROGRAMME //
   public async create(programme: IProgramme) {
+    await ensureProgrammeTypeAvailable({
+      trainerId: programme.trainerId,
+      environment: programme.environment,
+    });
+
     return Programme.transaction((trx) => {
       return Programme.query(trx).insertGraphAndFetch(programme);
     });
@@ -87,7 +111,19 @@ export class ProgrammeService {
   ): Promise<Programme> {
     const programme = await Programme.query()
       .findById(params.id)
+      .whereNull('deleted_at')
       .throwIfNotFound();
+
+    const isTrainerUpdated =
+      params.trainerId && programme.trainerId !== params.trainerId;
+    const isEnvironmentUpdated =
+      params.environment && programme.environment !== params.environment;
+    if (isTrainerUpdated || isEnvironmentUpdated) {
+      await ensureProgrammeTypeAvailable({
+        trainerId: programme.trainerId,
+        environment: params.environment,
+      });
+    }
 
     const patch: PartialModelGraph<Programme> = {
       id: programme.id,
