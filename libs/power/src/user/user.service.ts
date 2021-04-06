@@ -1,3 +1,5 @@
+import { ICmsParams } from '@lib/common';
+import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
 import { UpdateUserInput } from 'apps/cms/src/user/user.resolver';
 import { addDays, isAfter } from 'date-fns';
@@ -7,39 +9,29 @@ import { User } from './user.model';
 
 @Injectable()
 export class UserService {
-  public findAll(
-    page = 0,
-    perPage = 25,
-    sortField = 'first_name',
-    sortOrder: 'ASC' | 'DESC' | null = 'ASC',
-    filter: UserFilter = {},
-  ) {
-    const query = User.query().withGraphJoined('[country, region]');
-    const findAllQuery = applyFilter(query, filter);
-
-    findAllQuery.limit(perPage).offset(perPage * page);
-    findAllQuery.orderBy(sortField, sortOrder);
-
-    return findAllQuery;
+  public findAll(params: ICmsParams<UserFilter>): Promise<User[]> {
+    const query = baseQuery(params);
+    applyPagination(query, params);
+    query.orderBy(params.sortField ?? 'first_name', params.sortOrder ?? 'ASC');
+    return query;
   }
 
   public findAllMeta(filter: UserFilter = {}) {
-    return applyFilter(User.query(), filter).resultSize();
+    const query = User.query();
+    return applyFilter(query, filter).resultSize();
   }
 
   public findBySub(sub: string) {
-    return this.findAll().findOne('cognito_sub', sub);
+    return baseQuery().findOne('cognito_sub', sub);
   }
 
   public findById(id: string) {
-    return this.findAll().findById(id);
+    return baseQuery({ filter: { id } }).first();
   }
 
   public async delete(id: string) {
     const user = await User.query().findById(id);
-
     await User.query().findById(id).delete();
-
     return user;
   }
 
@@ -89,7 +81,7 @@ export class UserService {
         countryId: input.country,
         regionId: input.region,
         timeZone: input.timezone,
-        deviceChange: input.deviceLimit
+        deviceChange: input.deviceLimit,
       });
       return true;
     } catch (error) {
@@ -123,6 +115,10 @@ const applyFilter = (
   query: Objection.QueryBuilder<User, User[]>,
   filter: UserFilter,
 ): Objection.QueryBuilder<User, User[]> => {
+  if (!filter) {
+    return;
+  }
+
   if (filter.id) {
     query.findByIds([filter.id]);
   }
@@ -136,8 +132,14 @@ const applyFilter = (
   }
 
   if (filter.country) {
-    query.where('account.country.country', 'ilike', `%${filter.country}%`);
+    query.where('country.name', 'ilike', `%${filter.country}%`);
   }
 
   return query;
 };
+
+function baseQuery(params: ICmsParams<UserFilter> = {}) {
+  const query = User.query().withGraphJoined('[country, region]');
+  applyFilter(query, params.filter);
+  return query;
+}

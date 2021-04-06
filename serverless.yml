@@ -13,6 +13,7 @@ provider:
     DB_PASSWORD: ${env:DB_PASSWORD}
     DB_PORT: ${env:DB_PORT, '5432'}
     DB_USER: ${env:DB_USER}
+    REGION: ${self:provider.region}
     USERPOOL_ID: ${env:USERPOOL_ID}
     CMS_USERPOOL_ID: ${env:CMS_USERPOOL_ID}
     APP_BACKEND_CLIENT: ${env:APP_BACKEND_CLIENT}

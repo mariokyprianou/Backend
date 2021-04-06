@@ -12,6 +12,8 @@ import { UserProgrammeService } from '@lib/power/user-programme/user-programme.s
 import { AccountService } from '@lib/power/account';
 import { AuthService } from '@lib/power/auth';
 import { GraphQLError } from 'graphql';
+import { CmsParams } from '@lib/common';
+import { UserExportService } from '@lib/power/user/user-export.service';
 
 @Resolver('User')
 export class UserResolver {
@@ -20,23 +22,12 @@ export class UserResolver {
     private accountService: AccountService,
     private userProgramService: UserProgrammeService,
     private authService: AuthService,
+    private userExportService: UserExportService,
   ) {}
 
   @Query('allUsers')
-  async allUsers(
-    @Args('page') page = 0,
-    @Args('perPage') perPage = 25,
-    @Args('sortField') sortField = 'first_name',
-    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
-    @Args('filter') filter: UserFilter = {},
-  ): Promise<User[]> {
-    return this.userService.findAll(
-      page,
-      perPage,
-      sortField,
-      sortOrder,
-      filter,
-    );
+  async allUsers(@Args() params: CmsParams<UserFilter>): Promise<User[]> {
+    return this.userService.findAll(params);
   }
 
   @Query('User')
@@ -149,6 +140,14 @@ export class UserResolver {
     } else {
       throw new GraphQLError('Unable to update user');
     }
+  }
+
+  @Mutation('exportUsers')
+  async exportUsers() {
+    const res = await this.userExportService.exportUsers();
+    return {
+      downloadUrl: res.downloadUrl,
+    };
   }
 }
 

@@ -65,8 +65,13 @@ type UserSubscription {
   platform: SubscriptionPlatform!
 }
 
+type ExportUsersResponse {
+  downloadUrl: URL!
+}
+
 extend type Mutation {
   updateUser(id: ID!, input: UpdateUserInput): User
   updateEmail(id: ID!, email: EmailAddress!): User
   deleteUser(id: ID!): User
+  exportUsers: ExportUsersResponse
 }
