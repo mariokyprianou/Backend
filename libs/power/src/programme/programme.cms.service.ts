@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ShareMediaEnum } from 'apps/app/src/shareMedia/shareMedia.resolver';
-import { PartialModelGraph } from 'objection';
+import { PartialModelGraph, QueryBuilder } from 'objection';
 import { IProgramme, ProgrammeEnvironment } from '../types';
 import { UpdateProgrammeParams } from './programme.interface';
 
@@ -9,6 +9,9 @@ import { ShareMediaTranslation } from './share-media-tr.model';
 import { ShareMediaImage } from './share-media.interface';
 import { ShareMedia } from './share-media.model';
 import { ValidationError } from 'apollo-server-errors';
+import { ICmsParams } from '@lib/common';
+import { ProgrammeFilter } from '..';
+import { applyPagination } from '@lib/database';
 
 const toShareImageModelGraph = (
   image: ShareMediaImage,
@@ -52,19 +55,45 @@ async function ensureProgrammeTypeAvailable(params: {
 @Injectable()
 export class ProgrammeService {
   // FIND ALL PROGRAMMES
-  public findAll(language?: string) {
-    return Programme.query()
-      .whereNull('training_programme.deleted_at')
-      .withGraphFetched(
-        '[localisations, images, shareMediaImages.localisations]',
-      )
-      .modifyGraph('localisations', (qb) =>
-        language ? qb.where('language', language) : qb,
-      );
+  public async findAll(
+    params: ICmsParams<ProgrammeFilter>,
+  ): Promise<Programme[]> {
+    const query = this.baseQuery(params);
+    applyPagination(query, params);
+    return await query;
   }
 
-  public count() {
-    return Programme.query().count().whereNull('training_programme.deleted_at');
+  private baseQuery(
+    params: ICmsParams<ProgrammeFilter>,
+  ): QueryBuilder<Programme> {
+    const query = Programme.query().whereNull('training_programme.deleted_at');
+
+    const { filter } = params;
+    if (filter) {
+      if (filter.id) {
+        query.where('training_programme.id', filter.id);
+      }
+
+      if (filter.ids) {
+        query.whereIn('training_programme.id', filter.ids);
+      }
+
+      if (filter.trainerId) {
+        query.where('training_programme.trainer_id', filter.trainerId);
+      }
+      if (filter.environment) {
+        query.where('training_programme.environment', filter.environment);
+      }
+    }
+
+    return query.withGraphFetched(
+      '[localisations, images, shareMediaImages.localisations]',
+    );
+  }
+
+  public async findCount(params: ICmsParams<ProgrammeFilter>) {
+    const count = await this.baseQuery(params).resultSize();
+    return { count };
   }
 
   // CREATE PROGRAMME //
@@ -79,8 +108,12 @@ export class ProgrammeService {
     });
   }
 
-  public findById(id: string, language?: string) {
-    return this.findAll(language).findById(id);
+  public findById(id: string): Promise<Programme> {
+    return this.baseQuery({ filter: { id } })
+      .withGraphFetched(
+        '[localisations, images, shareMediaImages.localisations]',
+      )
+      .findById(id);
   }
 
   public async delete(id: string) {

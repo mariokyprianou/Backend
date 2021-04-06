@@ -6,22 +6,14 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { applyPagination } from '@lib/database';
-import { Filter, ListMetadata } from '@lib/power/types';
-import { Programme } from '@lib/power/programme';
-import { ProgrammeService } from '@lib/power/programme/programme.service';
+import { ListMetadata } from '@lib/power/types';
+import { Programme, ProgrammeFilter } from '@lib/power';
+import { ProgrammeService } from '@lib/power/programme/programme.cms.service';
 import { IProgramme } from '../../../../libs/power/src/types';
-import { CommonService } from '@lib/common';
+import { CmsParams, CommonService } from '@lib/common';
 import { TrainerService } from '@lib/power/trainer';
 import { ProgrammeImage } from '@lib/power/programme/programme-image.model';
 import { AccountService } from '@lib/power/account';
-
-interface ProgrammeFilter extends Filter {
-  trainerId: string;
-  environment: string;
-  id: string;
-  ids: string[];
-}
 
 @Resolver('Programme')
 export class ProgrammeResolver {
@@ -31,27 +23,6 @@ export class ProgrammeResolver {
     private trainerService: TrainerService,
     private accountService: AccountService,
   ) {}
-
-  constructFilters = (query: any, filter: ProgrammeFilter) => {
-    if (filter) {
-      if (filter.id) {
-        query.where('training_programme.id', filter.id);
-      }
-
-      if (filter.ids) {
-        query.whereIn('training_programme.id', filter.ids);
-      }
-
-      if (filter.trainerId) {
-        query.where('training_programme.trainer_id', filter.trainerId);
-      }
-      if (filter.environment) {
-        query.where('training_programme.environment', filter.environment);
-      }
-    }
-
-    return query;
-  };
 
   @ResolveField('subscribers')
   async getSubscriber(@Parent() programme: Programme) {
@@ -114,17 +85,10 @@ export class ProgrammeResolver {
 
   @Query('_allProgrammesMeta')
   async _allProgrammesMeta(
-    @Args('page') page: number,
-    @Args('perPage') perPage: number,
-    @Args('sortField') sortField = 'created_at',
-    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
-    @Args('filter') filter: ProgrammeFilter,
+    @Args() params: CmsParams<ProgrammeFilter>,
   ): Promise<ListMetadata> {
-    const [count] = await this.constructFilters(
-      this.programmeService.count(),
-      filter,
-    );
-    return count;
+    const { count } = await this.programmeService.findCount(params);
+    return { count };
   }
 
   @Mutation('createProgramme')
@@ -136,21 +100,10 @@ export class ProgrammeResolver {
 
   @Query('allProgrammes')
   async allProgrammes(
-    @Args('page') page: number,
-    @Args('perPage') perPage: number,
-    @Args('sortField') sortField = 'created_at',
-    @Args('sortOrder') sortOrder: 'ASC' | 'DESC' | null,
-    @Args('filter') filter: ProgrammeFilter,
+    @Args() params: CmsParams<ProgrammeFilter>,
   ): Promise<Programme[]> {
-    return this.constructFilters(
-      applyPagination(this.programmeService.findAll(), {
-        page,
-        perPage,
-        sortField,
-        sortOrder,
-      }),
-      filter,
-    );
+    const programmes = await this.programmeService.findAll(params);
+    return programmes;
   }
 
   @Query('Programme')

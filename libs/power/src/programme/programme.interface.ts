@@ -1,4 +1,5 @@
 import {
+  Filter,
   ProgrammeEnvironment,
   ProgrammeImages,
   ProgrammeLocalisation,
@@ -17,4 +18,10 @@ export interface UpdateProgrammeParams {
   images?: ProgrammeImages[];
   localisations?: ProgrammeLocalisation[];
   shareMediaImages?: ShareMediaImage[];
+}
+
+export interface ProgrammeFilter extends Filter {
+  trainerId?: string;
+  environment?: ProgrammeEnvironment;
+  status?: PublishStatus;
 }

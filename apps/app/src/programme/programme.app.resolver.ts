@@ -2,14 +2,14 @@ import { Programme } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { WorkoutService } from '@lib/power/workout';
 import { CommonService } from '@lib/common';
-import { TrainerService } from '@lib/power/trainer';
+import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 
 @Resolver('Programme')
 export class ProgrammeResolver {
   constructor(
     protected workoutService: WorkoutService,
     protected commonService: CommonService,
-    protected trainerService: TrainerService,
+    protected trainerLoaders: TrainerLoaders,
   ) {}
 
   @ResolveField('id')
@@ -18,11 +18,8 @@ export class ProgrammeResolver {
   }
 
   @ResolveField('trainer')
-  public getTrainer(
-    @Parent() programme: Programme,
-    @Context('language') language: string,
-  ) {
-    return this.trainerService.findById(programme.trainerId, language);
+  public getTrainer(@Parent() programme: Programme) {
+    return this.trainerLoaders.findById.load(programme.trainerId);
   }
 
   @ResolveField('environment')

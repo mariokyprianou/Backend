@@ -66,6 +66,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     CountryAppModule,
     AuthAppModule,
     AuthProviderModule,
+    ProgrammeAppModule,
     GraphQLProvider,
   ],
 })

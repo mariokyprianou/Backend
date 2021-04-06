@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ProgrammeService } from '@lib/power/programme';
-import { Trainer } from '@lib/power/trainer';
+import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
+import { Trainer, TrainerTranslation } from '@lib/power/trainer';
+import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 import {
   Context,
   Parent,
@@ -14,7 +16,7 @@ import { TrainerService } from '../../../../libs/power/src/trainer/trainer.servi
 export class TrainerResolver {
   constructor(
     private trainerService: TrainerService,
-    private programmeService: ProgrammeService,
+    private programmeLoaders: ProgrammeLoaders,
   ) {}
 
   @Query('getTrainers')
@@ -25,20 +27,15 @@ export class TrainerResolver {
   }
 
   @ResolveField('name')
-  name(@Parent() trainer: Trainer, @Context('language') language: string) {
+  async name(
+    @Parent() trainer: Trainer,
+    @Context('language') language: string,
+  ) {
     return trainer.getTranslation(language)?.name;
   }
 
   @ResolveField('programmes')
-  async programmes(
-    @Parent() trainer: Trainer,
-    @Context('language') language: string,
-  ) {
-    const relatedProgrammes = await this.programmeService
-      .findAll(language)
-      .where('trainer_id', trainer.id)
-      .andWhere('status', 'PUBLISHED');
-
-    return relatedProgrammes;
+  async programmes(@Parent() trainer: Trainer) {
+    return this.programmeLoaders.findByTrainerId.load(trainer.id);
   }
 }

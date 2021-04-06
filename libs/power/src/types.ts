@@ -96,8 +96,8 @@ export interface ProgrammeImages {
 }
 
 export enum PublishStatus {
-  DRAFT,
-  PUBLISHED,
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
 }
 
 export interface ShareMediaLocalisation {

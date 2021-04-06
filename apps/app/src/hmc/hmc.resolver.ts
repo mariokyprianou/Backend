@@ -44,10 +44,7 @@ export class HMCResolver {
     }
 
     // resolve the programme data
-    const programme = await this.programmeService.findById(
-      programmeId,
-      language,
-    );
+    const programme = await this.programmeService.findById(programmeId);
 
     return { programme };
   }

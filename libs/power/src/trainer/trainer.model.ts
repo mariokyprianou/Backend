@@ -17,8 +17,22 @@ export class Trainer extends BaseModel {
 
   localisations: TrainerTranslation[];
 
-  public getTranslation(language: string) {
-    return (this.localisations ?? []).find((tr) => tr.language === language);
+  public getTranslation(language: string, fallbackLanguage: string = null) {
+    if (!this.localisations) {
+      return null;
+    }
+
+    let translation: TrainerTranslation = null;
+
+    translation = this.localisations.find((tr) => tr.language === language);
+
+    if (!translation && fallbackLanguage) {
+      translation = this.localisations.find(
+        (tr) => tr.language === fallbackLanguage,
+      );
+    }
+
+    return translation ?? null;
   }
 
   static relationMappings = {

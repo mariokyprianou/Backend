@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ProgrammeService } from './programme.service';
+import { ProgrammeService } from './programme.cms.service';
+import { ProgrammeLoaders } from './programme.loaders';
 
 @Module({
-  providers: [ProgrammeService],
-  exports: [ProgrammeService],
+  providers: [ProgrammeService, ProgrammeLoaders],
+  exports: [ProgrammeService, ProgrammeLoaders],
 })
 export class ProgrammeModule {}

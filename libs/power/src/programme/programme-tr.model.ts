@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
-import { Model, snakeCaseMappers } from 'objection';
+import { snakeCaseMappers } from 'objection';
 
 export class ProgrammeTranslation extends BaseModel {
   static tableName = 'training_programme_tr';

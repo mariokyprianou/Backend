@@ -24,7 +24,7 @@ export class TrainerResolver {
   async getLocalisations(
     @Parent() trainer: Trainer,
   ): Promise<TrainerTranslation[]> {
-    return this.trainerLoaders.findLocalisationsByTrainerId.load(trainer.id);
+    return this.trainerLoaders.findLocalisationsById.load(trainer.id);
   }
 
   @Query('_allTrainersMeta')
