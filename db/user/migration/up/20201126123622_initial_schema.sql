@@ -12,7 +12,8 @@ $$ LANGUAGE plpgsql;
 -- Country
 CREATE TABLE country (
   id uuid CONSTRAINT pk_country PRIMARY KEY DEFAULT uuid_generate_v4(),
-  country text NOT NULL,
+  code text NOT NULL,
+  name text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW()
 );

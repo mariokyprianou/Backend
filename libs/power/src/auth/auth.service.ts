@@ -152,6 +152,6 @@ const generateProfile = (profile) => ({
   familyName: profile.lastName,
   deviceUDID: profile.deviceUdid,
   canChangeDevice: isAfter(new Date(), new Date(profile.deviceChange)),
-  country: profile.country && profile.country.country,
+  country: profile.country && profile.country.name,
   region: profile.region && profile.region.region,
 });
