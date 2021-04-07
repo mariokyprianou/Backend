@@ -186,6 +186,7 @@ export enum downloadQuality {
 }
 
 export interface AuthContext {
+  id?: string;
   sub: string;
 }
 

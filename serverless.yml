@@ -114,6 +114,14 @@ functions:
           trigger: CustomMessage
           existing: true
 
+  cognitoPreTokenGeneration:
+    handler: apps/cognitoTriggers/src/preTokenGeneration.default
+    events:
+      - cognitoUserPool:
+          pool: ${env:USERPOOL_NAME}
+          trigger: PreTokenGeneration
+          existing: true
+
   webhooks:
     handler: apps/webhook/src/handler.default
     events:

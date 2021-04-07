@@ -30,6 +30,7 @@ export async function createContext({
   return {
     language: acceptLanguage.get(req.headers['accept-language'] ?? 'en'),
     authContext: {
+      id: req.apiGateway?.event?.requestContext?.authorizer?.claims?.uid,
       sub: R.path(
         [
           'apiGateway',
