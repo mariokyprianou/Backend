@@ -9,8 +9,6 @@ import { createServer, proxy, Response } from 'aws-serverless-express';
 import { eventContext } from 'aws-serverless-express/middleware';
 
 import * as helmet from 'helmet';
-import { UserInputError } from 'apollo-server-errors';
-import { ValidationError } from 'class-validator';
 
 export async function createApp(
   expressApp: Express,

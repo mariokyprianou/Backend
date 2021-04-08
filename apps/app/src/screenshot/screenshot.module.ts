@@ -1,5 +1,5 @@
-// import { UserModule } from '@lib/power/user';
-import { ScreenshotModule, UserModule } from '@lib/power';
+import { UserModule } from '@lib/power/user';
+import { ScreenshotModule } from '@lib/power';
 import { Module } from '@nestjs/common';
 import {
   ScreenshotQueryResolver,
