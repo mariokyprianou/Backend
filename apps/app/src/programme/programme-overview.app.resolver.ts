@@ -3,6 +3,7 @@ import {
   Programme,
   ProgrammeService,
   PublishStatus,
+  ShareMediaImageType,
 } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { WorkoutService } from '@lib/power/workout';
@@ -70,7 +71,7 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
     );
 
     const images = shareMediaImages.find(
-      (media) => media.type.toString() === 'PROGRAMME_START',
+      (media) => media.type === ShareMediaImageType.PROGRAMME_START,
     );
     const image = images && images.getTranslation(language);
 

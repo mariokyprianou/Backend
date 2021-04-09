@@ -5,10 +5,10 @@ import {
 } from 'apps/cms/src/hmc-question/hmc-question.cms.resolver';
 import Objection from 'objection';
 import { Programme } from '../programme';
-import { ProgrammeEnvironment } from '../types';
+import { ProgrammeEnvironment, PublishStatus } from '../types';
 import { HmcQuestionScore } from './hmc-question-score.model';
 import { HmcQuestionTranslation } from './hmc-question-translation.model';
-import { QuestionAnswer } from './hmc-question.interface';
+import { QuestionnaireAnswer } from './hmc-question.interface';
 import { HmcQuestion } from './hmc-question.model';
 
 @Injectable()
@@ -25,7 +25,6 @@ export class HmcQuestionService {
     );
 
     applyFilter(query, filter);
-
     query.limit(perPage).offset(perPage * page);
     query.orderBy('order_index', sortOrder ?? 'ASC');
 
@@ -79,15 +78,15 @@ export class HmcQuestionService {
   public async calculateProgrammeScores(
     responses: {
       question: string;
-      answer: QuestionAnswer;
+      answer: QuestionnaireAnswer;
     }[],
     environment: ProgrammeEnvironment,
   ) {
     const answerMapping = {
-      [QuestionAnswer.One]: 'answer1Score',
-      [QuestionAnswer.Two]: 'answer2Score',
-      [QuestionAnswer.Three]: 'answer3Score',
-      [QuestionAnswer.Four]: 'answer4Score',
+      [QuestionnaireAnswer.One]: 'answer1Score',
+      [QuestionnaireAnswer.Two]: 'answer2Score',
+      [QuestionnaireAnswer.Three]: 'answer3Score',
+      [QuestionnaireAnswer.Four]: 'answer4Score',
     };
 
     const questionScores = await HmcQuestionScore.query()
@@ -96,7 +95,9 @@ export class HmcQuestionService {
         responses.map((answer) => answer.question),
       )
       .joinRelated('trainingProgramme')
-      .where('trainingProgramme.environment', environment);
+      .where('trainingProgramme.environment', environment)
+      .where('trainingProgramme.status', PublishStatus.PUBLISHED)
+      .whereNull('trainingProgramme.deleted_at');
 
     const scoresByProgrammeId = responses.reduce<{
       [programmeId: string]: number;
@@ -130,7 +131,10 @@ export class HmcQuestionService {
     // If no match, return a random programme from the matching environment
     if (!programmeId) {
       const programme = await Programme.query()
+        .select('id')
         .where('environment', environment)
+        .where('trainingProgramme.status', PublishStatus.PUBLISHED)
+        .whereNull('trainingProgramme.deleted_at')
         .orderByRaw('RANDOM()')
         .limit(1)
         .first();
@@ -141,6 +145,9 @@ export class HmcQuestionService {
     // If _still_ no match, return any random programme
     if (!programmeId) {
       const programme = await Programme.query()
+        .select('id')
+        .where('trainingProgramme.status', PublishStatus.PUBLISHED)
+        .whereNull('trainingProgramme.deleted_at')
         .orderByRaw('RANDOM()')
         .limit(1)
         .first();

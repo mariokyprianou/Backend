@@ -1,10 +1,8 @@
-import {
-  HmcQuestionLocalisationGraphQlType,
-  ProgrammeEnvironment,
-} from '@lib/power/types';
-import { HmcQuestionService, QuestionAnswer } from '@lib/power';
+import { HmcQuestionLocalisationGraphQlType } from '@lib/power/types';
+import { HmcQuestionService, Programme } from '@lib/power';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ProgrammeService } from '@lib/power/programme';
+import { SubmitProgrammeQuestionnaireDto } from './dto/submit-programme-questionnaire-input.dto';
 
 @Resolver('ProgrammeQuestion')
 export class HMCResolver {
@@ -27,18 +25,15 @@ export class HMCResolver {
 
   @Mutation('submitProgrammeQuestionnaire')
   async submitProgrammeQuestionnaire(
-    @Context('language') language: string,
     @Args('input')
-    input: {
-      answers: SubmitPQInput[];
-      environment: ProgrammeEnvironment;
-    },
-  ) {
+    input: SubmitProgrammeQuestionnaireDto,
+  ): Promise<{ programme: Programme | null }> {
     const { answers, environment } = input;
     const programmeId = await this.questionService.calculateProgrammeScores(
       answers,
       environment,
     );
+
     if (!programmeId) {
       return { programme: null };
     }
@@ -54,9 +49,4 @@ interface ProgrammeQuestionnaire {
   id: string;
   orderIndex: number;
   question: HmcQuestionLocalisationGraphQlType;
-}
-
-interface SubmitPQInput {
-  question: string;
-  answer: QuestionAnswer;
 }

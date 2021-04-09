@@ -1,4 +1,4 @@
-export enum QuestionAnswer {
+export enum QuestionnaireAnswer {
   One = 'ONE',
   Two = 'TWO',
   Three = 'THREE',

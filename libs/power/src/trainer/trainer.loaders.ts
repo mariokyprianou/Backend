@@ -20,7 +20,9 @@ export class TrainerLoaders {
 
   public readonly findById = new DataLoader<string, Trainer>(
     async (trainerIds) => {
-      const trainers = await Trainer.query().findByIds(trainerIds as string[]);
+      const trainers = await Trainer.query()
+        .findByIds(trainerIds as string[])
+        .withGraphFetched('localisations');
       return trainerIds.map((trainerId) =>
         trainers.find((trainer) => trainer.id === trainerId),
       );
