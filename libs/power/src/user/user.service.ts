@@ -5,10 +5,13 @@ import { UpdateUserInput } from 'apps/cms/src/user/user.resolver';
 import { addDays, isAfter } from 'date-fns';
 import Objection from 'objection';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
+import { UserPowerService } from '../user-power';
 import { User } from './user.model';
 
 @Injectable()
 export class UserService {
+  constructor(private readonly userPowerService: UserPowerService) {}
+
   public findAll(params: ICmsParams<UserFilter>): Promise<User[]> {
     const query = baseQuery(params);
     applyPagination(query, params);
@@ -72,9 +75,9 @@ export class UserService {
     });
   }
 
-  public async adminUpdate(id: string, input: UpdateUserInput) {
+  public async adminUpdate(accountId: string, input: UpdateUserInput) {
     try {
-      const profile = await User.query().findById(id);
+      const profile = await User.query().findById(accountId).throwIfNotFound();
       await profile.$query().patch({
         firstName: input.firstName,
         lastName: input.lastName,
@@ -83,8 +86,17 @@ export class UserService {
         timeZone: input.timezone,
         deviceChange: input.deviceLimit,
       });
+
+      if (input.currentWeek) {
+        await this.userPowerService.setUserProgramme({
+          accountId,
+          week: input.currentWeek,
+        });
+      }
+
       return true;
     } catch (error) {
+      console.log(error);
       return false;
     }
   }

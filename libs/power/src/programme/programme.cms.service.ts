@@ -10,7 +10,7 @@ import { ShareMediaImage } from './share-media.interface';
 import { ShareMedia } from './share-media.model';
 import { ValidationError } from 'apollo-server-errors';
 import { ICmsParams } from '@lib/common';
-import { ProgrammeFilter } from '..';
+import { ProgrammeFilter } from './programme.interface';
 import { applyPagination } from '@lib/database';
 
 const toShareImageModelGraph = (

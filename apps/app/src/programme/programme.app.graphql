@@ -6,6 +6,7 @@ interface Programme {
   fitness: Int!
   muscle: Int!
   description: String!
+  programmeImage: URL
 }
 
 type ProgrammeShareImage {
@@ -19,6 +20,7 @@ type UserProgress {
 }
 
 type ProgrammeOverview implements Programme {
+  # Programme fields
   id: ID!
   trainer: Trainer
   environment: ProgrammeEnvironment!
@@ -26,9 +28,11 @@ type ProgrammeOverview implements Programme {
   fitness: Int!
   muscle: Int!
   description: String!
+  programmeImage: URL
+
+  # ProgrammeOverview fields
   progressStartShareMediaImage: ProgrammeShareImage
   firstWeek: [WorkoutWeek]!
-  programmeImage: URL
   numberOfWeeks: Int!
   userProgress: UserProgress
 }

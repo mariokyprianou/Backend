@@ -14,6 +14,9 @@ import { AuthService } from '@lib/power/auth';
 import { GraphQLError } from 'graphql';
 import { CmsParams } from '@lib/common';
 import { UserExportService } from '@lib/power/user/user-export.service';
+import { UpdateUserInputDto } from './dto/update-user-input.dto';
+import { ParseUUIDPipe } from '@nestjs/common';
+import { UserPowerService } from '@lib/power/user-power';
 
 @Resolver('User')
 export class UserResolver {
@@ -23,6 +26,7 @@ export class UserResolver {
     private userProgramService: UserProgrammeService,
     private authService: AuthService,
     private userExportService: UserExportService,
+    private userPowerService: UserPowerService,
   ) {}
 
   @Query('allUsers')
@@ -47,8 +51,11 @@ export class UserResolver {
 
   @ResolveField('currentWeek')
   async getCurrentWeek(@Parent() user: User): Promise<number> {
-    const account = await this.accountService.findById(user.id);
-    return this.userProgramService.fetchCurrentUserWeek(account);
+    const workoutWeek = await this.userPowerService.findUsersCurrentWeek(
+      user.id,
+    );
+
+    return workoutWeek.weekNumber;
   }
 
   @ResolveField('previousTrainers')
@@ -79,8 +86,8 @@ export class UserResolver {
       return {
         id: currentUserProgram.id,
         name: currentUserProgram.trainingProgramme.localisations.find(
-          (x) => x.language === 'en',
-        ).description,
+          (tr) => tr.language === 'en',
+        )?.description,
       };
     } else {
       return null;
@@ -116,14 +123,14 @@ export class UserResolver {
   async updateEmail(@Args('id') id: string, @Args('email') email: string) {
     const account = await this.userService.findById(id);
     if (account.email === email) {
-      return this.User(id);
+      return this.userService.findById(id);
     }
-    const res = await this.authService.updateEmail(email, {
+    const success = await this.authService.updateEmail(email, {
       sub: account.cognitoSub,
     });
 
-    if (res) {
-      return this.User(id);
+    if (success) {
+      return this.userService.findById(id);
     } else {
       throw new GraphQLError('Unable to update email');
     }
@@ -131,12 +138,12 @@ export class UserResolver {
 
   @Mutation('updateUser')
   async updateUser(
-    @Args('id') id: string,
-    @Args('input') input: UpdateUserInput,
+    @Args('id', ParseUUIDPipe) id: string,
+    @Args('input') input: UpdateUserInputDto,
   ) {
-    const res = await this.userService.adminUpdate(id, input);
-    if (res) {
-      return this.User(id);
+    const success = await this.userService.adminUpdate(id, input);
+    if (success) {
+      return this.userService.findById(id);
     } else {
       throw new GraphQLError('Unable to update user');
     }
@@ -158,4 +165,6 @@ export interface UpdateUserInput {
   region?: string;
   timezone: string;
   deviceLimit: Date;
+  trainingProgrammeId?: string;
+  currentWeek?: number;
 }

@@ -5,6 +5,7 @@ import { UserProgrammeModule } from '../user-programme';
 import { UserWorkoutModule } from '../user-workout';
 import { UserWorkoutWeekModule } from '../user-workout-week';
 import { WorkoutModule } from '../workout';
+import { UserPowerLoaders } from './user-power.loaders';
 import { UserPowerService } from './user-power.service';
 
 @Module({
@@ -16,7 +17,7 @@ import { UserPowerService } from './user-power.service';
     UserWorkoutWeekModule,
     WorkoutModule,
   ],
-  providers: [UserPowerService],
-  exports: [UserPowerService],
+  providers: [UserPowerService, UserPowerLoaders],
+  exports: [UserPowerService, UserPowerLoaders],
 })
 export class UserPowerModule {}

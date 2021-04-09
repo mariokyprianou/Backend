@@ -1,5 +1,4 @@
-// import { UserModule } from '@lib/power/user';
-import { AuthModule } from '@lib/power/auth';
+import { AuthModule } from '@lib/power';
 import { Module } from '@nestjs/common';
 import { ProfileResolver } from './profile.resolver';
 

@@ -1,5 +1,4 @@
-import { UserWorkoutFeedbackModule } from '@lib/power/feedback';
-import { UserModule } from '@lib/power/user';
+import { UserModule, UserWorkoutFeedbackModule } from '@lib/power';
 import { Module } from '@nestjs/common';
 import { GenerateCsvReportModule } from '@td/generate-csv-report';
 import { FeedbackResolver } from './feedback.resolver';

@@ -1,4 +1,5 @@
-import { ScreenshotService, UserService } from '@lib/power';
+import { ScreenshotService } from '@lib/power/screenshot';
+import { UserService } from '@lib/power/user';
 import { AuthContext } from '@lib/power/types';
 import { Context, Mutation, Resolver, ResolveField } from '@nestjs/graphql';
 

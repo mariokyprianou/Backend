@@ -229,8 +229,8 @@ export enum WeightPreference {
 }
 
 export enum DownloadQuality {
-  HIGH,
-  LOW,
+  HIGH = 'HIGH',
+  LOW = 'LOW',
 }
 
 export interface ChangeDevice {

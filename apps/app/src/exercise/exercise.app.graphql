@@ -1,9 +1,0 @@
-type Exercise {
-  id: ID!
-  name: String!
-  coachingTips: String!
-  weight: Boolean!
-  video: URL!
-  videoEasy: URL
-  videoEasiest: URL
-}

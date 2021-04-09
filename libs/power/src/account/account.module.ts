@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { WorkoutService } from '../workout';
+import { WorkoutModule } from '../workout';
+import { AccountLoaders } from './account.loaders';
 import { AccountService } from './account.service';
 
 @Module({
-  providers: [AccountService, WorkoutService],
-  exports: [AccountService],
+  imports: [WorkoutModule],
+  providers: [AccountService, AccountLoaders],
+  exports: [AccountService, AccountLoaders],
 })
 export class AccountModule {}

@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
+import { UserPowerModule } from '../user-power';
 import { UserExportService } from './user-export.service';
 import { UserService } from './user.service';
 
 @Module({
-  imports: [],
+  imports: [UserPowerModule],
   providers: [
     UserService,
     {

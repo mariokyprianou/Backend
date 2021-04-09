@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { UserProgramme } from '../user-programme';
-import { UserWorkout } from '../user-workout/user-workout.model';
+import type { UserProgramme } from '../user-programme';
+import type { UserWorkout } from '../user-workout';
 
 export class UserWorkoutWeek extends BaseModel {
   static tableName = 'user_workout_week';
@@ -13,6 +14,7 @@ export class UserWorkoutWeek extends BaseModel {
   id: string;
   userTrainingProgrammeId: string;
   weekNumber: number;
+  startedAt?: Date;
   completedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -21,30 +23,26 @@ export class UserWorkoutWeek extends BaseModel {
   workouts: UserWorkout[];
   workout: UserWorkout;
 
-  static relationMappings = {
-    workouts: {
-      relation: Model.HasManyRelation,
-      modelClass: UserWorkout,
-      join: {
-        from: 'user_workout_week.id',
-        to: 'user_workout.user_workout_week_id',
+  static get relationMappings() {
+    const { UserWorkout } = require('../user-workout');
+    const { UserProgramme } = require('../user-programme');
+    return {
+      workouts: {
+        relation: Model.HasManyRelation,
+        modelClass: UserWorkout,
+        join: {
+          from: 'user_workout_week.id',
+          to: 'user_workout.user_workout_week_id',
+        },
       },
-    },
-    workout: {
-      relation: Model.HasOneRelation,
-      modelClass: UserWorkout,
-      join: {
-        from: 'user_workout_week.id',
-        to: 'user_workout.user_workout_week_id',
+      userTrainingProgramme: {
+        relation: Model.HasOneRelation,
+        modelClass: UserProgramme,
+        join: {
+          from: 'user_workout_week.user_training_programme_id',
+          to: 'user_training_programme.id',
+        },
       },
-    },
-    userTrainingProgramme: {
-      relation: Model.HasOneRelation,
-      modelClass: UserProgramme,
-      join: {
-        from: 'user_workout_week.user_training_programme_id',
-        to: 'user_training_programme.id',
-      },
-    },
-  };
+    };
+  }
 }

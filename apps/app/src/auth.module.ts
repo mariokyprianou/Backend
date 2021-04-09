@@ -22,7 +22,7 @@ import { OnboardingAppModule } from './onboarding/onboarding.module';
 import { RegionAppModule } from './region/region.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 import { ProfileAuthModule } from './profile/profile.module';
-import { UserProgrammeAuthModule } from './userProgramme/userProgramme.module';
+import { UserProgrammeAuthModule } from './user-programme/user-programme.module';
 import { TransformationImageAuthModule } from './transformationImage/transformationImage.module';
 import { ProgressAppModule } from './progress/progress.module';
 import { ChallengeAuthModule } from './challenge/challenge.module';

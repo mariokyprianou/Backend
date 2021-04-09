@@ -1,4 +1,5 @@
 type UserProgramme implements Programme {
+  # Programme fields
   id: ID!
   trainer: Trainer
   environment: ProgrammeEnvironment!
@@ -7,6 +8,8 @@ type UserProgramme implements Programme {
   muscle: Int!
   description: String!
   programmeImage: URL
+
+  # UserProgramme Fields
   currentWeek: UserWorkoutWeek
   nextWeek: UserWorkoutWeek
 }
@@ -14,7 +17,7 @@ type UserProgramme implements Programme {
 type UserWorkoutWeek {
   weekNumber: Int!
   startedAt: DateTime
-  workouts: [UserWorkout]
+  workouts: [UserWorkout!]!
 }
 
 type UserWorkout {
@@ -35,6 +38,16 @@ type UserWorkoutExercise {
   sets: [WorkoutSet]
   setType: SetType!
   notes: String
+}
+
+type Exercise {
+  id: ID!
+  name: String!
+  coachingTips: String!
+  weight: Boolean!
+  video: URL!
+  videoEasy: URL
+  videoEasiest: URL
 }
 
 input WorkoutOrderInput {

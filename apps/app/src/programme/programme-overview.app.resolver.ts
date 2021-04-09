@@ -19,11 +19,11 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
     workoutService: WorkoutService,
     commonService: CommonService,
     trainerLoaders: TrainerLoaders,
+    programmeLoaders: ProgrammeLoaders,
     private programmeService: ProgrammeService,
     private userPower: UserPowerService,
-    private programmeLoaders: ProgrammeLoaders,
   ) {
-    super(workoutService, commonService, trainerLoaders);
+    super(workoutService, commonService, trainerLoaders, programmeLoaders);
   }
 
   @ResolveField('numberOfWeeks')
@@ -84,24 +84,6 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
         ),
         colour: image.colour,
       };
-    }
-  }
-
-  @ResolveField('programmeImage')
-  public async getProgrammeImage(@Parent() programme: Programme) {
-    const images = await this.programmeLoaders.findImagesByProgrammeId.load(
-      programme.id,
-    );
-    const primaryProgrammeImage = images.find(
-      (image) => image.orderIndex === 0,
-    );
-
-    if (primaryProgrammeImage) {
-      return this.commonService.getPresignedUrl(
-        primaryProgrammeImage.imageKey,
-        this.commonService.env().FILES_BUCKET,
-        'getObject',
-      );
     }
   }
 

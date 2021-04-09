@@ -1,35 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { Account, AccountService } from '../account';
 import { UserProgramme } from '../user-programme';
-import * as R from 'ramda';
 import { Programme } from '../programme';
-import { CommonService } from '@lib/common';
 import { UserWorkout, UserWorkoutService } from '../user-workout';
-import { UserWorkoutWeek, UserWorkoutWeekService } from '../user-workout-week';
-import { WorkoutExercise } from '../workout/workout-exercise.model';
-import { UserExerciseNote } from '../user-exercise-note/user-exercise-note.model';
+import { UserWorkoutWeek } from '../user-workout-week';
 import {
   AuthContext,
   CompleteWorkoutInput,
-  DownloadQuality,
   ProgrammeEnvironment,
   WorkoutOrder,
 } from '../types';
 import { ProgrammeWorkout, WorkoutService } from '../workout';
 import { GraphQLError } from 'graphql';
-import { v4 as uuid } from 'uuid';
+import * as uuid from 'uuid';
 import { subDays } from 'date-fns';
 import { UserWorkoutFeedback } from '../feedback';
-import { PartialModelObject } from 'objection';
+import { PartialModelGraph, PartialModelObject } from 'objection';
 import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
+import Knex from 'knex';
+
+async function findHighestCompletedWeek(
+  accountId: string,
+  trainingProgrammeId: string,
+) {
+  const completedWeek = await UserWorkoutWeek.query()
+    .joinRelated('userTrainingProgramme', { alias: 'tp' })
+    .where('tp.account_id', accountId)
+    .where('tp.training_programme_id', trainingProgrammeId)
+    .whereNotNull('completed_at')
+    .orderBy('completed_at', 'DESC')
+    .limit(1)
+    .first();
+
+  if (completedWeek) {
+    return completedWeek.weekNumber;
+  } else {
+    return 0;
+  }
+}
 
 @Injectable()
 export class UserPowerService {
   constructor(
-    private accountService: AccountService, // private userProgramme: UserProgrammeService,
+    private accountService: AccountService,
     private userWorkoutService: UserWorkoutService,
-    private userWorkoutWeekService: UserWorkoutWeekService,
-    private commonService: CommonService,
     private workoutService: WorkoutService,
   ) {}
 
@@ -97,106 +111,140 @@ export class UserPowerService {
     }
   }
 
-  public async startProgramme(programmeId: string, authContext: AuthContext) {
-    const account = await this.accountService.findBySub(authContext.sub);
-    const workouts = await this.workoutService.findByProgramme({
-      programmeId,
-      weeks: [1, 2],
-    });
+  public async setUserProgramme(params: {
+    accountId: string;
+    trainingProgrammeId?: string;
+    week?: number;
+  }) {
+    const { accountId } = params;
+    let { trainingProgrammeId, week } = params;
+
+    if (!trainingProgrammeId && !week) {
+      throw new Error(
+        'At least one of trainingProgrammeId and week is required',
+      );
+    }
+
+    let currentProgramme = await Account.relatedQuery('trainingProgramme')
+      .for(accountId)
+      .first();
+
+    // Ensure programme exists
+    if (trainingProgrammeId) {
+      await Programme.query()
+        .findById(trainingProgrammeId)
+        .throwIfNotFound({ message: 'Training programme does not exist.' });
+    }
+
+    trainingProgrammeId =
+      trainingProgrammeId ?? currentProgramme.trainingProgrammeId;
+
+    // Ensure week exists
+    if (week) {
+      await ProgrammeWorkout.query()
+        .findOne({
+          training_programme_id: trainingProgrammeId,
+          week_number: week,
+        })
+        .throwIfNotFound({
+          trainingProgrammeId,
+          week,
+          message: 'Training programme has insufficient weeks.',
+        });
+    }
+
+    // If no week specified, pick the week after the highest week the user has previously completed on the programme
+    if (!week) {
+      const highestWeek = await findHighestCompletedWeek(
+        accountId,
+        trainingProgrammeId,
+      );
+      week = highestWeek + 1;
+    }
+
+    // Get the new current and next week's workout.
+    const workoutsByWeek = await this.getProgrammeWorkouts(
+      currentProgramme.trainingProgrammeId,
+      [week, week + 1],
+    );
 
     await Account.transaction(async (trx) => {
-      const userTrainingProgrammeId = uuid();
+      // Remove data for any workout weeks that the user never started
+      await this.deleteUnstartedWeeks(trx, accountId);
 
-      await trx.raw('SET CONSTRAINTS ALL DEFERRED');
-      // Create the account
-      await Account.query(trx).patchAndFetchById(account.id, {
-        userTrainingProgrammeId,
-      });
-      await UserProgramme.query(trx).insert({
-        id: userTrainingProgrammeId,
-        trainingProgrammeId: programmeId,
-        accountId: account.id,
-      });
+      // Assign user to new programme (if required)
+      if (currentProgramme?.trainingProgrammeId !== trainingProgrammeId) {
+        currentProgramme = await this.createUserProgramme(
+          trx,
+          accountId,
+          trainingProgrammeId,
+        );
+      }
 
-      // add the workouts to the relevant tables
-      const workoutWeeks = workouts.map((workout) => {
-        const weekId = uuid();
+      // Populate the user's new workouts (current/next week)
+      const workoutWeeks = Array.from(workoutsByWeek.entries()).map<
+        PartialModelGraph<UserWorkoutWeek>
+      >(([weekNumber, workouts]) => {
+        const now = new Date();
         return {
-          id: weekId,
-          userTrainingProgrammeId,
-          weekNumber: workout.weekNumber,
-          workout: {
-            userWorkoutWeekId: weekId,
+          id: uuid.v4(),
+          userTrainingProgrammeId: currentProgramme.id,
+          weekNumber: weekNumber,
+          startedAt: weekNumber === week ? now : null,
+          createdAt: now,
+          workouts: workouts.map((workout) => ({
             workoutId: workout.workoutId,
             orderIndex: workout.orderIndex,
-          },
+          })),
         };
       });
+
       return UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
     });
 
     return true;
   }
 
-  public async restartProgramme(programmeId: string, authContext: AuthContext) {
-    // fetch account
-    // clean up workout existing workout data
-    // start programme
+  async getProgrammeWorkouts(trainingProgrammeId: string, weeks: number[]) {
     const workouts = await this.workoutService.findByProgramme({
-      programmeId,
-      weeks: [1, 2],
+      programmeId: trainingProgrammeId,
+      weeks,
     });
-
-    try {
-      // delete user workout
-      // if the user is restarting an active workout we need to handle that
-      const account = await this.accountService.findBySub(authContext.sub);
-      await Account.transaction(async (trx) => {
-        await trx.raw('SET CONSTRAINTS ALL DEFERRED');
-        const userTrainingProgrammeId = uuid();
-
-        // update the account first as to not interfere with any deletes
-        await Account.query(trx).patchAndFetchById(account.id, {
-          userTrainingProgrammeId,
-        });
-
-        // should cascade
-        await UserProgramme.query(trx)
-          .delete()
-          .where('training_programme_id', programmeId)
-          .andWhere('account_id', account.id);
-
-        //
-        await UserProgramme.query(trx).insert({
-          id: userTrainingProgrammeId,
-          trainingProgrammeId: programmeId,
-          accountId: account.id,
-        });
-
-        // add the workouts to the relevant tables
-        const workoutWeeks = workouts.map((workout) => {
-          const weekId = uuid();
-          return {
-            id: weekId,
-            userTrainingProgrammeId,
-            weekNumber: workout.weekNumber,
-            workout: {
-              userWorkoutWeekId: weekId,
-              workoutId: workout.workoutId,
-              orderIndex: workout.orderIndex,
-            },
-          };
-        });
-        return UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
-      });
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
+    const workoutsByWeek = new Map<number, ProgrammeWorkout[]>();
+    for (const workout of workouts) {
+      const workouts = workoutsByWeek.get(workout.weekNumber) ?? [];
+      workouts.push(workout);
+      workoutsByWeek.set(workout.weekNumber, workouts);
     }
+    return workoutsByWeek;
   }
 
-  public async completeWorkoutWeek(sub: string) {
+  public async startProgramme(params: {
+    accountId: string;
+    trainingProgrammeId: string;
+  }) {
+    await this.setUserProgramme({
+      accountId: params.accountId,
+      trainingProgrammeId: params.trainingProgrammeId,
+    });
+
+    return true;
+  }
+
+  public async restartProgramme(params: {
+    accountId: string;
+    trainingProgrammeId: string;
+  }) {
+    await this.setUserProgramme({
+      accountId: params.accountId,
+      trainingProgrammeId: params.trainingProgrammeId,
+      week: 1,
+    });
+
+    return true;
+  }
+
+  public async completeWorkoutWeek(accountId: string) {
     // ensure authenticated request
     // check all workouts have been completed
     // fetch the next weeks workout data
@@ -206,19 +254,14 @@ export class UserPowerService {
 
     // fetch account
     return Account.transaction(async (trx) => {
-      const account = await Account.query(trx)
-        .findOne('cognito_username', sub)
-        .withGraphJoined('trainingProgramme');
-      // Fetch the current workout week
-      const weeks = await UserWorkoutWeek.query(trx)
-        .whereNull('user_workout_week.completed_at')
-        .andWhere(
-          'user_workout_week.user_training_programme_id',
-          account.userTrainingProgrammeId,
-        )
-        .withGraphJoined('[workout]');
+      const userProgramme = await Account.relatedQuery('trainingProgramme', trx)
+        .for(accountId)
+        .withGraphJoined('trainingProgramme')
+        .first();
 
-      const currentWeek = this.returnCurrentWeek(weeks);
+      // Fetch the current workout week
+      const currentWeek = await this.findUsersCurrentWeek(accountId);
+
       // Check if 7 days have passed since start of week
       if (currentWeek.weekNumber === 1) {
         if (currentWeek.createdAt > subDays(new Date(), 7)) {
@@ -227,10 +270,8 @@ export class UserPowerService {
       } else {
         const previousWeek = await UserWorkoutWeek.query()
           .where('week_number', currentWeek.weekNumber - 1)
-          .andWhere(
-            'user_training_programme_id',
-            account.userTrainingProgrammeId,
-          )
+          .andWhere('user_training_programme_id', userProgramme.id)
+          .orderBy('started_at', 'DESC')
           .first();
         if (!previousWeek.completedAt) {
           throw new GraphQLError('An error occurred');
@@ -240,52 +281,35 @@ export class UserPowerService {
         }
       }
 
-      const notCompleteWorkouts = currentWeek.workouts.filter(
-        (each) => each.completedAt === null,
+      const incompleteWorkouts = currentWeek.workouts.filter(
+        (workout) => workout.completedAt === null,
       );
       // if notCompleteWorkouts length > 0 then some workouts haven't been completed
-      if (notCompleteWorkouts.length > 0) {
+      if (incompleteWorkouts.length > 0) {
         throw new GraphQLError('Incomplete workouts in week');
       }
 
-      // if not we can update the current week to be completed at
-      const idsToUpdate = weeks
-        .filter((each) => each.weekNumber === currentWeek.weekNumber)
-        .map((each) => each.id);
+      await currentWeek.$query(trx).patch({ completedAt: new Date() });
+      const workout = await this.getProgrammeWorkouts(
+        userProgramme.trainingProgrammeId,
+        [currentWeek.weekNumber + 2],
+      );
 
-      await UserWorkoutWeek.query(trx)
-        .patch({ completedAt: new Date() })
-        .whereIn('id', idsToUpdate);
-
-      // Week has now been completed. Need to add the next weeks worth of data (this should be current Week number plus 2)
-      // First fetch the data.
-      const workouts = await ProgrammeWorkout.query(trx)
-        .where(
-          'training_programme_workout.training_programme_id',
-          account.trainingProgramme.trainingProgrammeId,
-        )
-        .withGraphJoined('workout.[localisations, exercises.[sets]]')
-        .where('week_number', currentWeek.weekNumber + 2);
-
-      if (workouts.length === 0) {
-        // case of no weeks left on programme
-        return true;
-      }
-
-      const workoutWeeks = workouts.map((workout) => {
-        const weekId = uuid();
+      const weeks = Array.from(workout.entries()).map<
+        PartialModelGraph<UserWorkoutWeek>
+      >(([weekNumber, workouts]) => {
         return {
-          id: weekId,
-          userTrainingProgrammeId: account.userTrainingProgrammeId,
-          weekNumber: workout.weekNumber,
-          workout: {
-            userWorkoutWeekId: weekId,
+          id: uuid.v4(),
+          userTrainingProgrammeId: userProgramme.id,
+          weekNumber,
+          workouts: workouts.map((workout) => ({
             workoutId: workout.workoutId,
             orderIndex: workout.orderIndex,
-          },
+          })),
         };
       });
-      await UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
+
+      await UserWorkoutWeek.query(trx).insertGraph(weeks);
 
       return true;
     });
@@ -363,242 +387,59 @@ export class UserPowerService {
     }
   }
 
-  public async currentUserProgramme(sub: string, language: string) {
-    // Fetch Account
-    // Fetch Programme On Account
-    // Fetch the mapped training programme
-    const account = await this.accountService
-      .findBySub(sub)
-      .withGraphJoined(
-        '[trainingProgramme.[trainingProgramme.[localisations, images, trainer.[localisations], shareMediaImages]]]',
-        {
-          minimize: true,
-          joinOperation: 'leftJoin',
-        },
+  public async findCurrentProgramme(accountId: string) {
+    const userProgramme = await Account.relatedQuery('trainingProgramme')
+      .for(accountId)
+      .withGraphFetched('trainingProgramme.localisations')
+      .first();
+
+    return userProgramme.trainingProgramme;
+  }
+
+  public async findUsersCurrentWeek(
+    accountId: string,
+  ): Promise<UserWorkoutWeek> {
+    const week = await UserWorkoutWeek.query()
+      .joinRelated('userTrainingProgramme')
+      .whereNull('completed_at')
+      .whereNotNull('started_at')
+      .andWhere('userTrainingProgramme.account_id', accountId)
+      .orderBy('started_at', 'DESC')
+      .limit(1)
+      .first();
+
+    return week;
+  }
+
+  private async createUserProgramme(
+    trx: Knex,
+    accountId: string,
+    trainingProgrammeId: string,
+  ) {
+    await trx.raw('SET CONSTRAINTS ALL DEFERRED');
+    const userTrainingProgrammeId = uuid();
+
+    await Account.query(trx).patchAndFetchById(accountId, {
+      userTrainingProgrammeId,
+    });
+
+    return UserProgramme.query(trx).insertAndFetch({
+      id: userTrainingProgrammeId,
+      trainingProgrammeId,
+      accountId,
+    });
+  }
+
+  private deleteUnstartedWeeks(trx, accountId: string) {
+    return UserWorkoutWeek.query(trx)
+      .delete()
+      .whereIn(
+        'user_training_programme_id',
+        UserProgramme.query()
+          .select('id')
+          .where('account_id', accountId)
+          .whereNull('started_at'),
       );
-
-    // return userProgramme
-    return this.buildUserProgramme(account, language);
-  }
-
-  private async buildWeek(week, language: string, account: Account) {
-    // HIGH OR LOW
-    const downloadQuality = account.downloadQuality;
-    const generateKey = (key: string) =>
-      downloadQuality === DownloadQuality.HIGH
-        ? `${key}_1080.mp4`
-        : `${key}_480.mp4`;
-    return Promise.all(
-      week.workouts.map(async (workout: UserWorkout) => {
-        const workoutLocalisation = (workout.workout.localisations ?? []).find(
-          (tr) => tr.language === language,
-        );
-        return {
-          id: workout.id,
-          orderIndex: workout.orderIndex,
-          completedAt: workout.completedAt,
-          overviewImage:
-            workout.workout.overviewImageKey &&
-            (await this.commonService.getPresignedUrl(
-              workout.workout.overviewImageKey,
-              this.commonService.env().FILES_BUCKET,
-            )), // todo get the url
-          intensity: workout.workout.intensity,
-          duration: workout.workout.duration,
-          name: R.path(['name'], workoutLocalisation),
-          exercises: await Promise.all(
-            workout.workout.exercises.map(async (exercise: WorkoutExercise) => {
-              const userExercise = await UserExerciseNote.query()
-                .findOne('account_id', account.id)
-                .andWhere('exercise_id', exercise.exercise.id);
-
-              const coachingTipsLoc = exercise.getTranslation(language);
-
-              const exerciseLocalisation = (
-                exercise.exercise.localisations ?? []
-              ).find((tr) => tr.language === language);
-              return {
-                ...exercise,
-                notes: R.path(['note'], userExercise),
-                exercise: {
-                  id: exercise.exercise.id,
-                  name: R.path(['name'], exerciseLocalisation),
-                  coachingTips: coachingTipsLoc
-                    ? coachingTipsLoc.coachingTips
-                    : exerciseLocalisation.coachingTips,
-                  weight: exercise.exercise.weight,
-                  video:
-                    exercise.exercise.videoKey &&
-                    (await this.commonService.getPresignedUrl(
-                      generateKey(exercise.exercise.videoKey),
-                      this.commonService.env().VIDEO_BUCKET_DESTINATION,
-                      'getObject',
-                      'us-east-1',
-                      15,
-                    )),
-                  videoEasy:
-                    exercise.exercise.videoKeyEasy &&
-                    (await this.commonService.getPresignedUrl(
-                      generateKey(exercise.exercise.videoKeyEasy),
-                      this.commonService.env().VIDEO_BUCKET_DESTINATION,
-                      'getObject',
-                      'us-east-1',
-                      15,
-                    )),
-                  videoEasiest:
-                    exercise.exercise.videoKeyEasiest &&
-                    (await this.commonService.getPresignedUrl(
-                      generateKey(exercise.exercise.videoKeyEasiest),
-                      this.commonService.env().VIDEO_BUCKET_DESTINATION,
-                      'getObject',
-                      'us-east-1',
-                      15,
-                    )),
-                },
-              };
-            }),
-          ),
-        };
-      }),
-    );
-  }
-
-  private returnCurrentWeek(weeks) {
-    return weeks.reduce(
-      (a, b) => {
-        if (a.weekNumber === 0) {
-          return {
-            weekNumber: b.weekNumber,
-            createdAt: b.createdAt,
-            workouts: [b.workout],
-          };
-        }
-        if (a.weekNumber === b.weekNumber) {
-          return {
-            ...a,
-            workouts: [...a.workouts, b.workout],
-          };
-        }
-        if (a.weekNumber > b.weekNumber) {
-          return {
-            weekNumber: b.weekNumber,
-            createdAt: b.createdAt,
-            workouts: [b.workout],
-          };
-        }
-        return a;
-      },
-      {
-        weekNumber: 0,
-        createdAt: new Date(),
-        workouts: [],
-      },
-    );
-  }
-
-  private returnNextWeek(weeks) {
-    return weeks.reduce(
-      (a, b) => {
-        if (a.weekNumber === 0) {
-          return {
-            weekNumber: b.weekNumber,
-            createdAt: b.createdAt,
-            workouts: [b.workout],
-          };
-        }
-        if (a.weekNumber === b.weekNumber) {
-          return {
-            ...a,
-            workouts: [...a.workouts, b.workout],
-          };
-        }
-        if (a.weekNumber < b.weekNumber) {
-          return {
-            weekNumber: b.weekNumber,
-            createdAt: b.createdAt,
-            workouts: [b.workout],
-          };
-        }
-        return a;
-      },
-      {
-        weekNumber: 0,
-        workouts: [],
-      },
-    );
-  }
-
-  private async buildUserProgramme(account: Account, language: string) {
-    const originalProgramme: Programme = R.path(
-      ['trainingProgramme', 'trainingProgramme'],
-      account,
-    );
-
-    if (!originalProgramme) {
-      throw new Error('No training programme found.');
-    }
-
-    // find the current week
-    // completed_at null (lowest week number)
-    const weeks = await this.userWorkoutWeekService
-      .query()
-      .whereNull('user_workout_week.completed_at')
-      .andWhere(
-        'user_workout_week.user_training_programme_id',
-        account.userTrainingProgrammeId,
-      )
-      .withGraphJoined(
-        '[workout.[workout.[localisations, exercises.[sets, localisations, exercise.[localisations]]]]]',
-      );
-
-    const currentWeek = this.returnCurrentWeek(weeks);
-
-    const nextWeek = this.returnNextWeek(weeks);
-
-    // if the current weekNumber is 0 then there are no current weeks that haven't been completed
-
-    let startedAt: Date;
-    if (currentWeek.weekNumber === 1) {
-      startedAt = currentWeek.createdAt;
-    } else {
-      const prevWeek = await UserWorkoutWeek.query()
-        .where('week_number', currentWeek.weekNumber - 1)
-        .andWhere('user_training_programme_id', account.userTrainingProgrammeId)
-        .first();
-
-      if (!prevWeek.completedAt) {
-        throw new GraphQLError('An error occurred');
-      }
-      startedAt = prevWeek.completedAt;
-    }
-
-    return {
-      id: account.userTrainingProgrammeId,
-      trainer: originalProgramme.trainer,
-      environment: originalProgramme.environment,
-      fatLoss: originalProgramme.fatLoss,
-      fitness: originalProgramme.fitness,
-      muscle: originalProgramme.muscle,
-      description: (originalProgramme.localisations ?? []).find(
-        (tr) => tr.language === language,
-      ).description,
-      currentWeek: currentWeek.weekNumber !== 0 && {
-        weekNumber: currentWeek.weekNumber,
-        startedAt,
-        workouts: this.buildWeek(currentWeek, language, account),
-      },
-      nextWeek: nextWeek.weekNumber !== 0 && {
-        weekNumber: nextWeek.weekNumber,
-        startedAt: null,
-        workouts: this.buildWeek(nextWeek, language, account),
-      },
-      programmeImage:
-        originalProgramme.images[0] &&
-        (await this.commonService.getPresignedUrl(
-          originalProgramme.images[0].imageKey,
-          this.commonService.env().FILES_BUCKET,
-        )),
-    };
   }
 }
 

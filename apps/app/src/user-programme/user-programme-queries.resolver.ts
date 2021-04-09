@@ -7,11 +7,12 @@ import {
 import { UserExerciseHistoryService } from '@lib/power/user-exercise-history/user-exercise-history.service';
 import { UserExerciseNoteService } from '@lib/power/user-exercise-note/user-exercise-note.service';
 import { UserPowerService } from '@lib/power/user-power';
+import { ParseUUIDPipe } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CompleteWorkoutInputDto } from './dto/complete-workout.dto';
 
-@Resolver('UserProgramme')
-export class UserProgrammeResolver {
+@Resolver()
+export class UserProgrammeQueryResolver {
   constructor(
     private userPowerService: UserPowerService,
     private exerciseHistoryService: UserExerciseHistoryService,
@@ -19,20 +20,14 @@ export class UserProgrammeResolver {
   ) {}
 
   @Query('getProgramme')
-  async userProgramme(
-    @Context('authContext') authContext: AuthContext,
-    @Context('language') language: string,
-  ) {
-    return this.userPowerService.currentUserProgramme(
-      authContext.sub,
-      language,
-    );
+  async userProgramme(@Context('authContext') authContext: AuthContext) {
+    return this.userPowerService.findCurrentProgramme(authContext.id);
   }
 
   @Query('getExerciseWeight')
   async getExerciseWeight(
     @Context('authContext') authContext: AuthContext,
-    @Args('exercise') excerciseId: string,
+    @Args('exercise', ParseUUIDPipe) excerciseId: string,
   ): Promise<ExerciseWeight[]> {
     const weightRecords = await this.exerciseHistoryService.findByExercise(
       excerciseId,
@@ -69,7 +64,7 @@ export class UserProgrammeResolver {
 
   @Mutation('completeWorkoutWeek')
   async completeWorkoutWeek(@Context('authContext') authContext: AuthContext) {
-    return this.userPowerService.completeWorkoutWeek(authContext.sub);
+    return this.userPowerService.completeWorkoutWeek(authContext.id);
   }
 
   @Mutation('updateExerciseNote')
@@ -96,7 +91,10 @@ export class UserProgrammeResolver {
     @Args('input') input: { programme: string },
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPowerService.startProgramme(input.programme, authContext);
+    return this.userPowerService.startProgramme({
+      accountId: authContext.id,
+      trainingProgrammeId: input.programme,
+    });
   }
 
   @Mutation('restartProgramme')
@@ -104,6 +102,9 @@ export class UserProgrammeResolver {
     @Args('input') input: { programme: string },
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPowerService.restartProgramme(input.programme, authContext);
+    return this.userPowerService.restartProgramme({
+      accountId: authContext.id,
+      trainingProgrammeId: input.programme,
+    });
   }
 }

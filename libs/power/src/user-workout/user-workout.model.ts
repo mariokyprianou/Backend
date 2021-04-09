@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { UserWorkoutWeek } from '../user-workout-week';
-import { Workout } from '../workout';
+import type { UserWorkoutWeek } from '../user-workout-week';
+import type { Workout } from '../workout';
 // import { UserWorkoutFeedbackEmoji } from './user-workout-feedback-emoji.model';
 
 export class UserWorkout extends BaseModel {
@@ -22,22 +23,26 @@ export class UserWorkout extends BaseModel {
   workout: Workout;
   userWorkoutWeek: UserWorkoutWeek;
 
-  static relationMappings = {
-    workout: {
-      relation: Model.HasOneRelation,
-      modelClass: Workout,
-      join: {
-        from: 'user_workout.workout_id',
-        to: 'workout.id',
+  static get relationMappings() {
+    const { Workout } = require('../workout');
+    const { UserWorkoutWeek } = require('../user-workout-week');
+    return {
+      workout: {
+        relation: Model.HasOneRelation,
+        modelClass: Workout,
+        join: {
+          from: 'user_workout.workout_id',
+          to: 'workout.id',
+        },
       },
-    },
-    userWorkoutWeek: {
-      relation: Model.BelongsToOneRelation,
-      modelClass: UserWorkoutWeek,
-      join: {
-        from: 'user_workout.user_workout_week_id',
-        to: 'user_workout_week.id',
+      userWorkoutWeek: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: UserWorkoutWeek,
+        join: {
+          from: 'user_workout.user_workout_week_id',
+          to: 'user_workout_week.id',
+        },
       },
-    },
-  };
+    };
+  }
 }

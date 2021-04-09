@@ -40,6 +40,8 @@ input UpdateUserInput {
   region: ID
   timezone: String!
   deviceLimit: DateTime!
+  trainingProgrammeId: ID
+  currentWeek: Int
 }
 
 extend type Query {

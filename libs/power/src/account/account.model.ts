@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { DownloadQuality, downloadQuality, WeightPreference } from '../types';
+import { DownloadQuality, WeightPreference } from '../types';
 import { UserProgramme } from '../user-programme';
 
 export class Account extends BaseModel {
@@ -24,14 +25,25 @@ export class Account extends BaseModel {
 
   trainingProgramme: UserProgramme;
 
-  static relationMappings = {
-    trainingProgramme: {
-      relation: Model.HasOneRelation,
-      modelClass: UserProgramme,
-      join: {
-        from: 'account.user_training_programme_id',
-        to: 'user_training_programme.id',
+  static get relationMappings() {
+    const { UserWorkoutWeek } = require('../user-workout-week');
+    return {
+      currentWorkoutWeeks: {
+        relation: Model.HasManyRelation,
+        modelClass: UserWorkoutWeek,
+        join: {
+          from: 'account.user_training_programme_id',
+          to: 'user_workout_week.user_training_programme_id',
+        },
       },
-    },
-  };
+      trainingProgramme: {
+        relation: Model.HasOneRelation,
+        modelClass: UserProgramme,
+        join: {
+          from: 'account.user_training_programme_id',
+          to: 'user_training_programme.id',
+        },
+      },
+    };
+  }
 }

@@ -3,7 +3,7 @@ import * as zlib from 'zlib';
 import { stringify } from 'csv';
 import * as through2 from 'through2';
 import { User } from './user.model';
-import { Account } from '..';
+import { Account } from '../account';
 import { batchingStream, unbatchingStream } from './batch';
 import { S3 } from 'aws-sdk';
 

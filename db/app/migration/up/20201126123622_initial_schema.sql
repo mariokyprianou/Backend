@@ -380,6 +380,7 @@ CREATE TABLE user_workout_week (
   id uuid CONSTRAINT pk_user_workout_week PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_training_programme_id uuid NOT NULL,
   week_number integer NOT NULL,
+  started_at timestamptz,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
