@@ -1,6 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
 import * as DataLoader from 'dataloader';
 import { Account } from '../account';
+import { UserExerciseNote } from '../user-exercise-note';
 import { UserWorkout } from '../user-workout';
 import { UserWorkoutWeek } from '../user-workout-week';
 import { Workout } from '../workout';
@@ -49,10 +50,32 @@ export class UserPowerLoaders {
     const exercises = await Workout.relatedQuery('exercises')
       .alias('exercises')
       .for(workoutIds as string[])
-      .withGraphFetched(`[note, sets, localisations, exercise.[localisations]]`)
+      .withGraphFetched(`[sets, localisations, exercise.[localisations]]`)
       .orderBy(['exercises.id', 'exercises.order_index']);
     return workoutIds.map((id) =>
       exercises.filter((exercise) => exercise.workoutId === id),
+    );
+  });
+
+  public readonly findUserNoteByAccountAndExercise = new DataLoader<
+    [accountId: string, exerciseId: string],
+    UserExerciseNote
+  >(async (ids) => {
+    const query = UserExerciseNote.query();
+
+    ids.forEach(([accountId, exerciseId]) => {
+      query.orWhere((qb) =>
+        qb.where('account_id', accountId).andWhere('exercise_id', exerciseId),
+      );
+    });
+
+    const notes = await query;
+
+    return ids.map(([accountId, exerciseId]) =>
+      notes.find(
+        (note) =>
+          note.accountId === accountId && note.exerciseId === exerciseId,
+      ),
     );
   });
 }
