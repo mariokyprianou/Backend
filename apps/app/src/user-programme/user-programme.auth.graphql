@@ -40,16 +40,6 @@ type UserWorkoutExercise {
   notes: String
 }
 
-type Exercise {
-  id: ID!
-  name: String!
-  coachingTips: String!
-  weight: Boolean!
-  video: URL!
-  videoEasy: URL
-  videoEasiest: URL
-}
-
 input WorkoutOrderInput {
   id: ID!
   index: Int!

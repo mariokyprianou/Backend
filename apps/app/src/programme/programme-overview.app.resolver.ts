@@ -43,22 +43,7 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
       weeks: [1],
     });
 
-    return firstWeek.map((week) => ({
-      ...week,
-      workout: {
-        overviewImage:
-          week.workout.overviewImageKey &&
-          this.commonService.getPresignedUrl(
-            week.workout.overviewImageKey,
-            this.commonService.env().FILES_BUCKET,
-            'getObject',
-          ),
-        intensity: week.workout.intensity,
-        duration: week.workout.duration,
-        name: week.workout.getTranslation(language).name,
-        exercises: null,
-      },
-    }));
+    return firstWeek;
   }
 
   @ResolveField('progressStartShareMediaImage')

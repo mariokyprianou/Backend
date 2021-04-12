@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ProgrammeService } from '@lib/power/programme';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
-import { Trainer, TrainerTranslation } from '@lib/power/trainer';
-import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
+import { Trainer } from '@lib/power/trainer';
 import {
   Context,
   Parent,

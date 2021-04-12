@@ -17,6 +17,7 @@ import { OnboardingAppModule } from './onboarding/onboarding.module';
 import { RegionAppModule } from './region/region.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 import { ProgrammeAppModule } from './programme/programme.app.module';
+import { WorkoutAppModule } from './workout/workout.app.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -26,15 +27,16 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
       debug: configService.get('isDevelopment'),
       playground: configService.get('isDevelopment'),
       include: [
-        CommonModule,
-        OnboardingAppModule,
-        ConfigAppModule,
-        TrainerAppModule,
-        HMCAppModule,
-        RegionAppModule,
-        CountryAppModule,
         AuthAppModule,
+        CommonModule,
+        ConfigAppModule,
+        CountryAppModule,
+        HMCAppModule,
+        OnboardingAppModule,
         ProgrammeAppModule,
+        RegionAppModule,
+        TrainerAppModule,
+        WorkoutAppModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -56,18 +58,19 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
       isGlobal: true,
       load: [commonConfig, databaseConfig, userAuthKeysConfig],
     }),
-    CommonModule,
-    DatabaseModule,
-    OnboardingAppModule,
-    ConfigAppModule,
-    TrainerAppModule,
-    HMCAppModule,
-    RegionAppModule,
-    CountryAppModule,
     AuthAppModule,
     AuthProviderModule,
-    ProgrammeAppModule,
+    CommonModule,
+    ConfigAppModule,
+    CountryAppModule,
+    DatabaseModule,
     GraphQLProvider,
+    HMCAppModule,
+    OnboardingAppModule,
+    ProgrammeAppModule,
+    RegionAppModule,
+    TrainerAppModule,
+    WorkoutAppModule,
   ],
 })
 export class AppModule {}
