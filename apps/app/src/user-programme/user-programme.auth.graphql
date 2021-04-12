@@ -22,13 +22,14 @@ type UserWorkoutWeek {
 
 type UserWorkout {
   id: ID!
-  orderIndex: Int!
   overviewImage: URL
   intensity: IntensityEnum!
   duration: Int!
   name: String!
-  completedAt: DateTime
   exercises: [UserWorkoutExercise]
+
+  orderIndex: Int!
+  completedAt: DateTime
 }
 
 type UserWorkoutExercise {

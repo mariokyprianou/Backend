@@ -10,11 +10,8 @@ export class AuthResolver {
   async registerUser(
     @Args('input') input: RegisterUserInput,
   ): Promise<boolean> {
-    const user = await this.authService.register(input);
-    if (!user) {
-      return false;
-    }
-    return true;
+    const success: boolean = await this.authService.register(input);
+    return success;
   }
 
   @Mutation('resendVerificationEmail')
