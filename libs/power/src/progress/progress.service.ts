@@ -22,44 +22,9 @@ export class ProgressService {
     // Fetch all user workouts
     // Generate months from data
     // generate type
-    let programmes: Partial<UserProgramme>[] = await UserProgramme.query()
+    const programmes: Partial<UserProgramme>[] = await UserProgramme.query()
       .where('account_id', account.id)
       .withGraphFetched('userWorkoutWeeks.workouts');
-
-    // Normalise the weeks
-    // N.B. This was required because previously multiple week rows were being created per actual 'week'
-    // This is no longer the case - remove once test data is fixed.
-    programmes = programmes.map<Partial<UserProgramme>>((programme) => {
-      const userWorkoutWeeks = programme.userWorkoutWeeks.reduce(
-        (weeks, week) => {
-          const existingWeek = weeks.find(
-            ({ weekNumber }) => weekNumber === week.weekNumber,
-          );
-
-          if (!existingWeek) {
-            return [...weeks, week];
-          }
-
-          // Merge the weeks' workouts
-          return weeks.map((w) => {
-            if (w.id === existingWeek.id) {
-              return {
-                ...existingWeek,
-                workouts: [...existingWeek.workouts, ...week.workouts],
-              };
-            } else {
-              return w;
-            }
-          });
-        },
-        [],
-      );
-
-      return {
-        ...programme,
-        userWorkoutWeeks,
-      };
-    });
 
     const progressMonths = {};
     programmes.forEach((programme) => {
@@ -70,15 +35,18 @@ export class ProgressService {
             return;
           }
 
-          const type = ProgressType.WORKOUT_COMPLETE;
-          const date = workout.completedAt;
+          const record = {
+            type: ProgressType.WORKOUT_COMPLETE,
+            date: workout.completedAt,
+          };
+
           const month = startOfMonth(workout.completedAt);
-          progressMonths[month.toISOString()] = progressMonths[
-            month.toISOString()
-          ]
-            ? [...progressMonths[month.toISOString()], { type, date }]
-            : [{ type, date }];
+          if (!progressMonths[month.toISOString()]) {
+            progressMonths[month.toISOString()] = [];
+          }
+          progressMonths[month.toISOString()].push(record);
         });
+
         if (week.weekNumber === 1) {
           const type = ProgressType.NEW_PROGRAMME;
           const date = week.createdAt;

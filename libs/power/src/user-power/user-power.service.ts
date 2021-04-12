@@ -86,32 +86,27 @@ export class UserPowerService {
     );
   }
 
-  public async continueProgramme(programme: string, authContext: AuthContext) {
-    // check user programme exists
-    const account = await this.accountService.findBySub(authContext.sub);
-    const [userProgramme] = await UserProgramme.query()
-      .where('training_programme_id', programme)
-      .andWhere('account_id', account.id);
-
-    if (!userProgramme) {
-      throw new GraphQLError(
-        "User hasn't started this programme. To continue a programme, a user must have started the programme.",
-      );
-    }
-
-    // replace active programme
-    try {
-      await Account.query().patchAndFetchById(account.id, {
-        userTrainingProgrammeId: userProgramme.id,
-      });
-
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
+  public async continueProgramme(params: {
+    accountId: string;
+    trainingProgrammeId: string;
+  }) {
+    return this.setUserProgramme(params);
   }
 
+  /**
+   * Switches a user onto a different programme or a different week of the current programme
+   *
+   * @param params.accountId the user's account id
+   * @param params.trainingProgrammeId the id of the training programme being switched to.
+   * If not specified the user will retain their current programme.
+   * @param params.week The week number the user will be assigned.
+   * If not specified this will default to the highest week number the user has previously reached
+   * on the target programme, or week 1 if no user history on the programme.
+   *
+   * @param opts.transaction optional. The database transaction to be used for querying.
+   *
+   * @returns
+   */
   public async setUserProgramme(
     params: {
       accountId: string;
@@ -125,7 +120,7 @@ export class UserPowerService {
 
     if (!trainingProgrammeId && !week) {
       throw new Error(
-        'At least one of trainingProgrammeId and week is required',
+        'At least one of trainingProgrammeId or week is required',
       );
     }
 
@@ -195,7 +190,7 @@ export class UserPowerService {
         );
       }
 
-      // Populate the user's new workouts (current/next week)
+      // Populate the new workouts (current/next week)
       const workoutWeeks = Array.from(workoutsByWeek.entries()).map<
         PartialModelGraph<UserWorkoutWeek>
       >(([weekNumber, workouts]) => {
@@ -213,11 +208,11 @@ export class UserPowerService {
         };
       });
 
+      await UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
+
       if (!opts.transaction) {
         await trx.commit();
       }
-
-      return UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
     } catch {
       if (!opts.transaction) {
         await trx.rollback();
@@ -282,42 +277,26 @@ export class UserPowerService {
     // what should happen to a week when the programme has been deleted
 
     const currentWeek = await this.findUsersCurrentWeek(accountId);
-    const userProgramme = await Account.relatedQuery('trainingProgramme')
-      .for(accountId)
-      .withGraphJoined('trainingProgramme')
-      .first();
+    if (!currentWeek) {
+      throw new Error('User has no active programme');
+    }
+
+    await currentWeek.$fetchGraph('workouts');
+    const incompleteWorkouts = currentWeek.workouts.filter(
+      (workout) => workout.completedAt === null,
+    ).length;
+    if (incompleteWorkouts > 0) {
+      throw new GraphQLError('Incomplete workouts in week');
+    }
 
     // fetch account
-    return Account.transaction(async (trx) => {
-      const incompleteWorkouts = currentWeek.workouts.filter(
-        (workout) => workout.completedAt === null,
+    return Account.transaction(async (transaction) => {
+      await currentWeek.$query(transaction).patch({ completedAt: new Date() });
+
+      await this.setUserProgramme(
+        { accountId, week: currentWeek.weekNumber + 1 },
+        { transaction },
       );
-      // if notCompleteWorkouts length > 0 then some workouts haven't been completed
-      if (incompleteWorkouts.length > 0) {
-        throw new GraphQLError('Incomplete workouts in week');
-      }
-
-      await currentWeek.$query(trx).patch({ completedAt: new Date() });
-      const workout = await this.getProgrammeWorkouts(
-        userProgramme.trainingProgrammeId,
-        [currentWeek.weekNumber + 2],
-      );
-
-      const weeks = Array.from(workout.entries()).map<
-        PartialModelGraph<UserWorkoutWeek>
-      >(([weekNumber, workouts]) => {
-        return {
-          id: uuid.v4(),
-          userTrainingProgrammeId: userProgramme.id,
-          weekNumber,
-          workouts: workouts.map((workout) => ({
-            workoutId: workout.workoutId,
-            orderIndex: workout.orderIndex,
-          })),
-        };
-      });
-
-      await UserWorkoutWeek.query(trx).insertGraph(weeks);
 
       return true;
     });
@@ -402,13 +381,15 @@ export class UserPowerService {
 
   public async findUsersCurrentWeek(
     accountId: string,
+    opts: { transaction?: Transaction } = {},
   ): Promise<UserWorkoutWeek> {
-    const week = await UserWorkoutWeek.query()
+    const week = await UserWorkoutWeek.query(opts.transaction)
+      .alias('week')
       .joinRelated('userTrainingProgramme')
-      .whereNull('completed_at')
-      .whereNotNull('started_at')
+      .whereNull('week.completed_at')
+      .whereNotNull('week.started_at')
       .andWhere('userTrainingProgramme.account_id', accountId)
-      .orderBy('started_at', 'DESC')
+      .orderBy('week.started_at', 'DESC')
       .limit(1)
       .first();
 
@@ -421,7 +402,7 @@ export class UserPowerService {
     trainingProgrammeId: string,
   ) {
     await trx.raw('SET CONSTRAINTS ALL DEFERRED');
-    const userTrainingProgrammeId = uuid();
+    const userTrainingProgrammeId = uuid.v4();
 
     await Account.query(trx).patchAndFetchById(accountId, {
       userTrainingProgrammeId,
@@ -434,7 +415,7 @@ export class UserPowerService {
     });
   }
 
-  private deleteUnstartedWeeks(trx, accountId: string) {
+  private deleteUnstartedWeeks(trx: Transaction, accountId: string) {
     return UserWorkoutWeek.query(trx)
       .delete()
       .whereIn(

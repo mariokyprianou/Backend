@@ -80,10 +80,10 @@ export class UserProgrammeQueryResolver {
     @Args('input') input: { programme: string },
     @Context('authContext') authContext: AuthContext,
   ) {
-    return this.userPowerService.continueProgramme(
-      input.programme,
-      authContext,
-    );
+    return this.userPowerService.continueProgramme({
+      accountId: authContext.id,
+      trainingProgrammeId: input.programme,
+    });
   }
 
   @Mutation('startProgramme')

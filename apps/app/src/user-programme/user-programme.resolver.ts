@@ -31,6 +31,7 @@ export class UserProgrammeResolver extends ProgrammeResolver {
     const weeks = await this.userPowerLoaders.findUserCurrentWeeks.load(
       user.id,
     );
+    console.log({ weeks });
     return weeks.find((week) => week.startedAt === null);
   }
 }
