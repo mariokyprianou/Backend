@@ -5,13 +5,15 @@ const nodeExternals = require('webpack-node-externals');
 const CopyPlugin = require('copy-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
+const isDevelopment = ['development'].includes(
+  slsw.lib.serverless.service.provider.stage,
+);
+
 module.exports = {
   context: __dirname,
-  mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
+  mode: isDevelopment ? 'development' : 'production',
   entry: slsw.lib.entries,
-  devtool: slsw.lib.webpack.isLocal
-    ? 'eval-cheap-module-source-map'
-    : 'source-map',
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : 'source-map',
   resolve: {
     extensions: ['.js', '.mjs', '.json', '.ts'],
     symlinks: false,

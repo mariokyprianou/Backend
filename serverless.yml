@@ -9,6 +9,7 @@ provider:
   stage: ${opt:stage, 'development'}
   profile: power
   environment:
+    NODE_ENV: ${env:NODE_ENV}
     DB_HOST: ${env:DB_HOST}
     DB_PASSWORD: ${env:DB_PASSWORD}
     DB_PORT: ${env:DB_PORT, '5432'}

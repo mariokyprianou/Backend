@@ -44,6 +44,10 @@ export default function createHandler(module: any) {
     event: any,
     context: Context,
   ): Promise<Response> {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('event', JSON.stringify(event));
+    }
+
     if (!cachedServer) {
       cachedServer = await bootstrap(module);
     }
