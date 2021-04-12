@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Account, AccountService } from '../account';
+import { Account } from '../account/account.model';
+import { AccountService } from '../account/account.service';
 import { UserProgramme } from '../user-programme';
 import { Programme } from '../programme';
 import { UserWorkout, UserWorkoutService } from '../user-workout';
@@ -13,17 +14,17 @@ import {
 import { ProgrammeWorkout, WorkoutService } from '../workout';
 import { GraphQLError } from 'graphql';
 import * as uuid from 'uuid';
-import { subDays } from 'date-fns';
 import { UserWorkoutFeedback } from '../feedback';
-import { PartialModelGraph, PartialModelObject } from 'objection';
+import { PartialModelGraph, PartialModelObject, Transaction } from 'objection';
 import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
 import Knex from 'knex';
 
 async function findHighestCompletedWeek(
   accountId: string,
   trainingProgrammeId: string,
+  opts: { transaction?: Transaction } = {},
 ) {
-  const completedWeek = await UserWorkoutWeek.query()
+  const completedWeek = await UserWorkoutWeek.query(opts.transaction)
     .joinRelated('userTrainingProgramme', { alias: 'tp' })
     .where('tp.account_id', accountId)
     .where('tp.training_programme_id', trainingProgrammeId)
@@ -42,8 +43,8 @@ async function findHighestCompletedWeek(
 @Injectable()
 export class UserPowerService {
   constructor(
-    private accountService: AccountService,
     private userWorkoutService: UserWorkoutService,
+    private accountService: AccountService,
     private workoutService: WorkoutService,
   ) {}
 
@@ -111,11 +112,14 @@ export class UserPowerService {
     }
   }
 
-  public async setUserProgramme(params: {
-    accountId: string;
-    trainingProgrammeId?: string;
-    week?: number;
-  }) {
+  public async setUserProgramme(
+    params: {
+      accountId: string;
+      trainingProgrammeId?: string;
+      week?: number;
+    },
+    opts: { transaction?: Transaction } = {},
+  ) {
     const { accountId } = params;
     let { trainingProgrammeId, week } = params;
 
@@ -125,13 +129,16 @@ export class UserPowerService {
       );
     }
 
-    let currentProgramme = await Account.relatedQuery('trainingProgramme')
+    let currentProgramme = await Account.relatedQuery(
+      'trainingProgramme',
+      opts.transaction,
+    )
       .for(accountId)
       .first();
 
     // Ensure programme exists
     if (trainingProgrammeId) {
-      await Programme.query()
+      await Programme.query(opts.transaction)
         .findById(trainingProgrammeId)
         .throwIfNotFound({ message: 'Training programme does not exist.' });
     }
@@ -141,7 +148,7 @@ export class UserPowerService {
 
     // Ensure week exists
     if (week) {
-      await ProgrammeWorkout.query()
+      await ProgrammeWorkout.query(opts.transaction)
         .findOne({
           training_programme_id: trainingProgrammeId,
           week_number: week,
@@ -158,17 +165,24 @@ export class UserPowerService {
       const highestWeek = await findHighestCompletedWeek(
         accountId,
         trainingProgrammeId,
+        { transaction: opts.transaction },
       );
       week = highestWeek + 1;
     }
 
     // Get the new current and next week's workout.
     const workoutsByWeek = await this.getProgrammeWorkouts(
-      currentProgramme.trainingProgrammeId,
+      trainingProgrammeId,
       [week, week + 1],
+      { transaction: opts.transaction },
     );
 
-    await Account.transaction(async (trx) => {
+    let trx = opts.transaction;
+    if (!trx) {
+      trx = await Account.startTransaction();
+    }
+
+    try {
       // Remove data for any workout weeks that the user never started
       await this.deleteUnstartedWeeks(trx, accountId);
 
@@ -199,17 +213,32 @@ export class UserPowerService {
         };
       });
 
+      if (!opts.transaction) {
+        await trx.commit();
+      }
+
       return UserWorkoutWeek.query(trx).insertGraph(workoutWeeks);
-    });
+    } catch {
+      if (!opts.transaction) {
+        await trx.rollback();
+      }
+    }
 
     return true;
   }
 
-  async getProgrammeWorkouts(trainingProgrammeId: string, weeks: number[]) {
-    const workouts = await this.workoutService.findByProgramme({
-      programmeId: trainingProgrammeId,
-      weeks,
-    });
+  async getProgrammeWorkouts(
+    trainingProgrammeId: string,
+    weeks: number[],
+    opts: { transaction?: Transaction } = {},
+  ) {
+    const workouts = await this.workoutService.findByProgramme(
+      {
+        programmeId: trainingProgrammeId,
+        weeks,
+      },
+      opts,
+    );
     const workoutsByWeek = new Map<number, ProgrammeWorkout[]>();
     for (const workout of workouts) {
       const workouts = workoutsByWeek.get(workout.weekNumber) ?? [];
@@ -252,35 +281,14 @@ export class UserPowerService {
     // TODO check the deletion of programme requirement
     // what should happen to a week when the programme has been deleted
 
+    const currentWeek = await this.findUsersCurrentWeek(accountId);
+    const userProgramme = await Account.relatedQuery('trainingProgramme')
+      .for(accountId)
+      .withGraphJoined('trainingProgramme')
+      .first();
+
     // fetch account
     return Account.transaction(async (trx) => {
-      const userProgramme = await Account.relatedQuery('trainingProgramme', trx)
-        .for(accountId)
-        .withGraphJoined('trainingProgramme')
-        .first();
-
-      // Fetch the current workout week
-      const currentWeek = await this.findUsersCurrentWeek(accountId);
-
-      // Check if 7 days have passed since start of week
-      if (currentWeek.weekNumber === 1) {
-        if (currentWeek.createdAt > subDays(new Date(), 7)) {
-          throw new GraphQLError('7 days must pass before completing week');
-        }
-      } else {
-        const previousWeek = await UserWorkoutWeek.query()
-          .where('week_number', currentWeek.weekNumber - 1)
-          .andWhere('user_training_programme_id', userProgramme.id)
-          .orderBy('started_at', 'DESC')
-          .first();
-        if (!previousWeek.completedAt) {
-          throw new GraphQLError('An error occurred');
-        }
-        if (previousWeek.completedAt > subDays(new Date(), 7)) {
-          throw new GraphQLError('7 days must pass before completing week');
-        }
-      }
-
       const incompleteWorkouts = currentWeek.workouts.filter(
         (workout) => workout.completedAt === null,
       );
@@ -327,10 +335,6 @@ export class UserPowerService {
     }
 
     try {
-      if (!workoutInfo) {
-        return false;
-      }
-
       await UserWorkout.transaction(async (trx) => {
         const updateWorkout = UserWorkout.query(trx)
           .findById(input.workoutId)

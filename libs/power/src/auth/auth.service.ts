@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthProviderService } from '@td/auth-provider';
 import { isAfter } from 'date-fns';
+import * as uuid from 'uuid';
 import { GraphQLError } from 'graphql';
-import { AccountService } from '../account';
+import { Account, AccountService } from '../account';
 import { Programme } from '../programme';
 import {
   AuthContext,
@@ -12,6 +13,7 @@ import {
   UserProfileInput,
 } from '../types';
 import { UserService } from '../user';
+import { UserPowerService } from '../user-power';
 import { UserProgrammeService } from '../user-programme';
 import { UserWorkoutService } from '../user-workout';
 import { UserWorkoutWeekService } from '../user-workout-week';
@@ -25,9 +27,10 @@ export class AuthService {
     private userWorkoutService: UserWorkoutService,
     private userWorkoutWeekService: UserWorkoutWeekService,
     private userProgrammeService: UserProgrammeService,
+    private userPowerService: UserPowerService,
   ) {}
 
-  public async register(input: RegisterUserInput) {
+  public async register(input: RegisterUserInput): Promise<boolean> {
     const programme = await Programme.query().findById(input.programme);
     if (!programme) {
       throw new GraphQLError('Programme does not exist.');
@@ -42,11 +45,37 @@ export class AuthService {
 
     // add to the user table
     const user = await this.userService.create(input, res.UserSub);
-    // add to the account table
-    // add two weeks worth of workouts
-    await this.accountService.create(input.programme, res.UserSub, user.id);
 
-    // TODO IF ANYTHING FAILS WE NEED TO CLEAN UP THE OTHER STUFF
+    const transaction = await Account.startTransaction();
+    try {
+      await transaction.raw('SET CONSTRAINTS ALL DEFERRED');
+      const userTrainingProgrammeId = uuid.v4();
+
+      // Create the account
+      const account = await Account.query(transaction).insertAndFetch({
+        id: user.id,
+        cognitoUsername: res.UserSub,
+        userTrainingProgrammeId,
+      });
+
+      await this.userPowerService.setUserProgramme(
+        {
+          accountId: account.id,
+          trainingProgrammeId: input.programme,
+          week: 1,
+        },
+        { transaction },
+      );
+
+      await transaction.commit();
+    } catch (e) {
+      await Promise.all([
+        transaction.rollback(),
+        this.userService.delete(user.id),
+        this.authProvider.delete(input.email),
+      ]);
+      throw e;
+    }
 
     return true;
   }

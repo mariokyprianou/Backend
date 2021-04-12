@@ -1,7 +1,7 @@
 import { ICmsParams } from '@lib/common';
 import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
-import { raw } from 'objection';
+import { raw, Transaction } from 'objection';
 import { IProgrammeWorkout } from '../types';
 import { ProgrammeWorkout } from './programme-workout.model';
 import { WorkoutFilter } from './workout.interface';
@@ -46,8 +46,11 @@ export class WorkoutService {
       .first();
   }
 
-  public findByProgramme(params: FindByProgrammeParams) {
-    const query = ProgrammeWorkout.query()
+  public findByProgramme(
+    params: FindByProgrammeParams,
+    opts: { transaction?: Transaction } = {},
+  ) {
+    const query = ProgrammeWorkout.query(opts.transaction)
       .where(
         'training_programme_workout.training_programme_id',
         params.programmeId,
