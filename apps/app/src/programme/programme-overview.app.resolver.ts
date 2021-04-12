@@ -1,15 +1,8 @@
-import {
-  AuthContext,
-  Programme,
-  ProgrammeService,
-  PublishStatus,
-  ShareMediaImageType,
-} from '@lib/power';
+import { AuthContext, Programme, ShareMediaImageType } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { WorkoutService } from '@lib/power/workout';
 import { CommonService } from '@lib/common';
 import { ProgrammeResolver } from './programme.app.resolver';
-import { UserPowerService } from '@lib/power/user-power';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 
@@ -20,8 +13,6 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
     commonService: CommonService,
     trainerLoaders: TrainerLoaders,
     programmeLoaders: ProgrammeLoaders,
-    private programmeService: ProgrammeService,
-    private userPower: UserPowerService,
   ) {
     super(workoutService, commonService, trainerLoaders, programmeLoaders);
   }
@@ -77,21 +68,15 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
     @Parent() programme: Programme,
     @Context('authContext') authContext?: AuthContext,
   ) {
-    const relatedProgrammes = await this.programmeService.findAll({
-      filter: {
-        status: PublishStatus.PUBLISHED,
-        trainerId: programme.trainerId,
-      },
-    });
+    if (!authContext.id) {
+      return {
+        isActive: false,
+        latestWeek: 0,
+      };
+    }
 
-    const allUserInformation =
-      authContext && authContext.sub && relatedProgrammes.length
-        ? await this.userPower.getProgrammeInformation(
-            relatedProgrammes,
-            authContext,
-          )
-        : [];
-
-    return allUserInformation.find((val) => val && val.id === programme.id);
+    return this.programmeLoaders.findUserProgressByProgrammeId.load(
+      programme.id,
+    );
   }
 }
