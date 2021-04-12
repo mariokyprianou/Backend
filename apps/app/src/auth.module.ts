@@ -30,6 +30,7 @@ import { SubscriptionAppModule } from './subscription/subscription.module';
 import { ScreenshotAppModule } from './screenshot/screenshot.module';
 import { ShareMediaAuthModule } from './shareMedia/shareMedia.module';
 import { ProgrammeAppModule } from './programme/programme.app.module';
+import { WorkoutAppModule } from './workout/workout.app.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -56,6 +57,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         TrainerAppModule,
         TransformationImageAuthModule,
         UserProgrammeAuthModule,
+        WorkoutAppModule,
       ],
       typePaths: [
         './apps/app/src/**/*.app.graphql',
@@ -98,6 +100,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     TrainerAppModule,
     TransformationImageAuthModule,
     UserProgrammeAuthModule,
+    WorkoutAppModule,
   ],
 })
 export class AuthModule {}
