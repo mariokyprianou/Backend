@@ -1,4 +1,4 @@
-import { ProgressService } from '@lib/power/progress';
+import { ProgressMonth, ProgressService } from '@lib/power/progress';
 import { AuthContext } from '@lib/power/types';
 import { Context, Query, Resolver } from '@nestjs/graphql';
 
@@ -11,20 +11,4 @@ export class ProgressResolver {
   ): Promise<ProgressMonth[]> {
     return this.userProgress.getProgress(authContext);
   }
-}
-
-export enum ProgressType {
-  NEW_WEEK,
-  WORKOUT_COMPLETE,
-  NEW_PROGRAMME,
-}
-
-export interface ProgressDay {
-  date: Date;
-  type: ProgressType;
-}
-
-export interface ProgressMonth {
-  startOfMonth: Date;
-  days: ProgressDay[];
 }

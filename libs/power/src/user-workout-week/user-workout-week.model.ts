@@ -21,7 +21,6 @@ export class UserWorkoutWeek extends BaseModel {
 
   userTrainingProgramme: UserProgramme;
   workouts: UserWorkout[];
-  workout: UserWorkout;
 
   static get relationMappings() {
     const { UserWorkout } = require('../user-workout');

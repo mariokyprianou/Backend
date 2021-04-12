@@ -5,16 +5,16 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { ProgressMonth } from 'apps/app/src/progress/progress.resolver';
 import { startOfMonth } from 'date-fns';
 import { AccountService } from '../account';
 import { AuthContext } from '../types';
 import { UserProgramme } from '../user-programme';
-import { UserWorkoutWeek } from '../user-workout-week';
+import { ProgressMonth, ProgressType } from './progress.interface';
 
 @Injectable()
 export class ProgressService {
   constructor(private accountService: AccountService) {}
+
   public async getProgress(authContext: AuthContext): Promise<ProgressMonth[]> {
     const account = await this.accountService.findBySub(authContext.sub);
 
@@ -22,42 +22,57 @@ export class ProgressService {
     // Fetch all user workouts
     // Generate months from data
     // generate type
-    const userProgrammes = await UserProgramme.query()
+    let programmes: Partial<UserProgramme>[] = await UserProgramme.query()
       .where('account_id', account.id)
-      .withGraphFetched('userWorkoutWeeks.workout');
-
-    // console.log(JSON.stringify(userProgrammes));
+      .withGraphFetched('userWorkoutWeeks.workouts');
 
     // Normalise the weeks
-    const normalisedProgrammes = userProgrammes.map((prog) => ({
-      ...prog,
-      userWorkoutWeeks: prog.userWorkoutWeeks.reduce((prev, week) => {
-        const exists = prev.find((a) => a.weekNumber === week.weekNumber);
-        if (exists) {
-          return prev.map((each) =>
-            each.id === exists.id
-              ? { ...exists, workouts: [...exists.workouts, week.workout] }
-              : each,
+    // N.B. This was required because previously multiple week rows were being created per actual 'week'
+    // This is no longer the case - remove once test data is fixed.
+    programmes = programmes.map<Partial<UserProgramme>>((programme) => {
+      const userWorkoutWeeks = programme.userWorkoutWeeks.reduce(
+        (weeks, week) => {
+          const existingWeek = weeks.find(
+            ({ weekNumber }) => weekNumber === week.weekNumber,
           );
-        } else {
-          return [...prev, { ...week, workouts: [week.workout] }];
-        }
-      }, []),
-    }));
 
-    console.log(JSON.stringify(normalisedProgrammes));
+          if (!existingWeek) {
+            return [...weeks, week];
+          }
+
+          // Merge the weeks' workouts
+          return weeks.map((w) => {
+            if (w.id === existingWeek.id) {
+              return {
+                ...existingWeek,
+                workouts: [...existingWeek.workouts, ...week.workouts],
+              };
+            } else {
+              return w;
+            }
+          });
+        },
+        [],
+      );
+
+      return {
+        ...programme,
+        userWorkoutWeeks,
+      };
+    });
 
     const progressMonths = {};
-    normalisedProgrammes.forEach((prog) => {
-      prog.userWorkoutWeeks.forEach((week) => {
+    programmes.forEach((programme) => {
+      programme.userWorkoutWeeks.forEach((week) => {
         week.workouts.forEach((workout) => {
           if (!workout.completedAt) {
             // workout not complete
             return;
           }
-          const type = 'WORKOUT_COMPLETE';
+
+          const type = ProgressType.WORKOUT_COMPLETE;
           const date = workout.completedAt;
-          const month = startOfMonth(new Date(workout.completedAt));
+          const month = startOfMonth(workout.completedAt);
           progressMonths[month.toISOString()] = progressMonths[
             month.toISOString()
           ]
@@ -65,7 +80,7 @@ export class ProgressService {
             : [{ type, date }];
         });
         if (week.weekNumber === 1) {
-          const type = 'NEW_PROGRAMME';
+          const type = ProgressType.NEW_PROGRAMME;
           const date = week.createdAt;
           const month = startOfMonth(new Date(week.createdAt));
           progressMonths[month.toISOString()] = progressMonths[
@@ -74,8 +89,8 @@ export class ProgressService {
             ? [...progressMonths[month.toISOString()], { type, date }]
             : [{ type, date }];
         } else {
-          const type = 'NEW_WEEK';
-          const prevWeek = prog.userWorkoutWeeks.find(
+          const type = ProgressType.NEW_WEEK;
+          const prevWeek = programme.userWorkoutWeeks.find(
             (val) =>
               val.weekNumber === week.weekNumber - 1 &&
               val.userTrainingProgrammeId === week.userTrainingProgrammeId,
@@ -94,8 +109,6 @@ export class ProgressService {
         }
       });
     });
-
-    // console.log(JSON.stringify(progressMonths));
 
     return Object.keys(progressMonths).map((val) => ({
       startOfMonth: new Date(val),
