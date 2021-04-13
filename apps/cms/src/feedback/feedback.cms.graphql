@@ -15,7 +15,7 @@ input FeedbackFilter {
   id: ID
   ids: [ID!]
   emoji: String
-  feedbackIntensity: Int
+  workoutIntensity: IntRangeInput
   timeTaken: Int
   trainerId: ID
   weekNumber: Int

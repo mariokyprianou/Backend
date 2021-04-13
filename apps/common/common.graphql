@@ -132,3 +132,8 @@ type TimeZone {
   id: ID!
   timeZone: String!
 }
+
+input IntRangeInput {
+  from: Int
+  to: Int
+}

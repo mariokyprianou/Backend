@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { UserModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
 import { ProgrammeEnvironment } from '../types';
-import { User } from '../user';
+import type { User } from '../user';
 
 export class UserWorkoutFeedback extends UserModel {
   static tableName = 'user_workout_feedback';
@@ -28,14 +29,17 @@ export class UserWorkoutFeedback extends UserModel {
 
   account: User;
 
-  static relationMappings = {
-    account: {
-      relation: Model.HasOneRelation,
-      modelClass: User,
-      join: {
-        from: 'user_workout_feedback.account_id',
-        to: 'account.id',
+  static get relationMappings() {
+    const { User } = require('../user');
+    return {
+      account: {
+        relation: Model.HasOneRelation,
+        modelClass: User,
+        join: {
+          from: 'user_workout_feedback.account_id',
+          to: 'account.id',
+        },
       },
-    },
-  };
+    };
+  }
 }

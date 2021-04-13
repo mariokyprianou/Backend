@@ -73,11 +73,14 @@ export class UserWorkoutFeedbackService {
         query.where('feedback.emoji', params.filter.emoji);
       }
 
-      if (params.filter.feedbackIntensity) {
-        query.where(
-          'feedback.feedback_intensity',
-          params.filter.feedbackIntensity,
-        );
+      if (params.filter.workoutIntensity) {
+        const { to, from } = params.filter.workoutIntensity;
+        if (from) {
+          query.where('feedback.feedback_intensity', '>=', from);
+        }
+        if (to) {
+          query.where('feedback.feedback_intensity', '<=', to);
+        }
       }
 
       if (params.filter.timeTaken) {
@@ -171,7 +174,10 @@ export interface UserWorkoutFeedbackFilter {
   ids?: string[];
   emoji?: string;
   environment?: ProgrammeEnvironment;
-  feedbackIntensity?: number;
+  workoutIntensity?: {
+    from?: number;
+    to?: number;
+  };
   timeTaken?: number;
   trainerId?: string;
   weekNumber?: number;
