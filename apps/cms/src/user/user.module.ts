@@ -1,3 +1,4 @@
+import { ProgrammeModule } from '@lib/power';
 import { AccountModule } from '@lib/power/account';
 import { AuthModule } from '@lib/power/auth';
 import { UserPowerModule } from '@lib/power/user-power';
@@ -13,6 +14,7 @@ import { UserResolver } from './user.resolver';
     AccountModule,
     AuthModule,
     UserPowerModule,
+    ProgrammeModule,
   ],
   providers: [UserResolver],
 })

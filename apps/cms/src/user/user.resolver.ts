@@ -9,7 +9,6 @@ import {
 } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
 import { UserProgrammeService } from '@lib/power/user-programme/user-programme.service';
-import { AccountService } from '@lib/power/account';
 import { AuthService } from '@lib/power/auth';
 import { GraphQLError } from 'graphql';
 import { CmsParams } from '@lib/common';
@@ -17,16 +16,19 @@ import { UserExportService } from '@lib/power/user/user-export.service';
 import { UpdateUserInputDto } from './dto/update-user-input.dto';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { UserPowerService } from '@lib/power/user-power';
+import { AccountLoaders } from '@lib/power/account/account.loaders';
+import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 
 @Resolver('User')
 export class UserResolver {
   constructor(
     private userService: UserService,
-    private accountService: AccountService,
     private userProgramService: UserProgrammeService,
     private authService: AuthService,
     private userExportService: UserExportService,
     private userPowerService: UserPowerService,
+    private readonly accountLoaders: AccountLoaders,
+    private readonly programmeLoaders: ProgrammeLoaders,
   ) {}
 
   @Query('allUsers')
@@ -55,14 +57,13 @@ export class UserResolver {
       user.id,
     );
 
-    return workoutWeek.weekNumber;
+    return workoutWeek?.weekNumber;
   }
 
   @ResolveField('previousTrainers')
   async getPreviousTrainers(@Parent() user: User) {
-    const account = await this.accountService.findById(user.id);
     const allProgrammes = await this.userProgramService.allUserProgrammes(
-      account.id,
+      user.id,
     );
     return [
       ...new Set(allProgrammes.map((each) => each.trainingProgramme.trainerId)),
@@ -76,18 +77,15 @@ export class UserResolver {
 
   @ResolveField('currentTrainingProgramme')
   async getCurrentTrainingProgramme(@Parent() user: User) {
-    const account = await this.accountService.findById(user.id);
-
-    const currentUserProgram = await this.userProgramService.findById(
-      account.userTrainingProgrammeId,
+    const trainingProgramme = await this.programmeLoaders.findActiveProgrammeByAccountId.load(
+      user.id,
     );
 
-    if (currentUserProgram) {
+    if (trainingProgramme) {
       return {
-        id: currentUserProgram.id,
-        name: currentUserProgram.trainingProgramme.localisations.find(
-          (tr) => tr.language === 'en',
-        )?.description,
+        id: trainingProgramme.id,
+        name: trainingProgramme.localisations.find((tr) => tr.language === 'en')
+          ?.description,
       };
     } else {
       return null;
@@ -105,9 +103,9 @@ export class UserResolver {
 
   @ResolveField('emailMarketing')
   async getEmailMarketing(@Parent() user: User) {
-    const account = await this.accountService.findBySub(user.cognitoSub);
+    const account = await this.accountLoaders.findById.load(user.id);
 
-    return account.emails;
+    return account?.emails;
   }
 
   @Query('_allUsersMeta')

@@ -1,8 +1,10 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/graphql';
 import * as DataLoader from 'dataloader';
+import { ref } from 'objection';
 import { Account } from '../account';
 import { PublishStatus } from '../types';
+import { UserProgramme } from '../user-programme';
 import { ProgrammeImage } from './programme-image.model';
 import { Programme } from './programme.model';
 import { ShareMedia } from './share-media.model';
@@ -107,4 +109,26 @@ export class ProgrammeLoaders {
       }
     });
   });
+
+  public findActiveProgrammeByAccountId = new DataLoader<string, Programme>(
+    async (accountIds) => {
+      const userProgrammes = await Account.relatedQuery<UserProgramme>(
+        'trainingProgramme',
+      )
+        .withGraphJoined('trainingProgramme')
+        .for(accountIds as string[]);
+
+      await Programme.fetchGraph(
+        userProgrammes.map((p) => p.trainingProgramme),
+        'localisations',
+      ).modifyGraph('localisations', (qb) => qb.where(ref('language'), 'en'));
+
+      return accountIds.map((accountId) => {
+        const userProgramme = userProgrammes.find(
+          (programme) => programme.accountId === accountId,
+        );
+        return userProgramme?.trainingProgramme;
+      });
+    },
+  );
 }
