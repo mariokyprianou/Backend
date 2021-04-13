@@ -85,10 +85,11 @@ export class AuthService {
     return res;
   }
 
-  public async delete(id: string) {
-    const user = await this.userService.delete(id);
-    await this.accountService.delete(id);
-    await this.authProvider.delete(user.cognitoSub);
+  public async delete(accountId: string) {
+    const user = await this.userService.delete(accountId);
+    const account = await this.accountService.delete(accountId);
+    console.log({ account });
+    await this.authProvider.delete(account.cognitoUsername);
     return user;
   }
 

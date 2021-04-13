@@ -44,9 +44,6 @@ export class UserResolver {
   @Mutation('deleteUser')
   async deleteUser(@Args('id') id) {
     const userToDelete = await this.userService.findById(id);
-    // Moved to new auth service
-    // await this.accountService.delete(id);
-    // await this.userService.delete(id);
     await this.authService.delete(id);
     return userToDelete;
   }
@@ -105,7 +102,7 @@ export class UserResolver {
   async getEmailMarketing(@Parent() user: User) {
     const account = await this.accountLoaders.findById.load(user.id);
 
-    return account?.emails;
+    return account?.emails ?? false;
   }
 
   @Query('_allUsersMeta')

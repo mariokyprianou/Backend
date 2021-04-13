@@ -21,6 +21,7 @@ export class Account extends BaseModel {
   notifications: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
   weightPreference: WeightPreference;
 
   trainingProgramme: UserProgramme;
