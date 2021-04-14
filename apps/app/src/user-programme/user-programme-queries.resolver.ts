@@ -20,19 +20,19 @@ export class UserProgrammeQueryResolver {
   ) {}
 
   @Query('getProgramme')
-  async userProgramme(@Context('authContext') authContext: AuthContext) {
-    return this.userPowerService.findCurrentProgramme(authContext.id);
+  async userProgramme(@Context('authContext') user: AuthContext) {
+    return this.userPowerService.findCurrentProgramme(user.id);
   }
 
   @Query('getExerciseWeight')
   async getExerciseWeight(
-    @Context('authContext') authContext: AuthContext,
+    @Context('authContext') user: AuthContext,
     @Args('exercise', ParseUUIDPipe) excerciseId: string,
   ): Promise<ExerciseWeight[]> {
-    const weightRecords = await this.exerciseHistoryService.findByExercise(
-      excerciseId,
-      authContext.sub,
-    );
+    const weightRecords = await this.exerciseHistoryService.findByExercise({
+      accountId: user.id,
+      exerciseId: excerciseId,
+    });
 
     return weightRecords.map((record) => ({
       id: record.id,

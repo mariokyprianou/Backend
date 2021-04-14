@@ -110,9 +110,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  # changeProgramme(input: ChangeProgrammeInput!): Boolean!
   updateOrder(input: [WorkoutOrderInput]): Boolean!
-  addExerciseWeight(input: ExerciseWeightInput!): ExerciseWeight!
   completeWorkout(input: CompleteWorkoutInput!): Boolean!
   completeWorkoutWeek: Boolean!
   updateExerciseNote(input: ExerciseNoteInput!): ExerciseNote!
