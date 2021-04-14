@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ChallengeInput,
   ChallengeInt,
   ChallengeType,
 } from 'apps/app/src/challenge/challenge.resolver';
@@ -8,18 +7,13 @@ import {
   CreateChallengeGraphQlInput,
   UpdateChallengeGraphQlInput,
 } from 'apps/cms/src/challenge/challenge.cms.resolver';
-import { GraphQLError } from 'graphql';
 import Objection from 'objection';
-import { Account, AccountService } from '../account';
-import { AuthContext } from '../types';
-import { UserProgramme } from '../user-programme';
+import { Account } from '../account';
 import { ChallengeHistory } from './challenge-history.model';
 import { Challenge } from './challenge.model';
 
 @Injectable()
 export class ChallengeService {
-  constructor(private accountService: AccountService) {}
-
   public findAll(
     page = 0,
     perPage = 25,
@@ -85,23 +79,21 @@ export class ChallengeService {
     return challenge;
   }
 
-  public async submitChallenge(
-    input: ChallengeInput,
-    authContext: AuthContext,
-  ) {
-    const challenge = await Challenge.query()
-      .first()
-      .where('id', input.challengeId);
-    if (!challenge) {
-      throw new GraphQLError('Unknown challengeId');
-    }
+  public async submitChallenge(params: {
+    accountId: string;
+    challengeId: string;
+    quantity: string;
+  }) {
+    // Ensure challenge exists
+    await Challenge.query()
+      .select(1)
+      .findById(params.challengeId)
+      .throwIfNotFound();
     try {
-      const account = await this.accountService.findBySub(authContext.sub);
-      // input the result
       await ChallengeHistory.query().insert({
-        challengeId: input.challengeId,
-        quantity: input.result,
-        accountId: account.id,
+        accountId: params.accountId,
+        challengeId: params.challengeId,
+        quantity: params.quantity,
       });
       return true;
     } catch (error) {
@@ -110,11 +102,13 @@ export class ChallengeService {
     }
   }
 
-  public async findUserHistory(language = 'en', authContext: AuthContext) {
-    const account = await this.accountService.findBySub(authContext.sub);
+  public async findUserHistory(params: {
+    accountId: string;
+    language: string;
+  }) {
     const histories = await ChallengeHistory.query().where(
       'account_id',
-      account.id,
+      params.accountId,
     );
     const challengeList = [];
     histories.forEach((val) => {
@@ -127,20 +121,8 @@ export class ChallengeService {
       .whereIn('id', challengeList)
       .withGraphFetched('localisations');
 
-    const formattedChallenges = challenges.map(
-      (challenge): ChallengeInt => {
-        const locale = challenge.getTranslation(language);
-        return {
-          id: challenge.id,
-          type: challenge.type,
-          name: locale.name,
-          fieldDescription: locale.fieldDescription,
-          fieldTitle: locale.fieldTitle,
-          createdAt: challenge.createdAt,
-          duration: challenge.duration,
-          unitType: challenge.unitType,
-        };
-      },
+    const formattedChallenges = challenges.map((challenge) =>
+      toChallengeDto(challenge, params.language),
     );
 
     return challengeList.map((id) => {
@@ -157,36 +139,21 @@ export class ChallengeService {
     });
   }
 
-  public async findUserChallenges(
-    language = 'en',
-    authContext: AuthContext,
-  ): Promise<ChallengeInt[]> {
-    // fetch the account
-    // fetch the user programme
-    // fetch the challenges for that programme
-    const account = await this.accountService.findBySub(authContext.sub);
-    const userProgramme = await UserProgramme.query()
-      .first()
-      .where('id', account.userTrainingProgrammeId);
+  public async findUserChallenges(params: {
+    accountId: string;
+    language: string;
+  }): Promise<ChallengeInt[]> {
+    const userProgramme = await Account.relatedQuery('trainingProgramme')
+      .for(params.accountId)
+      .first();
+
     const challenges = await Challenge.query()
       .whereNull('deleted_at')
       .andWhere('training_programme_id', userProgramme.trainingProgrammeId)
       .withGraphFetched('localisations');
 
-    return challenges.map(
-      (challenge): ChallengeInt => {
-        const locale = challenge.getTranslation(language);
-        return {
-          id: challenge.id,
-          type: challenge.type,
-          name: locale.name,
-          fieldDescription: locale.fieldDescription,
-          fieldTitle: locale.fieldTitle,
-          createdAt: challenge.createdAt,
-          duration: challenge.duration,
-          unitType: challenge.unitType,
-        };
-      },
+    return challenges.map((challenge) =>
+      toChallengeDto(challenge, params.language),
     );
   }
 }
@@ -197,6 +164,23 @@ export interface ChallengeFilter {
   type?: ChallengeType;
   programmeId?: string;
 }
+
+const toChallengeDto = (
+  challenge: Challenge,
+  language: string,
+): ChallengeInt => {
+  const locale = challenge.getTranslation(language);
+  return {
+    id: challenge.id,
+    type: challenge.type,
+    name: locale.name,
+    fieldDescription: locale.fieldDescription,
+    fieldTitle: locale.fieldTitle,
+    createdAt: challenge.createdAt,
+    duration: challenge.duration,
+    unitType: challenge.unitType,
+  };
+};
 
 const applyFilter = (
   query: Objection.QueryBuilder<Challenge, Challenge[]>,

@@ -1,13 +1,6 @@
 import { AuthContext } from '@lib/power/types';
-import { Challenge, ChallengeService } from '@lib/power/challenge';
-import {
-  Args,
-  Context,
-  Mutation,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { ChallengeService } from '@lib/power/challenge';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChallengeUnitType } from 'apps/cms/src/challenge/challenge.cms.resolver';
 
 @Resolver('Challenge')
@@ -16,31 +9,38 @@ export class ChallengeResolver {
 
   @Query('challenges')
   async challenges(
-    @Context('authContext') authContext: AuthContext,
+    @Context('authContext') user: AuthContext,
     @Context('language') language: string,
   ): Promise<ChallengeInt[]> {
-    const challenges = await this.challengeService.findUserChallenges(
+    const challenges = await this.challengeService.findUserChallenges({
+      accountId: user.id,
       language,
-      authContext,
-    );
+    });
 
     return challenges;
   }
 
   @Mutation('completeChallenge')
   async completeChallenge(
-    @Context('authContext') authContext: AuthContext,
     @Args('input') input: ChallengeInput,
+    @Context('authContext') user: AuthContext,
   ): Promise<boolean> {
-    return this.challengeService.submitChallenge(input, authContext);
+    return this.challengeService.submitChallenge({
+      accountId: user.id,
+      challengeId: input.challengeId,
+      quantity: input.result,
+    });
   }
 
   @Query('challengeHistory')
   async challengeHistory(
-    @Context('authContext') authContext: AuthContext,
+    @Context('authContext') user: AuthContext,
     @Context('language') language: string,
   ): Promise<ChallengeHistory[]> {
-    return this.challengeService.findUserHistory(language, authContext);
+    return this.challengeService.findUserHistory({
+      accountId: user.id,
+      language,
+    });
   }
 }
 
