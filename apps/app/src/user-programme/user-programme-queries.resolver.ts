@@ -47,11 +47,8 @@ export class UserProgrammeQueryResolver {
   }
 
   @Mutation('updateOrder')
-  async updateOrder(
-    @Context('authContext') authContext: AuthContext,
-    @Args('input') input: WorkoutOrder[],
-  ): Promise<boolean> {
-    return this.userPowerService.updateOrder(input, authContext.sub);
+  async updateOrder(@Args('input') input: WorkoutOrder[]): Promise<boolean> {
+    return this.userPowerService.updateOrder(input);
   }
 
   @Mutation('completeWorkout')

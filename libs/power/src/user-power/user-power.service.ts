@@ -15,7 +15,12 @@ import { ProgrammeWorkout, WorkoutService } from '../workout';
 import { GraphQLError } from 'graphql';
 import * as uuid from 'uuid';
 import { UserWorkoutFeedback } from '../feedback';
-import { PartialModelGraph, PartialModelObject, Transaction } from 'objection';
+import {
+  PartialModelGraph,
+  PartialModelObject,
+  raw,
+  Transaction,
+} from 'objection';
 import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
 import Knex from 'knex';
 
@@ -361,15 +366,26 @@ export class UserPowerService {
     }
   }
 
-  public async updateOrder(input: WorkoutOrder[], sub: string) {
+  public async updateOrder(input: WorkoutOrder[]) {
     try {
-      const proms = input.map(async (value: WorkoutOrder) => {
-        return this.userWorkoutService.updateOrder(value);
-      });
+      const sql = `CASE id ${input
+        .map(() => `WHEN ? THEN ?`)
+        .join(' ')} ELSE order_index END`;
+      const bindings: (string | number)[] = input.reduce(
+        (bindings, workout) => {
+          bindings.push(...[workout.id, workout.index]);
+          return bindings;
+        },
+        [],
+      );
 
-      await Promise.all(proms);
+      await UserWorkout.query()
+        .findByIds(input.map((workout) => workout.id))
+        .patch({ orderIndex: UserWorkout.knex().raw(sql, bindings) });
+
       return true;
     } catch (error) {
+      console.log('updateOrder.error', error);
       return false;
     }
   }
