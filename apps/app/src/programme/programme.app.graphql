@@ -32,7 +32,7 @@ type ProgrammeOverview implements Programme {
 
   # ProgrammeOverview fields
   progressStartShareMediaImage: ProgrammeShareImage
-  firstWeek: [WorkoutWeek]!
+  firstWeek: [ProgrammeWorkout]!
   numberOfWeeks: Int!
   userProgress: UserProgress
 }

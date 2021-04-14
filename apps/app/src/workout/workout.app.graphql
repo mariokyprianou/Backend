@@ -13,7 +13,7 @@ type WorkoutExercise {
   orderIndex: Int!
 }
 
-type WorkoutWeek {
+type ProgrammeWorkout {
   id: ID!
   weekNumber: Int!
   orderIndex: Int!

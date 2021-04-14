@@ -20,18 +20,21 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
   @ResolveField('numberOfWeeks')
   public getNumberOfWeeks(@Parent() programme: Programme) {
     return this.workoutService
-      .findByProgramme({ programmeId: programme.id })
+      .findByProgrammeId({ programmeId: programme.id })
       .resultSize();
   }
 
   @ResolveField('firstWeek')
   public async getFirstWeek(@Parent() programme: Programme) {
-    const firstWeek = await this.workoutService.findByProgramme({
-      programmeId: programme.id,
-      weeks: [1],
-    });
+    const programmeWorkouts = await this.workoutService.findByProgrammeId(
+      {
+        programmeId: programme.id,
+        weeks: [1],
+      },
+      { includeWorkout: true },
+    );
 
-    return firstWeek;
+    return programmeWorkouts;
   }
 
   @ResolveField('progressStartShareMediaImage')

@@ -46,14 +46,20 @@ export class WorkoutService {
       .first();
   }
 
-  public findByProgramme(
+  public findByProgrammeId(
     params: FindByProgrammeParams,
-    opts: { transaction?: Transaction } = {},
+    opts: { transaction?: Transaction; includeWorkout?: boolean } = {},
   ) {
     const query = ProgrammeWorkout.query(opts.transaction).where(
       'training_programme_workout.training_programme_id',
       params.programmeId,
     );
+
+    if (opts.includeWorkout) {
+      query
+        .withGraphJoined('workout')
+        .withGraphFetched('workout.localisations');
+    }
 
     if (params.weeks) {
       query.whereIn('week_number', params.weeks);

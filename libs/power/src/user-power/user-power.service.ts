@@ -236,7 +236,7 @@ export class UserPowerService {
     weeks: number[],
     opts: { transaction?: Transaction } = {},
   ) {
-    const workouts = await this.workoutService.findByProgramme(
+    const workouts = await this.workoutService.findByProgrammeId(
       {
         programmeId: trainingProgrammeId,
         weeks,
