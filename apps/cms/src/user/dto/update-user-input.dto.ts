@@ -26,6 +26,7 @@ export class UpdateUserInputDto implements UpdateUserInput {
   @IsUUID()
   country: string;
 
+  @IsOptional()
   @IsUUID()
   region: string;
 
@@ -37,7 +38,7 @@ export class UpdateUserInputDto implements UpdateUserInput {
 
   @IsOptional()
   @IsInt()
-  @Min(0)
+  @Min(1)
   currentWeek?: number;
 
   @IsOptional()
