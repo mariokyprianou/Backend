@@ -7,8 +7,8 @@ export class ProgressResolver {
   constructor(private userProgress: ProgressService) {}
   @Query('progress')
   async query(
-    @Context('authContext') authContext: AuthContext,
+    @Context('authContext') user: AuthContext,
   ): Promise<ProgressMonth[]> {
-    return this.userProgress.getProgress(authContext);
+    return this.userProgress.getProgress(user.id);
   }
 }

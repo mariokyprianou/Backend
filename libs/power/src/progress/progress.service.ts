@@ -6,27 +6,20 @@
 
 import { Injectable } from '@nestjs/common';
 import { startOfMonth } from 'date-fns';
-import { AccountService } from '../account';
-import { AuthContext } from '../types';
 import { UserProgramme } from '../user-programme';
 import { ProgressMonth, ProgressType } from './progress.interface';
 
 @Injectable()
 export class ProgressService {
-  constructor(private accountService: AccountService) {}
-
-  public async getProgress(authContext: AuthContext): Promise<ProgressMonth[]> {
-    const account = await this.accountService.findBySub(authContext.sub);
-
-    // Fetch all user workout weeks
-    // Fetch all user workouts
-    // Generate months from data
-    // generate type
+  public async getProgress(accountId: string): Promise<ProgressMonth[]> {
     const programmes: Partial<UserProgramme>[] = await UserProgramme.query()
-      .where('account_id', account.id)
+      .where('account_id', accountId)
       .withGraphFetched('userWorkoutWeeks.workouts');
 
-    const progressMonths = {};
+    const progressMonths: {
+      [month: string]: { type: ProgressType; date: Date }[];
+    } = {};
+
     programmes.forEach((programme) => {
       programme.userWorkoutWeeks.forEach((week) => {
         week.workouts.forEach((workout) => {
@@ -40,47 +33,34 @@ export class ProgressService {
             date: workout.completedAt,
           };
 
-          const month = startOfMonth(workout.completedAt);
-          if (!progressMonths[month.toISOString()]) {
-            progressMonths[month.toISOString()] = [];
+          const month = startOfMonth(workout.completedAt).toISOString();
+          if (!progressMonths[month]) {
+            progressMonths[month] = [];
           }
-          progressMonths[month.toISOString()].push(record);
+          progressMonths[month].push(record);
         });
 
         if (week.weekNumber === 1) {
-          const type = ProgressType.NEW_PROGRAMME;
-          const date = week.createdAt;
-          const month = startOfMonth(new Date(week.createdAt));
-          progressMonths[month.toISOString()] = progressMonths[
-            month.toISOString()
-          ]
-            ? [...progressMonths[month.toISOString()], { type, date }]
-            : [{ type, date }];
-        } else {
-          const type = ProgressType.NEW_WEEK;
-          const prevWeek = programme.userWorkoutWeeks.find(
-            (val) =>
-              val.weekNumber === week.weekNumber - 1 &&
-              val.userTrainingProgrammeId === week.userTrainingProgrammeId,
-          );
-          if (!prevWeek.completedAt) {
-            // Previous week hasn't been completed so this isn't a new week
-            return;
+          const record = {
+            type:
+              week.weekNumber === 1
+                ? ProgressType.NEW_PROGRAMME
+                : ProgressType.NEW_WEEK,
+            date: week.startedAt,
+          };
+
+          const month = startOfMonth(week.startedAt).toISOString();
+          if (!progressMonths[month]) {
+            progressMonths[month] = [];
           }
-          const date = prevWeek.completedAt;
-          const month = startOfMonth(new Date(prevWeek.completedAt));
-          progressMonths[month.toISOString()] = progressMonths[
-            month.toISOString()
-          ]
-            ? [...progressMonths[month.toISOString()], { type, date }]
-            : [{ type, date }];
+          progressMonths[month].push(record);
         }
       });
     });
 
-    return Object.keys(progressMonths).map((val) => ({
-      startOfMonth: new Date(val),
-      days: progressMonths[val],
+    return Object.entries(progressMonths).map(([month, days]) => ({
+      startOfMonth: new Date(month),
+      days: days.sort((a, b) => b.date.getTime() - a.date.getTime()),
     }));
   }
 }
