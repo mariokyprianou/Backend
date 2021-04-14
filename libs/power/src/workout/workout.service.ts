@@ -50,14 +50,10 @@ export class WorkoutService {
     params: FindByProgrammeParams,
     opts: { transaction?: Transaction } = {},
   ) {
-    const query = ProgrammeWorkout.query(opts.transaction)
-      .where(
-        'training_programme_workout.training_programme_id',
-        params.programmeId,
-      )
-      .withGraphFetched(
-        '[programme, workout.[localisations, exercises.[sets, localisations]]]',
-      );
+    const query = ProgrammeWorkout.query(opts.transaction).where(
+      'training_programme_workout.training_programme_id',
+      params.programmeId,
+    );
 
     if (params.weeks) {
       query.whereIn('week_number', params.weeks);

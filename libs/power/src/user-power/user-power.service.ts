@@ -134,12 +134,16 @@ export class UserPowerService {
     // Ensure programme exists
     if (trainingProgrammeId) {
       await Programme.query(opts.transaction)
+        .select(1)
         .findById(trainingProgrammeId)
         .throwIfNotFound({ message: 'Training programme does not exist.' });
     }
 
     trainingProgrammeId =
       trainingProgrammeId ?? currentProgramme.trainingProgrammeId;
+    if (!trainingProgrammeId) {
+      throw new Error('Unable to determine training programme id.');
+    }
 
     // Ensure week exists
     if (week) {
@@ -404,15 +408,17 @@ export class UserPowerService {
     await trx.raw('SET CONSTRAINTS ALL DEFERRED');
     const userTrainingProgrammeId = uuid.v4();
 
-    await Account.query(trx).patchAndFetchById(accountId, {
-      userTrainingProgrammeId,
-    });
+    await Account.query(trx)
+      .findById(accountId)
+      .patch({ userTrainingProgrammeId });
 
-    return UserProgramme.query(trx).insertAndFetch({
-      id: userTrainingProgrammeId,
-      trainingProgrammeId,
-      accountId,
-    });
+    return UserProgramme.query(trx)
+      .insert({
+        id: userTrainingProgrammeId,
+        trainingProgrammeId,
+        accountId,
+      })
+      .returning('*');
   }
 
   private deleteUnstartedWeeks(trx: Transaction, accountId: string) {

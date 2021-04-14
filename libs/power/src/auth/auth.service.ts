@@ -52,11 +52,13 @@ export class AuthService {
       const userTrainingProgrammeId = uuid.v4();
 
       // Create the account
-      const account = await Account.query(transaction).insertAndFetch({
-        id: user.id,
-        cognitoUsername: res.UserSub,
-        userTrainingProgrammeId,
-      });
+      const account = await Account.query(transaction)
+        .insert({
+          id: user.id,
+          cognitoUsername: res.UserSub,
+          userTrainingProgrammeId,
+        })
+        .returning('*');
 
       await this.userPowerService.setUserProgramme(
         {

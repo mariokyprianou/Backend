@@ -25,10 +25,7 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
   }
 
   @ResolveField('firstWeek')
-  public async getFirstWeek(
-    @Parent() programme: Programme,
-    @Context('language') language: string,
-  ) {
+  public async getFirstWeek(@Parent() programme: Programme) {
     const firstWeek = await this.workoutService.findByProgramme({
       programmeId: programme.id,
       weeks: [1],

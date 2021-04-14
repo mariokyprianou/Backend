@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
-import { Trainer } from '@lib/power/trainer';
+import { Trainer, TrainerService } from '@lib/power';
 import {
   Context,
   Parent,
@@ -8,7 +8,6 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { TrainerService } from '../../../../libs/power/src/trainer/trainer.service';
 
 @Resolver('Trainer')
 export class TrainerResolver {
@@ -18,7 +17,7 @@ export class TrainerResolver {
   ) {}
 
   @Query('getTrainers')
-  async getTrainer(@Context('language') language: string) {
+  async getTrainers(@Context('language') language: string) {
     return this.trainerService.findAll({
       language,
     });
