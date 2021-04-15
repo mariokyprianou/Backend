@@ -47,6 +47,11 @@ export class UpdateProgrammeDto {
   wellness?: number;
 
   @IsOptional()
+  @IsInt()
+  @Min(0)
+  weeksAvailable: number;
+
+  @IsOptional()
   @IsString()
   @IsIn(Object.values(ProgrammeEnvironment))
   environment?: ProgrammeEnvironment;

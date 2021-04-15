@@ -92,6 +92,7 @@ CREATE TABLE training_programme (
   id uuid CONSTRAINT pk_training_programme PRIMARY KEY DEFAULT uuid_generate_v4(),
   trainer_id uuid NOT NULL,
   environment training_programme_environment NOT NULL,
+  weeks_available INTEGER NOT NULL CHECK (weeks_available >= 0) DEFAULT 0,
   fitness INTEGER NOT NULL CHECK (fitness >= 0 AND fitness <= 100),
   muscle INTEGER NOT NULL CHECK (muscle >= 0 AND muscle <= 100),
   fat_loss INTEGER NOT NULL CHECK (fat_loss >= 0 AND fat_loss <= 100),

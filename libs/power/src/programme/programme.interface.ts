@@ -7,19 +7,21 @@ import {
 } from '../types';
 import { ShareMediaImage } from './share-media.interface';
 
-export interface UpdateProgrammeParams {
-  trainerId?: string;
-  fatLoss?: number;
-  fitness?: number;
-  muscle?: number;
-  wellness?: number;
-  environment?: ProgrammeEnvironment;
-  status?: PublishStatus;
+export interface CreateProgrammeParams {
+  trainerId: string;
+  fatLoss: number;
+  fitness: number;
+  muscle: number;
+  wellness: number;
+  weeksAvailable: number;
+  environment: ProgrammeEnvironment;
+  status: PublishStatus;
+  localisations: ProgrammeLocalisation[];
   images?: ProgrammeImages[];
-  localisations?: ProgrammeLocalisation[];
   shareMediaImages?: ShareMediaImage[];
 }
 
+export type UpdateProgrammeParams = Partial<CreateProgrammeParams>;
 export interface ProgrammeFilter extends Filter {
   trainerId?: string;
   environment?: ProgrammeEnvironment;

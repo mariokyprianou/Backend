@@ -1,29 +1,31 @@
 type Programme {
   id: ID!
-  trainer: Trainer
   environment: ProgrammeEnvironment!
-  subscribers: Int!
-  images: [ProgrammeImage]!
-  shareMediaImages: [ProgrammeShareMediaImage]
-  localisations: [ProgrammeLocalisation]
-  status: PublishStatus!
   fatLoss: Int!
   fitness: Int!
+  images: [ProgrammeImage]!
+  localisations: [ProgrammeLocalisation]
   muscle: Int!
+  shareMediaImages: [ProgrammeShareMediaImage]
+  status: PublishStatus!
+  subscribers: Int!
+  trainer: Trainer
+  weeksAvailable: Int!
   wellness: Int!
 }
 
 input ProgrammeInput {
-  trainerId: ID
+  environment: ProgrammeEnvironment
   fatLoss: Int
   fitness: Int
-  muscle: Int
-  wellness: Int
-  environment: ProgrammeEnvironment
   images: [ProgrammeImageInput]
-  shareMediaImages: [ProgrammeShareMediaImageInput!]
   localisations: [ProgrammeLocalisationInput]
+  muscle: Int
+  shareMediaImages: [ProgrammeShareMediaImageInput!]
   status: PublishStatus
+  trainerId: ID
+  weeksAvailable: Int
+  wellness: Int
 }
 
 input ProgrammeImageInput {

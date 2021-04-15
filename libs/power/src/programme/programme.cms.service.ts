@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ShareMediaEnum } from 'apps/app/src/shareMedia/shareMedia.resolver';
 import { PartialModelGraph, QueryBuilder } from 'objection';
-import { IProgramme, ProgrammeEnvironment } from '../types';
-import { UpdateProgrammeParams } from './programme.interface';
+import { ProgrammeEnvironment } from '../types';
+import {
+  CreateProgrammeParams,
+  UpdateProgrammeParams,
+} from './programme.interface';
 
 import { Programme } from './programme.model';
 import { ShareMediaTranslation } from './share-media-tr.model';
@@ -97,7 +100,7 @@ export class ProgrammeService {
   }
 
   // CREATE PROGRAMME //
-  public async create(programme: IProgramme) {
+  public async create(programme: CreateProgrammeParams) {
     await ensureProgrammeTypeAvailable({
       trainerId: programme.trainerId,
       environment: programme.environment,
@@ -168,6 +171,7 @@ export class ProgrammeService {
       muscle: params.muscle,
       environment: params.environment,
       status: params.status,
+      weeksAvailable: params.weeksAvailable,
     };
 
     if (params.images) {

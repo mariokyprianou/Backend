@@ -19,9 +19,7 @@ export class ProgrammeOverviewResolver extends ProgrammeResolver {
 
   @ResolveField('numberOfWeeks')
   public getNumberOfWeeks(@Parent() programme: Programme) {
-    return this.workoutService
-      .findByProgrammeId({ programmeId: programme.id })
-      .resultSize();
+    return programme.weeksAvailable;
   }
 
   @ResolveField('firstWeek')

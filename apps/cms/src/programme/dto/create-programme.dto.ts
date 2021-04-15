@@ -36,11 +36,16 @@ export class CreateProgrammeDto {
   @Max(100)
   muscle: number;
 
-  @IsOptional()
+  @IsOptional() // TODO: after CMS ui update this can be non-optional
   @IsInt()
   @Min(0)
   @Max(100)
   wellness = 0;
+
+  @IsOptional() // TODO: after CMS ui update this can be non-optional
+  @IsInt()
+  @Min(0)
+  weeksAvailable = 0;
 
   @IsString()
   @IsIn(Object.values(ProgrammeEnvironment))

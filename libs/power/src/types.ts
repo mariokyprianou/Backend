@@ -74,18 +74,6 @@ export enum ProgrammeEnvironment {
   HOME = 'HOME',
 }
 
-export interface IProgramme {
-  trainerId: string;
-  fatLoss: number;
-  fitness: number;
-  muscle: number;
-  environment: ProgrammeEnvironment;
-  status: PublishStatus;
-  images?: ProgrammeImages[];
-  shareMediaImages?: ShareMediaImage[];
-  localisations: ProgrammeLocalisation[];
-}
-
 export interface ProgrammeLocalisation {
   language: string;
   description: string;

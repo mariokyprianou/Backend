@@ -10,13 +10,10 @@ import { ShareMedia } from './share-media.model';
 export class Programme extends BaseModel {
   static tableName = 'training_programme';
 
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
-
   id: string;
   trainerId: string;
   environment: ProgrammeEnvironment;
+  weeksAvailable: number;
   fitness: number;
   muscle: number;
   fatLoss: number;
