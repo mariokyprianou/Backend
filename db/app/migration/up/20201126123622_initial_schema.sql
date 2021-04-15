@@ -357,6 +357,7 @@ CREATE TABLE user_exercise_history (
   set_type set_type_enum NOT NULL,
   quantity integer NOT NULL,
   set_number integer NOT NULL,
+	completed_at timestamptz NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_user_exercise_note_account FOREIGN KEY (account_id) REFERENCES account (id),

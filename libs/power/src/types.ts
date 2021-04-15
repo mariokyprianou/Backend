@@ -16,6 +16,7 @@ export interface WorkoutSetWeightInput {
   setNumber: number;
   setType: SetType;
   quantity: number;
+  date: Date;
 }
 
 export interface CompleteWorkoutInput {

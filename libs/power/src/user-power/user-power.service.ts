@@ -337,6 +337,7 @@ export class UserPowerService {
           setNumber: record.setNumber,
           quantity: record.quantity,
           weight: record.weight,
+          completedAt: record.date,
         }));
         const updateWeightHistory = await UserExerciseHistory.query(trx).insert(
           weightsUsed,

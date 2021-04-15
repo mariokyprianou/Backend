@@ -59,14 +59,6 @@ input WorkoutSetWeightInput {
   quantity: Int!
 }
 
-### Deprecated input, use ExerciseSetWeightInput instead ###
-input ExerciseWeightInput {
-  exerciseId: ID!
-  weight: Int!
-  reps: Int!
-  setNumber: Int!
-}
-
 type ExerciseWeight {
   id: ID!
   exerciseId: ID!

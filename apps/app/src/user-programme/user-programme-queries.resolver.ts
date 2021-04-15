@@ -42,7 +42,7 @@ export class UserProgrammeQueryResolver {
       quantity: record.quantity,
       setNumber: record.setNumber,
       setType: record.setType,
-      createdAt: record.createdAt,
+      createdAt: record.completedAt ?? record.createdAt,
     }));
   }
 

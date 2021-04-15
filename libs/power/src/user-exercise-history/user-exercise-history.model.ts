@@ -17,6 +17,7 @@ export class UserExerciseHistory extends BaseModel {
   setType: SetType;
   setNumber: number;
   quantity: number;
+  completedAt: Date;
   createdAt: Date;
   updatedAt: Date;
 
