@@ -95,6 +95,7 @@ CREATE TABLE training_programme (
   fitness INTEGER NOT NULL CHECK (fitness >= 0 AND fitness <= 100),
   muscle INTEGER NOT NULL CHECK (muscle >= 0 AND muscle <= 100),
   fat_loss INTEGER NOT NULL CHECK (fat_loss >= 0 AND fat_loss <= 100),
+  wellness INTEGER NOT NULL CHECK (wellness >= 0 AND wellness <= 100) DEFAULT 0,
   status publish_status_enum NOT NULL DEFAULT 'DRAFT',
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),

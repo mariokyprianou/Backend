@@ -44,6 +44,11 @@ export class ProgrammeResolver {
     return programme.muscle;
   }
 
+  @ResolveField('wellness')
+  public getWellness(@Parent() programme: Programme) {
+    return programme.wellness;
+  }
+
   @ResolveField('description')
   public getDescription(
     @Parent() programme: Programme,

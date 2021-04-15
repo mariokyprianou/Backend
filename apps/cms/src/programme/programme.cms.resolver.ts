@@ -9,11 +9,12 @@ import {
 import { ListMetadata } from '@lib/power/types';
 import { Programme, ProgrammeFilter } from '@lib/power';
 import { ProgrammeService } from '@lib/power/programme/programme.cms.service';
-import { IProgramme } from '../../../../libs/power/src/types';
 import { CmsParams, CommonService } from '@lib/common';
 import { TrainerService } from '@lib/power/trainer';
 import { ProgrammeImage } from '@lib/power/programme/programme-image.model';
 import { AccountService } from '@lib/power/account';
+import { CreateProgrammeDto } from './dto/create-programme.dto';
+import { UpdateProgrammeDto } from './dto/update-programme.dto';
 
 @Resolver('Programme')
 export class ProgrammeResolver {
@@ -93,7 +94,7 @@ export class ProgrammeResolver {
 
   @Mutation('createProgramme')
   async createProgramme(
-    @Args('programme') programme: IProgramme,
+    @Args('programme') programme: CreateProgrammeDto,
   ): Promise<Programme> {
     return this.programmeService.create(programme);
   }
@@ -114,9 +115,9 @@ export class ProgrammeResolver {
   @Mutation('updateProgramme')
   async updateProgramme(
     @Args('id') id: string,
-    @Args('programme') programme: IProgramme,
+    @Args('programme') programme: UpdateProgrammeDto,
   ): Promise<Programme> {
-    return this.programmeService.updateProgramme({ id, ...programme });
+    return this.programmeService.updateProgramme(id, programme);
   }
 
   @Mutation('deleteProgramme')

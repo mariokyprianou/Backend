@@ -20,6 +20,7 @@ export class Programme extends BaseModel {
   fitness: number;
   muscle: number;
   fatLoss: number;
+  wellness: number;
   status: PublishStatus;
   createdAt: Date;
   updatedAt: Date;

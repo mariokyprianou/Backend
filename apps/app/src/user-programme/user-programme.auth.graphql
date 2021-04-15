@@ -6,6 +6,7 @@ type UserProgramme implements Programme {
   fatLoss: Int!
   fitness: Int!
   muscle: Int!
+  wellness: Int!
   description: String!
   programmeImage: URL
 

@@ -140,10 +140,11 @@ export class ProgrammeService {
   }
 
   public async updateProgramme(
+    trainingProgrammeId: string,
     params: UpdateProgrammeParams,
   ): Promise<Programme> {
     const programme = await Programme.query()
-      .findById(params.id)
+      .findById(trainingProgrammeId)
       .whereNull('deleted_at')
       .throwIfNotFound();
 
@@ -163,6 +164,7 @@ export class ProgrammeService {
       trainerId: params.trainerId,
       fatLoss: params.fatLoss,
       fitness: params.fitness,
+      wellness: params.wellness,
       muscle: params.muscle,
       environment: params.environment,
       status: params.status,

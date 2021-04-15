@@ -10,6 +10,7 @@ type Programme {
   fatLoss: Int!
   fitness: Int!
   muscle: Int!
+  wellness: Int!
 }
 
 input ProgrammeInput {
@@ -17,6 +18,7 @@ input ProgrammeInput {
   fatLoss: Int
   fitness: Int
   muscle: Int
+  wellness: Int
   environment: ProgrammeEnvironment
   images: [ProgrammeImageInput]
   shareMediaImages: [ProgrammeShareMediaImageInput!]
