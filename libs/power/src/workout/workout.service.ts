@@ -2,7 +2,7 @@ import { ICmsParams } from '@lib/common';
 import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
 import { raw, Transaction } from 'objection';
-import { IProgrammeWorkout } from '../types';
+import { IProgrammeWorkout, SetType } from '../types';
 import { ProgrammeWorkout } from './programme-workout.model';
 import { WorkoutFilter } from './workout.interface';
 import { Workout } from './workout.model';
@@ -17,14 +17,15 @@ interface FindAllWorkoutsParams extends ICmsParams<WorkoutFilter> {
 
 @Injectable()
 export class WorkoutService {
-  private async createWorkout(workout: IProgrammeWorkout) {
-    return Workout.query().insertGraphAndFetch({
-      trainingProgrammeId: workout.programme,
-      overviewImageKey: workout.overviewImageKey,
-      intensity: workout.intensity,
-      duration: workout.duration,
-      localisations: workout.localisations,
-      exercises: workout.exercises.map((exercise) => ({
+  private async createWorkout(trx: Transaction, params: IProgrammeWorkout) {
+    return Workout.query(trx).insertGraph({
+      isContinuous: params.isContinuous,
+      trainingProgrammeId: params.programme,
+      overviewImageKey: params.overviewImageKey,
+      intensity: params.intensity,
+      duration: params.duration,
+      localisations: params.localisations,
+      exercises: params.exercises.map((exercise) => ({
         exerciseId: exercise.exercise,
         setType: exercise.setType,
         orderIndex: exercise.orderIndex,
@@ -125,14 +126,21 @@ export class WorkoutService {
     return query;
   }
 
-  public async create(workout: IProgrammeWorkout) {
-    const workoutObj = await this.createWorkout(workout);
+  public async create(params: IProgrammeWorkout) {
+    if (params.isContinuous) {
+      ensureExercisesAreTimeBased(params);
+    }
 
-    const programmeWorkout = await ProgrammeWorkout.query().insertAndFetch({
-      trainingProgrammeId: workout.programme,
-      weekNumber: workout.weekNumber,
-      orderIndex: workout.orderIndex,
-      workoutId: workoutObj.id,
+    const programmeWorkout = await ProgrammeWorkout.transaction(async (trx) => {
+      const workout = await this.createWorkout(trx, params);
+      return ProgrammeWorkout.query(trx)
+        .insert({
+          trainingProgrammeId: params.programme,
+          weekNumber: params.weekNumber,
+          orderIndex: params.orderIndex,
+          workoutId: workout.id,
+        })
+        .returning('*');
     });
 
     return this.findById(programmeWorkout.id);
@@ -143,20 +151,37 @@ export class WorkoutService {
     return { count };
   }
 
-  public async update(id: string, workout: IProgrammeWorkout) {
-    const workoutObj = await this.createWorkout(workout);
+  public async update(id: string, params: IProgrammeWorkout) {
+    if (params.isContinuous) {
+      ensureExercisesAreTimeBased(params);
+    }
 
-    await ProgrammeWorkout.query()
-      .update({
-        workoutId: workoutObj.id,
-      })
-      .where('id', id);
+    // Ensure exists
+    await ProgrammeWorkout.query().select(1).findById(id).throwIfNotFound();
+
+    await ProgrammeWorkout.transaction(async (trx) => {
+      const workout = await this.createWorkout(trx, params);
+      await ProgrammeWorkout.query(trx)
+        .findById(id)
+        .update({ workoutId: workout.id });
+    });
 
     return this.findById(id);
   }
 
   public async delete(id: string) {
-    // We only delete the programme week version because we need the version control for users
+    // Delete only the association to the programme
+    // Keep the contents of the workout for historical purposes
     return ProgrammeWorkout.query().deleteById(id);
+  }
+}
+
+function ensureExercisesAreTimeBased(params: IProgrammeWorkout) {
+  for (const exercise of params.exercises) {
+    if (exercise.setType !== SetType.TIME) {
+      throw new Error(
+        'All exercises must be time-based in a continuous workout.',
+      );
+    }
   }
 }

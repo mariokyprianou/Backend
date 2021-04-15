@@ -1,5 +1,3 @@
-import { ShareMediaImage } from './programme/share-media.interface';
-
 export interface ExerciseNote {
   exercise: string;
   note: string;
@@ -95,9 +93,9 @@ export interface ShareMediaLocalisation {
 }
 
 export enum IntensityEnum {
-  LOW,
-  MOD,
-  HIGH,
+  LOW = 'LOW',
+  MOD = 'MOD',
+  HIGH = 'HIGH',
 }
 
 export enum SetType {
@@ -106,14 +104,15 @@ export enum SetType {
 }
 
 export interface IProgrammeWorkout {
-  weekNumber: number;
-  orderIndex: number;
-  programme: string;
-  localisations: ProgrammeWorkoutLocalisations[];
-  intensity: IntensityEnum;
-  overviewImageKey?: string;
   duration: number;
   exercises: WorkoutExercise[];
+  intensity: IntensityEnum;
+  isContinuous: boolean;
+  localisations: ProgrammeWorkoutLocalisations[];
+  orderIndex: number;
+  overviewImageKey?: string;
+  programme: string;
+  weekNumber: number;
 }
 
 export interface ProgrammeWorkoutLocalisations {

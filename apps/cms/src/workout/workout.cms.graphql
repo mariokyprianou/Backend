@@ -8,6 +8,7 @@ type WorkoutWeek {
 }
 
 type Workout {
+  isContinuous: Boolean!
   overviewImage: File
   intensity: IntensityEnum!
   duration: Int!
@@ -43,14 +44,15 @@ type WorkoutExercise {
 }
 
 input WorkoutInput {
-  weekNumber: Int!
-  orderIndex: Int!
-  programme: ID!
-  localisations: [WorkoutLocalisationInput]!
-  intensity: IntensityEnum!
-  overviewImageKey: String
   duration: Int!
   exercises: [WorkoutExerciseInput]
+  intensity: IntensityEnum!
+  isContinuous: Boolean
+  localisations: [WorkoutLocalisationInput]!
+  orderIndex: Int!
+  overviewImageKey: String
+  programme: ID!
+  weekNumber: Int!
 }
 
 input WorkoutLocalisationInput {

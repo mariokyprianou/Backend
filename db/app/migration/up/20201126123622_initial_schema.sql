@@ -132,6 +132,7 @@ CREATE TYPE intesity_enum AS ENUM ('LOW', 'MOD', 'HIGH');
 CREATE TABLE workout (
   id uuid CONSTRAINT pk_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
   training_programme_id uuid NOT NULL,
+  is_continuous: boolean NOT NULL DEFAULT false,
   overview_image_key text NULL,
   intensity intesity_enum NOT NULL,
   duration int NOT NULL,
@@ -160,7 +161,6 @@ CREATE TABLE training_programme_workout (
   order_index integer NOT NULL,
   workout_id uuid NOT NULL,
   CONSTRAINT uq_training_programme_workout_workout UNIQUE (workout_id),
-  CONSTRAINT uq_training_programme_workout_week_order UNIQUE (training_programme_id, week_number, order_index),
   CONSTRAINT fk_training_programme_workout_training_programme FOREIGN KEY (training_programme_id) REFERENCES training_programme (id),
   CONSTRAINT fk_training_programme_workout_workout FOREIGN KEY (workout_id) REFERENCES workout (id)
 );

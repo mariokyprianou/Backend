@@ -6,16 +6,19 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { IProgrammeWorkout, ListMetadata } from '@lib/power/types';
+import { ListMetadata } from '@lib/power/types';
 import {
   ProgrammeWorkout,
   WorkoutFilter,
   WorkoutService,
 } from '@lib/power/workout';
 import { CmsParams } from '@lib/common';
+import { CreateProgrammeWorkoutDto } from './dto/create-programme-workout.dto';
+import { UpdateProgrammeWorkoutDto } from './dto/update-programme-workout.dto';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver('WorkoutWeek')
-export class WorkoutWeekResolver {
+export class WorkoutWeekCmsResolver {
   constructor(private workoutService: WorkoutService) {}
 
   @ResolveField('workout')
@@ -25,7 +28,7 @@ export class WorkoutWeekResolver {
 
   @Mutation('createWorkoutWeek')
   async createWorkout(
-    @Args('workout') workout: IProgrammeWorkout,
+    @Args('workout') workout: CreateProgrammeWorkoutDto,
   ): Promise<ProgrammeWorkout> {
     return this.workoutService.create(workout);
   }
@@ -46,20 +49,24 @@ export class WorkoutWeekResolver {
   }
 
   @Query('WorkoutWeek')
-  async Workout(@Args('id') id: string): Promise<ProgrammeWorkout> {
+  async Workout(
+    @Args('id', ParseUUIDPipe) id: string,
+  ): Promise<ProgrammeWorkout> {
     return this.workoutService.findById(id);
   }
 
   @Mutation('updateWorkoutWeek')
   async updateWorkout(
     @Args('id') id: string,
-    @Args('workout') workout: IProgrammeWorkout,
+    @Args('workout') workout: UpdateProgrammeWorkoutDto,
   ): Promise<ProgrammeWorkout> {
     return this.workoutService.update(id, workout);
   }
 
   @Mutation('deleteWorkoutWeek')
-  async deleteWorkout(@Args('id') id: string): Promise<ProgrammeWorkout> {
+  async deleteWorkout(
+    @Args('id', ParseUUIDPipe) id: string,
+  ): Promise<ProgrammeWorkout> {
     const workout = await this.workoutService.findById(id);
     await this.workoutService.delete(id);
 

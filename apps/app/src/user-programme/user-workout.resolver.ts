@@ -15,6 +15,11 @@ export class UserWorkoutResolver {
     return workout.id;
   }
 
+  @ResolveField('isContinuous')
+  public async getIsContinuous(@Parent() workout: UserWorkout) {
+    return workout.workout.isContinuous;
+  }
+
   @ResolveField('orderIndex')
   public async getOrderIndex(@Parent() workout: UserWorkout) {
     return workout.orderIndex;

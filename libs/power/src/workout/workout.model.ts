@@ -14,6 +14,7 @@ export class Workout extends BaseModel {
   }
 
   id: string;
+  isContinuous: boolean;
   trainingProgrammeId: string;
   overviewImageKey: string;
   intensity: IntensityEnum;

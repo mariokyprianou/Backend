@@ -3,6 +3,7 @@ export * from './auth';
 export * from './challenge';
 export * from './config';
 export * from './country';
+export * from './exercise';
 export * from './exercise-category';
 export * from './feedback';
 export * from './hmc-question';

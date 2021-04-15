@@ -10,7 +10,7 @@ import { ExerciseCMSModule } from './exercise/exercise.module';
 import { ExerciseCategoryCMSModule } from './exercise-category/exercise-category.module';
 import { ProgrammeCMSModule } from './programme/programme.cms.module';
 import { HmcQuestionCMSModule } from './hmc-question/hmc-question.cms.module';
-import { WorkoutCMSModule } from './workout/workout.module';
+import { WorkoutCMSModule } from './workout/workout.cms.module';
 import { FeedbackCMSModule } from './feedback/feedback.module';
 import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';

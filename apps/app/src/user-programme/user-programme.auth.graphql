@@ -23,6 +23,7 @@ type UserWorkoutWeek {
 
 type UserWorkout {
   id: ID!
+  isContinuous: Boolean!
   overviewImage: URL
   intensity: IntensityEnum!
   duration: Int!

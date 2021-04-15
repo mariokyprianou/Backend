@@ -5,7 +5,7 @@ import { ExerciseLoaders } from '../exercise/exercise.loader';
 import { Exercise } from '@lib/power/exercise';
 
 @Resolver('Workout')
-export class WorkoutResolver {
+export class WorkoutCmsResolver {
   constructor(
     private commonService: CommonService,
     private exerciseLoaders: ExerciseLoaders,
@@ -24,6 +24,11 @@ export class WorkoutResolver {
         'getObject',
       ),
     };
+  }
+
+  @ResolveField('isContinuous')
+  getIsContinuous(@Parent() workout: Workout) {
+    return workout.isContinuous;
   }
 
   @ResolveField('intensity')
