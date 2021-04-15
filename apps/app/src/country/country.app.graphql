@@ -1,3 +1,4 @@
 extend type Query {
+  lookupCountry: Country
   allCountries: [Country!]!
 }

@@ -117,6 +117,7 @@ type HmcQuestionLocalisation {
 
 type Country {
   id: ID!
+  code: String!
   name: String!
   country: String! @deprecated(reason: "Moved to 'name'")
   regions: [Region]

@@ -1,4 +1,10 @@
-import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Context,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { CountryService, Country } from '@lib/power/country';
 
 @Resolver('Country')
@@ -6,8 +12,8 @@ export class CountryResolver {
   constructor(private service: CountryService) {}
 
   @Query('allCountries')
-  async allCountries() {
-    return this.service.findAll(0, 250);
+  async allCountries(@Context('language') language: string) {
+    return this.service.getAll(language);
   }
 
   @ResolveField('country')

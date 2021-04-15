@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import Objection from 'objection';
+import Objection, { ref } from 'objection';
 import { Country } from './country.model';
 
 @Injectable()
 export class CountryService {
+  // optimised for app use
+  public getAll(language = 'en') {
+    return Country.query()
+      .select('country.id', 'localisations.name as name', 'code')
+      .withGraphJoined('localisations')
+      .modifyGraph('localisations', (qb) => qb.where(ref('language'), language))
+      .orderBy('order_index');
+  }
+
   public findAll(
     page = 0,
     perPage = 25,
@@ -12,7 +21,7 @@ export class CountryService {
     filter: CountryFilter = {},
   ) {
     const findAllQuery = applyFilter(
-      Country.query().withGraphFetched('regions'),
+      Country.query().withGraphFetched('[localisations]'),
       filter,
     );
 
