@@ -1,4 +1,4 @@
-import { AuthContext, WorkoutService } from '@lib/power';
+import { AuthContext, ScheduledWorkoutService } from '@lib/power';
 import { Context, ResolveField, Resolver } from '@nestjs/graphql';
 import { CommonService } from '@lib/common';
 import { ProgrammeResolver } from '../programme/programme.app.resolver';
@@ -9,7 +9,7 @@ import { UserPowerLoaders } from '@lib/power/user-power/user-power.loaders';
 @Resolver('UserProgramme')
 export class UserProgrammeResolver extends ProgrammeResolver {
   constructor(
-    workoutService: WorkoutService,
+    workoutService: ScheduledWorkoutService,
     commonService: CommonService,
     trainerLoaders: TrainerLoaders,
     programmeLoaders: ProgrammeLoaders,

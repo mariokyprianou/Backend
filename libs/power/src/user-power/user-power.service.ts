@@ -11,16 +11,14 @@ import {
   ProgrammeEnvironment,
   WorkoutOrder,
 } from '../types';
-import { ProgrammeWorkout, WorkoutService } from '../workout';
+import {
+  ScheduledWorkout,
+  ScheduledWorkoutService,
+} from '../scheduled-workout';
 import { GraphQLError } from 'graphql';
 import * as uuid from 'uuid';
 import { UserWorkoutFeedback } from '../feedback';
-import {
-  PartialModelGraph,
-  PartialModelObject,
-  raw,
-  Transaction,
-} from 'objection';
+import { PartialModelGraph, PartialModelObject, Transaction } from 'objection';
 import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
 import Knex from 'knex';
 
@@ -50,7 +48,7 @@ export class UserPowerService {
   constructor(
     private userWorkoutService: UserWorkoutService,
     private accountService: AccountService,
-    private workoutService: WorkoutService,
+    private workoutService: ScheduledWorkoutService,
   ) {}
 
   public async getProgrammeInformation(
@@ -152,7 +150,7 @@ export class UserPowerService {
 
     // Ensure week exists
     if (week) {
-      await ProgrammeWorkout.query(opts.transaction)
+      await ScheduledWorkout.query(opts.transaction)
         .findOne({
           training_programme_id: trainingProgrammeId,
           week_number: week,
@@ -243,7 +241,7 @@ export class UserPowerService {
       },
       opts,
     );
-    const workoutsByWeek = new Map<number, ProgrammeWorkout[]>();
+    const workoutsByWeek = new Map<number, ScheduledWorkout[]>();
     for (const workout of workouts) {
       const workouts = workoutsByWeek.get(workout.weekNumber) ?? [];
       workouts.push(workout);

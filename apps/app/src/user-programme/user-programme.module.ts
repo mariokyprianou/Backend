@@ -3,7 +3,7 @@ import { UserProgrammeResolver } from './user-programme.resolver';
 import { UserProgrammeQueryResolver } from './user-programme-queries.resolver';
 import {
   UserExerciseNoteModule,
-  WorkoutModule,
+  ScheduledWorkoutModule,
   UserPowerModule,
   UserExerciseHistoryModule,
   TrainerModule,
@@ -24,7 +24,7 @@ import { ExerciseResolver } from './exercise.resolver';
     UserPowerModule,
     UserExerciseHistoryModule,
     UserExerciseNoteModule,
-    WorkoutModule,
+    ScheduledWorkoutModule,
     TrainerModule,
   ],
   providers: [

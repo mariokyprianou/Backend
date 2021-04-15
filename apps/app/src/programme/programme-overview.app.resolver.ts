@@ -1,15 +1,19 @@
-import { AuthContext, Programme, ShareMediaImageType } from '@lib/power';
+import {
+  AuthContext,
+  Programme,
+  ShareMediaImageType,
+  ScheduledWorkoutService,
+  TrainerLoaders,
+  ProgrammeLoaders,
+} from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { WorkoutService } from '@lib/power/workout';
 import { CommonService } from '@lib/common';
 import { ProgrammeResolver } from './programme.app.resolver';
-import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
-import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 
 @Resolver('ProgrammeOverview')
 export class ProgrammeOverviewResolver extends ProgrammeResolver {
   constructor(
-    workoutService: WorkoutService,
+    workoutService: ScheduledWorkoutService,
     commonService: CommonService,
     trainerLoaders: TrainerLoaders,
     programmeLoaders: ProgrammeLoaders,

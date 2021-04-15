@@ -1,17 +1,13 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
-import { Model, snakeCaseMappers } from 'objection';
-import { Exercise } from '../exercise';
-import { SetType } from '../types';
-import { WorkoutExerciseSet } from './workout-exercise-set.model';
-import { WorkoutExerciseTranslation } from './workout-exercise-tr.model';
+import type { Exercise } from '../exercise';
+import type { SetType } from './workout.interface';
+import type { WorkoutExerciseSet } from './workout-exercise-set.model';
+import type { WorkoutExerciseTranslation } from './workout-exercise-tr.model';
 
 export class WorkoutExercise extends BaseModel {
   static tableName = 'workout_exercise';
-
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
 
   id: string;
   workoutId: string;
@@ -27,30 +23,37 @@ export class WorkoutExercise extends BaseModel {
     return (this.localisations ?? []).find((tr) => tr.language === language);
   }
 
-  static relationMappings = {
-    sets: {
-      relation: Model.HasManyRelation,
-      modelClass: WorkoutExerciseSet,
-      join: {
-        from: 'workout_exercise.id',
-        to: 'workout_exercise_set.workout_exercise_id',
+  static get relationMappings() {
+    const { Exercise } = require('../exercise');
+    const { WorkoutExerciseSet } = require('./workout-exercise-set.model');
+    const {
+      WorkoutExerciseTranslation,
+    } = require('./workout-exercise-tr.model');
+    return {
+      sets: {
+        relation: BaseModel.HasManyRelation,
+        modelClass: WorkoutExerciseSet,
+        join: {
+          from: 'workout_exercise.id',
+          to: 'workout_exercise_set.workout_exercise_id',
+        },
       },
-    },
-    localisations: {
-      relation: Model.HasManyRelation,
-      modelClass: WorkoutExerciseTranslation,
-      join: {
-        from: 'workout_exercise.id',
-        to: 'workout_exercise_tr.workout_exercise_id',
+      localisations: {
+        relation: BaseModel.HasManyRelation,
+        modelClass: WorkoutExerciseTranslation,
+        join: {
+          from: 'workout_exercise.id',
+          to: 'workout_exercise_tr.workout_exercise_id',
+        },
       },
-    },
-    exercise: {
-      relation: Model.HasOneRelation,
-      modelClass: Exercise,
-      join: {
-        from: 'workout_exercise.exercise_id',
-        to: 'exercise.id',
+      exercise: {
+        relation: BaseModel.HasOneRelation,
+        modelClass: Exercise,
+        join: {
+          from: 'workout_exercise.exercise_id',
+          to: 'exercise.id',
+        },
       },
-    },
-  };
+    };
+  }
 }

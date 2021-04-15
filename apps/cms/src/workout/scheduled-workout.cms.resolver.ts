@@ -8,34 +8,34 @@ import {
 } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
 import {
-  ProgrammeWorkout,
-  WorkoutFilter,
-  WorkoutService,
-} from '@lib/power/workout';
+  CreateScheduledWorkoutDto,
+  ScheduledWorkout,
+  ScheduledWorkoutFilter,
+  ScheduledWorkoutService,
+  UpdateScheduledWorkoutDto,
+} from '@lib/power/scheduled-workout';
 import { CmsParams } from '@lib/common';
-import { CreateProgrammeWorkoutDto } from './dto/create-programme-workout.dto';
-import { UpdateProgrammeWorkoutDto } from './dto/update-programme-workout.dto';
 import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver('WorkoutWeek')
-export class WorkoutWeekCmsResolver {
-  constructor(private workoutService: WorkoutService) {}
+export class ScheduledWorkoutCmsResolver {
+  constructor(private workoutService: ScheduledWorkoutService) {}
 
   @ResolveField('workout')
-  async getWorkout(@Parent() workoutWeek: ProgrammeWorkout) {
+  async getWorkout(@Parent() workoutWeek: ScheduledWorkout) {
     return workoutWeek.workout;
   }
 
   @Mutation('createWorkoutWeek')
   async createWorkout(
-    @Args('workout') workout: CreateProgrammeWorkoutDto,
-  ): Promise<ProgrammeWorkout> {
+    @Args('workout') workout: CreateScheduledWorkoutDto,
+  ): Promise<ScheduledWorkout> {
     return this.workoutService.create(workout);
   }
 
   @Query('_allWorkoutWeeksMeta')
   async _allWorkoutsMeta(
-    @Args() params: CmsParams<WorkoutFilter>,
+    @Args() params: CmsParams<ScheduledWorkoutFilter>,
   ): Promise<ListMetadata> {
     const { count } = await this.workoutService.findCount(params);
     return { count };
@@ -43,32 +43,32 @@ export class WorkoutWeekCmsResolver {
 
   @Query('allWorkoutWeeks')
   async allWorkouts(
-    @Args() params: CmsParams<WorkoutFilter>,
-  ): Promise<ProgrammeWorkout[]> {
+    @Args() params: CmsParams<ScheduledWorkoutFilter>,
+  ): Promise<ScheduledWorkout[]> {
     return this.workoutService.findAll(params);
   }
 
   @Query('WorkoutWeek')
   async Workout(
     @Args('id', ParseUUIDPipe) id: string,
-  ): Promise<ProgrammeWorkout> {
+  ): Promise<ScheduledWorkout> {
     return this.workoutService.findById(id);
   }
 
   @Mutation('updateWorkoutWeek')
   async updateWorkout(
     @Args('id') id: string,
-    @Args('workout') workout: UpdateProgrammeWorkoutDto,
-  ): Promise<ProgrammeWorkout> {
-    return this.workoutService.update(id, workout);
+    @Args('workout') workout: UpdateScheduledWorkoutDto,
+  ): Promise<ScheduledWorkout> {
+    return this.workoutService.updateWorkout(id, workout);
   }
 
   @Mutation('deleteWorkoutWeek')
   async deleteWorkout(
     @Args('id', ParseUUIDPipe) id: string,
-  ): Promise<ProgrammeWorkout> {
+  ): Promise<ScheduledWorkout> {
     const workout = await this.workoutService.findById(id);
-    await this.workoutService.delete(id);
+    await this.workoutService.deleteWorkout(id);
 
     return workout;
   }

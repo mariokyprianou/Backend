@@ -1,18 +1,18 @@
-import { Exercise, ExerciseService } from '@lib/power/exercise';
+import { WorkoutExercise } from '@lib/power';
 import { Injectable, Scope } from '@nestjs/common';
 import * as DataLoader from 'dataloader';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ExerciseLoaders {
-  constructor(private readonly exerciseService: ExerciseService) {}
-
-  public readonly findById = new DataLoader<string, Exercise>(
-    async (exerciseIds) => {
-      const exercises = await this.exerciseService.findAll({
-        filter: { ids: exerciseIds as string[] },
-      });
-
-      return exerciseIds.map((id) => exercises.find((e) => e.id === id));
+  public readonly findByWorkoutId = new DataLoader<string, WorkoutExercise[]>(
+    async (workoutIds) => {
+      const exercises = await WorkoutExercise.query()
+        .whereIn('workout_id', workoutIds as string[])
+        .withGraphJoined('exercise')
+        .withGraphFetched('[sets, localisations, exercise.localisations]');
+      return workoutIds.map((id) =>
+        exercises.filter((e) => e.workoutId === id),
+      );
     },
   );
 }

@@ -2,7 +2,7 @@ import { CommonModule } from '@lib/common';
 import { ProgrammeModule } from '@lib/power/programme';
 import { TrainerModule } from '@lib/power/trainer';
 import { UserPowerModule } from '@lib/power/user-power';
-import { WorkoutModule } from '@lib/power/workout';
+import { ScheduledWorkoutModule } from '@lib/power/scheduled-workout';
 import { Module } from '@nestjs/common';
 import { TrainerResolver } from './trainer.resolver';
 
@@ -11,7 +11,7 @@ import { TrainerResolver } from './trainer.resolver';
     TrainerModule,
     CommonModule,
     ProgrammeModule,
-    WorkoutModule,
+    ScheduledWorkoutModule,
     UserPowerModule,
   ],
   providers: [TrainerResolver],

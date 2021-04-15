@@ -1,0 +1,68 @@
+type OnDemandWorkout implements Workout {
+  id: ID!
+
+  # Workout fields
+  isContinuous: Boolean!
+  overviewImage: File
+  intensity: IntensityEnum!
+  duration: Int!
+  localisations: [WorkoutLocalisation]
+  exercises: [WorkoutExercise]
+
+  # OnDemandWorkout fields
+  programme: Programme
+}
+
+input CreateOnDemandWorkoutInput {
+  duration: Int!
+  exercises: [WorkoutExerciseInput]
+  intensity: IntensityEnum!
+  isContinuous: Boolean!
+  localisations: [WorkoutLocalisationInput]!
+  orderIndex: Int!
+  overviewImageKey: String
+  programme: ID!
+}
+
+input UpdateOnDemandWorkoutInput {
+  duration: Int
+  exercises: [WorkoutExerciseInput]
+  intensity: IntensityEnum
+  isContinuous: Boolean
+  localisations: [WorkoutLocalisationInput]
+  orderIndex: Int
+  overviewImageKey: String
+  programme: ID
+}
+
+input OnDemandWorkoutFilterInput {
+  id: ID
+  ids: [ID]
+}
+
+extend type Query {
+  OnDemandWorkout(id: ID!): OnDemandWorkout
+  allOnDemandWorkouts(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: OnDemandWorkoutFilterInput
+  ): [OnDemandWorkout!]!
+  _allOnDemandWorkoutsMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: OnDemandWorkoutFilterInput
+  ): ListMetadata!
+}
+
+extend type Mutation {
+  createOnDemandWorkout(workout: CreateOnDemandWorkoutInput): OnDemandWorkout
+  updateOnDemandWorkout(
+    id: ID!
+    workout: UpdateOnDemandWorkoutInput
+  ): OnDemandWorkout
+  deleteOnDemandWorkout(id: ID!): OnDemandWorkout
+}

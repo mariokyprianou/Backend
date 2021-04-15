@@ -11,7 +11,7 @@ interface FindExerciseParams extends ICmsParams<ExerciseFilter> {
   language?: string;
 }
 
-function baseQuery(params: FindExerciseParams) {
+function baseQuery(params: FindExerciseParams = {}) {
   const query = Exercise.query()
     .whereNull('exercise.deleted_at')
     .withGraphFetched('[localisations, category]');

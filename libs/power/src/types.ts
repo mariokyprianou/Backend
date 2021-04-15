@@ -1,3 +1,5 @@
+import type { SetType } from './workout';
+
 export interface ExerciseNote {
   exercise: string;
   note: string;
@@ -90,53 +92,6 @@ export enum PublishStatus {
 export interface ShareMediaLocalisation {
   imageKey: string;
   colour: string;
-}
-
-export enum IntensityEnum {
-  LOW = 'LOW',
-  MOD = 'MOD',
-  HIGH = 'HIGH',
-}
-
-export enum SetType {
-  REPS = 'REPS',
-  TIME = 'TIME',
-}
-
-export interface IProgrammeWorkout {
-  duration: number;
-  exercises: WorkoutExercise[];
-  intensity: IntensityEnum;
-  isContinuous: boolean;
-  localisations: ProgrammeWorkoutLocalisations[];
-  orderIndex: number;
-  overviewImageKey?: string;
-  programme: string;
-  weekNumber: number;
-}
-
-export interface ProgrammeWorkoutLocalisations {
-  language: string;
-  name: string;
-}
-
-export interface WorkoutExercise {
-  orderIndex: number;
-  setType: SetType;
-  sets: WorkoutSet[];
-  exercise: string;
-  localisations: WorkoutExerciseLocalisation[];
-}
-
-export interface WorkoutExerciseLocalisation {
-  language: string;
-  coachingTips: string;
-}
-
-export interface WorkoutSet {
-  setNumber: number;
-  quantity: number;
-  restTime: number;
 }
 
 export interface HmcQuestionLocalisationGraphQlType {

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
-import { Exercise } from '../exercise';
-import { SetType } from '../types';
+import type { Exercise } from '../exercise';
+import { SetType } from '../workout';
 
 export class UserExerciseHistory extends BaseModel {
   static tableName = 'user_exercise_history';
@@ -24,6 +25,7 @@ export class UserExerciseHistory extends BaseModel {
   exercise: Exercise;
 
   static get relationMappings() {
+    const { Exercise } = require('../exercise');
     return {
       exercise: {
         relation: Model.BelongsToOneRelation,

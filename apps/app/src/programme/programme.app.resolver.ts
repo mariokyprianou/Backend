@@ -1,6 +1,6 @@
 import { Programme } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { WorkoutService } from '@lib/power/workout';
+import { ScheduledWorkoutService } from '@lib/power/scheduled-workout';
 import { CommonService } from '@lib/common';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
@@ -8,7 +8,7 @@ import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 @Resolver('Programme')
 export class ProgrammeResolver {
   constructor(
-    protected workoutService: WorkoutService,
+    protected workoutService: ScheduledWorkoutService,
     protected commonService: CommonService,
     protected trainerLoaders: TrainerLoaders,
     protected programmeLoaders: ProgrammeLoaders,

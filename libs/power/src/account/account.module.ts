@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { WorkoutModule } from '../workout';
+import { ScheduledWorkoutModule } from '../scheduled-workout';
 import { AccountLoaders } from './account.loaders';
 import { AccountService } from './account.service';
 
 @Module({
-  imports: [WorkoutModule],
+  imports: [ScheduledWorkoutModule],
   providers: [AccountService, AccountLoaders],
   exports: [AccountService, AccountLoaders],
 })

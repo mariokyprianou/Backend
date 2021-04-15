@@ -1,18 +1,31 @@
 import { CommonModule } from '@lib/common';
-import { ExerciseModule, WorkoutModule, TrainerModule } from '@lib/power';
+import {
+  ExerciseModule,
+  OnDemandWorkoutModule,
+  ScheduledWorkoutModule,
+  TrainerModule,
+} from '@lib/power';
 import { Module } from '@nestjs/common';
 import { ExerciseCMSModule } from '../exercise/exercise.module';
-import { WorkoutWeekCmsResolver } from './workout-week.cms.resolver';
+import { OnDemandWorkoutCmsResolver } from './on-demand-workout.cms.resolver';
+import { ScheduledWorkoutCmsResolver } from './scheduled-workout.cms.resolver';
+import { WorkoutExerciseCmsResolver } from './workout-exercise.cms.resolver';
 import { WorkoutCmsResolver } from './workout.cms.resolver';
 
 @Module({
   imports: [
-    WorkoutModule,
+    OnDemandWorkoutModule,
+    ScheduledWorkoutModule,
     CommonModule,
     TrainerModule,
     ExerciseModule,
     ExerciseCMSModule,
   ],
-  providers: [WorkoutWeekCmsResolver, WorkoutCmsResolver],
+  providers: [
+    OnDemandWorkoutCmsResolver,
+    ScheduledWorkoutCmsResolver,
+    WorkoutCmsResolver,
+    WorkoutExerciseCmsResolver,
+  ],
 })
 export class WorkoutCMSModule {}

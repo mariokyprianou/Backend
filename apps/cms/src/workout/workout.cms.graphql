@@ -1,13 +1,4 @@
-type WorkoutWeek {
-  id: ID!
-  weekNumber: Int!
-  orderIndex: Int!
-  workout: Workout!
-  trainingProgrammeId: ID
-  programme: Programme
-}
-
-type Workout {
+interface Workout {
   isContinuous: Boolean!
   overviewImage: File
   intensity: IntensityEnum!
@@ -43,31 +34,9 @@ type WorkoutExercise {
   orderIndex: Int!
 }
 
-input WorkoutInput {
-  duration: Int!
-  exercises: [WorkoutExerciseInput]
-  intensity: IntensityEnum!
-  isContinuous: Boolean
-  localisations: [WorkoutLocalisationInput]!
-  orderIndex: Int!
-  overviewImageKey: String
-  programme: ID!
-  weekNumber: Int!
-}
-
 input WorkoutLocalisationInput {
   language: ISOLanguage!
   name: String!
-}
-
-input WorkoutWeekFilter {
-  id: ID
-  ids: [ID]
-  trainer: ID
-  environment: ID
-  name: String
-  week: Int
-  programmeId: ID
 }
 
 type WorkoutExerciseLocalisation {
@@ -79,28 +48,4 @@ type WorkoutExerciseLocalisation {
 input WorkoutExerciseLocalisationInput {
   language: ISOLanguage!
   coachingTips: String!
-}
-
-extend type Mutation {
-  createWorkoutWeek(workout: WorkoutInput): WorkoutWeek!
-  updateWorkoutWeek(id: ID!, workout: WorkoutInput): WorkoutWeek!
-  deleteWorkoutWeek(id: ID!): WorkoutWeek!
-}
-
-extend type Query {
-  WorkoutWeek(id: ID!): WorkoutWeek!
-  allWorkoutWeeks(
-    page: Int
-    perPage: Int
-    sortField: String
-    sortOrder: SortOrder
-    filter: WorkoutWeekFilter
-  ): [WorkoutWeek!]!
-  _allWorkoutWeeksMeta(
-    page: Int
-    perPage: Int
-    sortField: String
-    sortOrder: SortOrder
-    filter: WorkoutWeekFilter
-  ): ListMetadata!
 }

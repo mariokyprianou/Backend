@@ -1,6 +1,6 @@
 import { CommonModule } from '@lib/common/common.module';
 import { TrainerModule } from '@lib/power/trainer';
-import { WorkoutModule } from '@lib/power/workout';
+import { ScheduledWorkoutModule } from '@lib/power/scheduled-workout';
 import { Module } from '@nestjs/common';
 import { ProgrammeResolver } from './programme.app.resolver';
 import { ProgrammeOverviewResolver } from './programme-overview.app.resolver';
@@ -10,7 +10,7 @@ import { UserPowerModule } from '@lib/power/user-power';
 @Module({
   imports: [
     CommonModule,
-    WorkoutModule,
+    ScheduledWorkoutModule,
     TrainerModule,
     ProgrammeModule,
     UserPowerModule,

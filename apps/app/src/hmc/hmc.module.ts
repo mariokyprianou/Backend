@@ -1,8 +1,10 @@
-import { CommonModule } from '@lib/common/common.module';
-import { TrainerModule } from '@lib/power/trainer';
-import { ProgrammeModule } from '@lib/power/programme';
-import { HmcQuestionModule } from '@lib/power/hmc-question/hmc-question.module';
-import { WorkoutModule } from '@lib/power/workout';
+import { CommonModule } from '@lib/common';
+import {
+  TrainerModule,
+  ProgrammeModule,
+  HmcQuestionModule,
+  ScheduledWorkoutModule,
+} from '@lib/power';
 import { Module } from '@nestjs/common';
 import { HMCResolver } from './hmc.resolver';
 
@@ -10,7 +12,7 @@ import { HMCResolver } from './hmc.resolver';
   imports: [
     HmcQuestionModule,
     CommonModule,
-    WorkoutModule,
+    ScheduledWorkoutModule,
     ProgrammeModule,
     TrainerModule,
   ],

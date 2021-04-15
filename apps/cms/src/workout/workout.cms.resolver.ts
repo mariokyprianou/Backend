@@ -1,18 +1,18 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { Workout } from '@lib/power/workout';
+import { Workout } from '@lib/power';
 import { CommonService } from '@lib/common';
 import { ExerciseLoaders } from '../exercise/exercise.loader';
-import { Exercise } from '@lib/power/exercise';
 
 @Resolver('Workout')
-export class WorkoutCmsResolver {
+export class WorkoutCmsResolver<T = Workout> {
   constructor(
     private commonService: CommonService,
     private exerciseLoaders: ExerciseLoaders,
   ) {}
 
   @ResolveField('overviewImage')
-  getOverviewImage(@Parent() workout: Workout) {
+  getOverviewImage(@Parent() parent: T) {
+    const workout = this.getWorkout(parent);
     if (!workout.overviewImageKey) {
       return null;
     }
@@ -27,39 +27,33 @@ export class WorkoutCmsResolver {
   }
 
   @ResolveField('isContinuous')
-  getIsContinuous(@Parent() workout: Workout) {
-    return workout.isContinuous;
+  getIsContinuous(@Parent() parent: T) {
+    return this.getWorkout(parent).isContinuous;
   }
 
   @ResolveField('intensity')
-  getIntensity(@Parent() workout: Workout) {
-    return workout.intensity;
+  getIntensity(@Parent() parent: T) {
+    return this.getWorkout(parent).intensity;
   }
 
   @ResolveField('duration')
-  getDuration(@Parent() workout: Workout) {
-    return workout.duration;
+  getDuration(@Parent() parent: T) {
+    return this.getWorkout(parent).duration;
   }
 
   @ResolveField('localisations')
-  getLocalisations(@Parent() workout: Workout) {
-    return workout.localisations;
+  getLocalisations(@Parent() parent: T) {
+    return this.getWorkout(parent).localisations;
   }
 
   @ResolveField('exercises')
-  async getExercises(@Parent() workout: Workout) {
-    const exercises = await this.exerciseLoaders.findById.loadMany(
-      workout.exercises.map((ex) => ex.exerciseId),
-    );
+  async getExercises(@Parent() parent: T) {
+    const workout = this.getWorkout(parent);
 
-    return workout.exercises.map((workoutExercise) => ({
-      setType: workoutExercise.setType,
-      sets: workoutExercise.sets,
-      localisations: workoutExercise.localisations,
-      exercise: exercises.find(
-        (e) => workoutExercise.exerciseId === (e as Exercise).id,
-      ),
-      orderIndex: workoutExercise.orderIndex,
-    }));
+    return this.exerciseLoaders.findByWorkoutId.load(workout.id);
+  }
+
+  protected getWorkout(parent: any): Workout {
+    return parent;
   }
 }

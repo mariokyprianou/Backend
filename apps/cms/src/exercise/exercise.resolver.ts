@@ -14,7 +14,6 @@ import {
   ExerciseLocalisation,
   IExercise,
 } from '@lib/power/types';
-import { applyPagination } from '@lib/database';
 import { CmsParams, CommonService } from '@lib/common';
 import { v4 as uuid } from 'uuid';
 import { S3 } from 'aws-sdk';

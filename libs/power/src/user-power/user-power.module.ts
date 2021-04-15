@@ -4,7 +4,7 @@ import { AccountModule } from '../account';
 import { UserProgrammeModule } from '../user-programme';
 import { UserWorkoutModule } from '../user-workout';
 import { UserWorkoutWeekModule } from '../user-workout-week';
-import { WorkoutModule } from '../workout';
+import { ScheduledWorkoutModule } from '../scheduled-workout';
 import { UserPowerLoaders } from './user-power.loaders';
 import { UserPowerService } from './user-power.service';
 
@@ -15,7 +15,7 @@ import { UserPowerService } from './user-power.service';
     CommonModule,
     UserWorkoutModule,
     UserWorkoutWeekModule,
-    WorkoutModule,
+    ScheduledWorkoutModule,
   ],
   providers: [UserPowerService, UserPowerLoaders],
   exports: [UserPowerService, UserPowerLoaders],
