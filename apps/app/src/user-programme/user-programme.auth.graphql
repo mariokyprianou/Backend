@@ -21,25 +21,31 @@ type UserWorkoutWeek {
   workouts: [UserWorkout!]!
 }
 
-type UserWorkout {
+type UserWorkout implements Workout {
+  # Workout fields
   id: ID!
-  isContinuous: Boolean!
-  overviewImage: URL
-  intensity: IntensityEnum!
+  programme: ProgrammeOverview
   duration: Int!
-  name: String!
   exercises: [UserWorkoutExercise]
+  intensity: IntensityEnum!
+  isContinuous: Boolean!
+  name: String!
+  overviewImage: URL
 
+  # UserWorkout fields
   orderIndex: Int!
   completedAt: DateTime
 }
 
-type UserWorkoutExercise {
-  id: ID!
-  orderIndex: Int!
+type UserWorkoutExercise implements WorkoutExercise {
+  # WorkoutExercise fields
   exercise: Exercise!
-  sets: [WorkoutSet]
   setType: SetType!
+  sets: [WorkoutSet]
+  orderIndex: Int!
+
+  # UserWorkoutExercise fields
+  id: ID!
   notes: String
 }
 

@@ -1,7 +1,6 @@
 type OnDemandWorkout implements Workout {
-  id: ID!
-
   # Workout fields
+  programme: ProgrammeOverview
   isContinuous: Boolean!
   overviewImage: File
   intensity: IntensityEnum!
@@ -10,7 +9,7 @@ type OnDemandWorkout implements Workout {
   exercises: [WorkoutExercise]
 
   # OnDemandWorkout fields
-  programme: Programme
+  id: ID!
 }
 
 input CreateOnDemandWorkoutInput {

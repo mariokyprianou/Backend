@@ -18,17 +18,33 @@ type ProgrammeProgress = {
 @Injectable({ scope: Scope.REQUEST })
 export class ProgrammeLoaders {
   private readonly accountId: string;
+  private readonly language: string;
 
-  constructor(@Inject(CONTEXT) context: { authContext: { id: string } }) {
+  constructor(
+    @Inject(CONTEXT) context: { authContext: { id: string }; language: string },
+  ) {
     this.accountId = context?.authContext?.id;
+    this.language = context.language ?? 'en';
   }
+
+  private baseQuery() {
+    return Programme.query()
+      .withGraphJoined('localisations')
+      .modifyGraph('localisations', (qb) =>
+        qb.where(ref('language'), this.language),
+      );
+  }
+
+  public readonly findById = new DataLoader<string, Programme>(async (ids) => {
+    const programmes = await this.baseQuery().findByIds(ids as string[]);
+    return ids.map((id) => programmes.find((programme) => programme.id === id));
+  });
 
   public readonly findByTrainerId = new DataLoader<string, Programme[]>(
     async (trainerIds) => {
-      const programmes = await Programme.query()
+      const programmes = await this.baseQuery()
         .whereIn('trainer_id', trainerIds as string[])
-        .andWhere('status', PublishStatus.PUBLISHED)
-        .withGraphFetched('localisations');
+        .andWhere('status', PublishStatus.PUBLISHED);
 
       return trainerIds.map((trainerId) =>
         programmes.filter((programme) => programme.trainerId === trainerId),
@@ -121,7 +137,9 @@ export class ProgrammeLoaders {
       await Programme.fetchGraph(
         userProgrammes.map((p) => p.trainingProgramme),
         'localisations',
-      ).modifyGraph('localisations', (qb) => qb.where(ref('language'), 'en'));
+      ).modifyGraph('localisations', (qb) =>
+        qb.where(ref('language'), this.language),
+      );
 
       return accountIds.map((accountId) => {
         const userProgramme = userProgrammes.find(

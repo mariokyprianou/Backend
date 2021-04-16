@@ -13,7 +13,7 @@ export class TaxonomyService {
     const idField = isUuid(taxonomyIdOrKey) ? 'taxonomy.id' : 'taxonomy.key';
     return Taxonomy.query()
       .select(
-        'taxonomy.id as id',
+        'terms.id as id',
         raw('COALESCE(tr.name, tr_fallback.name, terms.key) as name'),
       )
       .joinRelated('terms')
@@ -27,7 +27,6 @@ export class TaxonomyService {
       )
       .orderBy(raw('COALESCE(tr.name, tr_fallback.name, terms.key)'), 'ASC')
       .where(ref(idField), taxonomyIdOrKey)
-      .debug()
       .toKnexQuery<ITaxonomyTerm>();
   }
 }

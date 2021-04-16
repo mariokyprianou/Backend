@@ -7,6 +7,18 @@ import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 
 @Resolver('Programme')
 export class ProgrammeResolver {
+  // __resolveType(parent: UserProgramme | Programme) {
+  //   if (parent instanceof UserProgramme) {
+  //     return 'UserProgramme';
+  //   }
+  //   if (parent instanceof Programme) {
+  //     return 'ProgrammeOverview';
+  //   }
+  //   return null;
+  // }
+}
+
+export class AbstractProgrammeResolver {
   constructor(
     protected workoutService: ScheduledWorkoutService,
     protected commonService: CommonService,

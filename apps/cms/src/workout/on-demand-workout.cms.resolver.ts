@@ -9,7 +9,7 @@ import {
 import {
   CreateOnDemandWorkoutDto,
   ListMetadata,
-  OnDemandWorkoutService,
+  OnDemandWorkoutCmsService,
   UpdateOnDemandWorkoutDto,
   OnDemandWorkoutFilter,
   OnDemandWorkout,
@@ -24,7 +24,7 @@ export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorko
   constructor(
     commonService: CommonService,
     exerciseLoaders: ExerciseLoaders,
-    private workoutService: OnDemandWorkoutService,
+    private workoutService: OnDemandWorkoutCmsService,
   ) {
     super(commonService, exerciseLoaders);
   }

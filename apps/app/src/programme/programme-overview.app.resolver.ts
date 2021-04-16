@@ -8,10 +8,10 @@ import {
 } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { CommonService } from '@lib/common';
-import { ProgrammeResolver } from './programme.app.resolver';
+import { AbstractProgrammeResolver } from './programme.app.resolver';
 
 @Resolver('ProgrammeOverview')
-export class ProgrammeOverviewResolver extends ProgrammeResolver {
+export class ProgrammeOverviewResolver extends AbstractProgrammeResolver {
   constructor(
     workoutService: ScheduledWorkoutService,
     commonService: CommonService,

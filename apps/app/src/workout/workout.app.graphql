@@ -1,15 +1,17 @@
-type Workout {
-  overviewImage: URL
-  intensity: IntensityEnum!
+interface Workout {
+  programme: Programme!
   duration: Int!
-  name: String!
   exercises: [WorkoutExercise]
+  intensity: IntensityEnum!
+  isContinuous: Boolean!
+  name: String!
+  overviewImage: URL
 }
 
-type WorkoutExercise {
+interface WorkoutExercise {
+  exercise: Exercise!
   setType: SetType!
   sets: [WorkoutSet]
-  exercise: Exercise!
   orderIndex: Int!
 }
 
