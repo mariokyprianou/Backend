@@ -1,13 +1,14 @@
 service: power
 
 frameworkVersion: '2'
-
+useDotenv: true
 provider:
   name: aws
   region: ap-south-1
   runtime: nodejs14.x
   stage: ${opt:stage, 'development'}
   profile: power
+  useDotenv:
   environment:
     NODE_ENV: ${env:NODE_ENV}
     DB_HOST: ${env:DB_HOST}
@@ -65,7 +66,6 @@ provider:
       Action:
         - 'cognito-idp:*'
 plugins:
-  - serverless-dotenv-plugin
   - serverless-prune-plugin
   - serverless-webpack
   - serverless-offline
