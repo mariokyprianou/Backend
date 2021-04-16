@@ -1,4 +1,4 @@
-import { ICmsParams } from '@lib/common';
+import { ICmsFilter, ICmsParams } from '@lib/common';
 import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
 import { UpdateUserInput } from 'apps/cms/src/user/user.resolver';
@@ -114,7 +114,7 @@ export class UserService {
   }
 }
 
-export interface UserFilter {
+export interface UserFilter extends ICmsFilter {
   id?: string;
   ids?: string[];
   email?: string;

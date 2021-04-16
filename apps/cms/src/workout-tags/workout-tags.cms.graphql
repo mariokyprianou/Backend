@@ -1,0 +1,46 @@
+type WorkoutTag {
+  id: ID!
+  localisations: [WorkoutTagLocalisation!]!
+}
+
+type WorkoutTagLocalisation {
+  language: ISOLanguage!
+  name: String!
+}
+
+input WorkoutTagLocalisationInput {
+  language: ISOLanguage!
+  name: String!
+}
+
+input WorkoutTagFilter {
+  id: ID
+  ids: [ID!]
+}
+
+extend type Query {
+  WorkoutTag(id: ID!): WorkoutTag
+  allWorkoutTags(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: WorkoutTagFilter
+  ): [WorkoutTag]
+  _allWorkoutTagsMeta(
+    page: Int
+    perPage: Int
+    sortField: String
+    sortOrder: SortOrder
+    filter: WorkoutTagFilter
+  ): ListMetadata
+}
+
+extend type Mutation {
+  createWorkoutTag(localisations: [WorkoutTagLocalisationInput!]!): WorkoutTag!
+  updateWorkoutTag(
+    id: ID!
+    localisations: [WorkoutTagLocalisationInput!]
+  ): WorkoutTag!
+  deleteWorkoutTag(id: ID!): WorkoutTag!
+}

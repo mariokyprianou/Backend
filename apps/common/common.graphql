@@ -138,3 +138,10 @@ input IntRangeInput {
   from: Int
   to: Int
 }
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}

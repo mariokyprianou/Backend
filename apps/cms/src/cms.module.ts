@@ -16,6 +16,7 @@ import { ConfigCMSModule } from './config/config.module';
 import { ChallengeCMSModule } from './challenge/challenge.module';
 import { UserCMSModule } from './user/user.module';
 import { AdministratorCMSModule } from './administrator/administrator.module';
+import { WorkoutTagsCmsModule } from './workout-tags/workout-tags.module';
 import { RegionCMSModule } from './region/region.module';
 import { CountryCMSModule } from './country/region.module';
 import { AuthProviderModule } from '@td/auth-provider';
@@ -30,20 +31,21 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
       debug: configService.get('isDevelopment'),
       playground: configService.get('isDevelopment'),
       include: [
-        CommonModule,
-        TrainerCMSModule,
-        ExerciseCMSModule,
-        ExerciseCategoryCMSModule,
-        ProgrammeCMSModule,
-        HmcQuestionCMSModule,
-        WorkoutCMSModule,
-        FeedbackCMSModule,
-        ConfigCMSModule,
-        ChallengeCMSModule,
-        UserCMSModule,
         AdministratorCMSModule,
-        RegionCMSModule,
+        ChallengeCMSModule,
+        CommonModule,
+        ConfigCMSModule,
         CountryCMSModule,
+        ExerciseCategoryCMSModule,
+        ExerciseCMSModule,
+        FeedbackCMSModule,
+        HmcQuestionCMSModule,
+        ProgrammeCMSModule,
+        RegionCMSModule,
+        TrainerCMSModule,
+        UserCMSModule,
+        WorkoutCMSModule,
+        WorkoutTagsCmsModule,
       ],
       typePaths: [
         './apps/cms/src/**/*.cms.graphql',
@@ -60,28 +62,29 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
 
 @Module({
   imports: [
+    AdministratorCMSModule,
+    AuthProviderModule,
+    ChallengeCMSModule,
+    CommonModule,
+    ConfigCMSModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [commonConfig, databaseConfig, userAuthKeysConfig],
     }),
-    CommonModule,
-    DatabaseModule,
-    ExerciseCMSModule,
-    TrainerCMSModule,
-    ExerciseCategoryCMSModule,
-    ProgrammeCMSModule,
-    HmcQuestionCMSModule,
-    WorkoutCMSModule,
-    FeedbackCMSModule,
-    ConfigCMSModule,
-    ChallengeCMSModule,
-    UserCMSModule,
-    AdministratorCMSModule,
-    RegionCMSModule,
     CountryCMSModule,
-    AuthProviderModule,
+    DatabaseModule,
+    ExerciseCategoryCMSModule,
+    ExerciseCMSModule,
+    FeedbackCMSModule,
     GenerateCsvReportModule,
     GraphQLProvider,
+    HmcQuestionCMSModule,
+    ProgrammeCMSModule,
+    RegionCMSModule,
+    TrainerCMSModule,
+    UserCMSModule,
+    WorkoutCMSModule,
+    WorkoutTagsCmsModule,
   ],
 })
 export class CmsModule {}

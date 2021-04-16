@@ -1,3 +1,4 @@
+import { ICmsFilter } from '@lib/common';
 import type { SetType } from './workout';
 
 export interface ExerciseNote {
@@ -60,10 +61,7 @@ export interface IExercise {
   categoryId: string;
 }
 
-export interface Filter {
-  id?: string;
-  ids?: string[];
-}
+export type Filter = ICmsFilter;
 
 export interface ListMetadata {
   count: number;

@@ -13,36 +13,17 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "@lib/common": [
-        "libs/common/src"
-      ],
-      "@lib/common/*": [
-        "libs/common/src/*"
-      ],
-      "@lib/database": [
-        "libs/database/src"
-      ],
-      "@lib/database/*": [
-        "libs/database/src/*"
-      ],
-      "@lib/power": [
-        "libs/power/src"
-      ],
-      "@lib/power/*": [
-        "libs/power/src/*"
-      ],
-      "@td/auth-provider": [
-        "libs/auth-provider/src"
-      ],
-      "@td/auth-provider/*": [
-        "libs/auth-provider/src/*"
-      ],
-      "@td/generate-csv-report": [
-        "libs/generate-csv-report/src"
-      ],
-      "@td/generate-csv-report/*": [
-        "libs/generate-csv-report/src/*"
-      ]
+      "@lib/common": ["libs/common/src"],
+      "@lib/common/*": ["libs/common/src/*"],
+      "@lib/database": ["libs/database/src"],
+      "@lib/database/*": ["libs/database/src/*"],
+      "@lib/power": ["libs/power/src"],
+      "@lib/power/*": ["libs/power/src/*"],
+      "@lib/taxonomy": ["libs/taxonomy/src"],
+      "@td/auth-provider": ["libs/auth-provider/src"],
+      "@td/auth-provider/*": ["libs/auth-provider/src/*"],
+      "@td/generate-csv-report": ["libs/generate-csv-report/src"],
+      "@td/generate-csv-report/*": ["libs/generate-csv-report/src/*"]
     }
   }
 }

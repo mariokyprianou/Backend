@@ -22,6 +22,7 @@ module.exports = {
       '@lib/common': path.resolve(__dirname, 'libs/common/src'),
       '@lib/database': path.resolve(__dirname, 'libs/database/src'),
       '@lib/power': path.resolve(__dirname, 'libs/power/src'),
+      '@lib/taxonomy': path.resolve(__dirname, 'libs/taxonomy/src'),
       '@td/auth-provider': path.resolve(__dirname, 'libs/auth-provider/src'),
       '@td/generate-csv-report': path.resolve(
         __dirname,

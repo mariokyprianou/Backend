@@ -76,6 +76,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/generate-csv-report/tsconfig.lib.json"
       }
+    },
+    "taxonomy": {
+      "type": "library",
+      "root": "libs/taxonomy",
+      "entryFile": "index",
+      "sourceRoot": "libs/taxonomy/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/taxonomy/tsconfig.lib.json"
+      }
     }
   }
 }
