@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { UserInputError, ValidationError } from 'apollo-server-errors';
+import { UserInputError, ValidationError } from 'apollo-server-express';
 import { GraphQLError } from 'graphql';
 import { NotFoundError } from 'objection';
 

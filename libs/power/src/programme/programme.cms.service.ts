@@ -11,7 +11,7 @@ import { Programme } from './programme.model';
 import { ShareMediaTranslation } from './share-media-tr.model';
 import { ShareMediaImage } from './share-media.interface';
 import { ShareMedia } from './share-media.model';
-import { ValidationError } from 'apollo-server-errors';
+import { ValidationError } from 'apollo-server-express';
 import { ICmsParams } from '@lib/common';
 import { ProgrammeFilter } from './programme.interface';
 import { applyPagination } from '@lib/database';

@@ -37,10 +37,6 @@ type UserWorkout {
   completedAt: DateTime
 }
 
-type UserWorkout {
-  workout: OnDemandWorkout
-}
-
 type UserWorkoutExercise {
   # WorkoutExercise fields
   exercise: Exercise!
