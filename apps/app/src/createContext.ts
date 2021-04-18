@@ -8,6 +8,7 @@ import { Account } from '@lib/power';
 acceptLanguage.languages(['en', 'ur', 'hi']);
 
 export interface GQLContext {
+  ipAddress?: string;
   language: string;
   authContext?: AuthContext;
 }
@@ -34,6 +35,7 @@ export async function createContext({
   }
 
   return {
+    ipAddress: req?.apiGateway?.event?.headers?.['X-Forwarded-For'],
     language: acceptLanguage.get(req.headers['accept-language'] ?? 'en'),
     authContext: {
       id: account?.id,

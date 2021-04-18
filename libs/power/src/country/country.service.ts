@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Objection, { ref } from 'objection';
 import { Country } from './country.model';
+import axios from 'axios';
 
 @Injectable()
 export class CountryService {
@@ -41,6 +42,25 @@ export class CountryService {
 
   public delete(id: string) {
     return Country.query().findById(id).delete();
+  }
+
+  public async findByIpAddress(ipAddress: string, language = 'en') {
+    try {
+      const response = await axios.get(
+        `http://ip-api.com/json/${ipAddress}?fields=countryCode`,
+      );
+      const { countryCode } = response.data;
+
+      return Country.query()
+        .findOne('code', countryCode)
+        .select('country.id', 'localisations.name as name', 'code')
+        .withGraphJoined('localisations')
+        .modifyGraph('localisations', (qb) =>
+          qb.where(ref('language'), language),
+        );
+    } catch (e) {
+      return null;
+    }
   }
 }
 

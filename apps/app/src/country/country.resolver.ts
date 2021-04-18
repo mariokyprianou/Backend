@@ -16,6 +16,16 @@ export class CountryResolver {
     return this.service.getAll(language);
   }
 
+  @Query('lookupCountry')
+  async lookupCountry(
+    @Context('language') language: string,
+    @Context('ipAddress') ipAddress: string,
+  ) {
+    if (ipAddress) {
+      return this.service.findByIpAddress(ipAddress, language);
+    }
+  }
+
   @ResolveField('country')
   getCountry(@Parent() country: Country) {
     return country.name;
