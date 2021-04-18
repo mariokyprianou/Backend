@@ -2,8 +2,7 @@
 import { BaseModel } from '@lib/database';
 import { Model, snakeCaseMappers } from 'objection';
 import type { UserWorkoutWeek } from '../user-workout-week';
-import type { Workout } from '../workout';
-// import { UserWorkoutFeedbackEmoji } from './user-workout-feedback-emoji.model';
+import type { Workout, WorkoutType } from '../workout';
 
 export class UserWorkout extends BaseModel {
   static tableName = 'user_workout';
@@ -13,7 +12,9 @@ export class UserWorkout extends BaseModel {
   }
 
   id: string;
+  accountId: string;
   userWorkoutWeekId: string;
+  type: WorkoutType;
   workoutId: string;
   orderIndex: number;
   completedAt: Date;

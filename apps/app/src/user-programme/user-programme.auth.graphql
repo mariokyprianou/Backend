@@ -21,7 +21,7 @@ type UserWorkoutWeek {
   workouts: [UserWorkout!]!
 }
 
-type UserWorkout implements Workout {
+type UserWorkout {
   # Workout fields
   id: ID!
   programme: ProgrammeOverview
@@ -37,7 +37,11 @@ type UserWorkout implements Workout {
   completedAt: DateTime
 }
 
-type UserWorkoutExercise implements WorkoutExercise {
+type UserWorkout {
+  workout: OnDemandWorkout
+}
+
+type UserWorkoutExercise {
   # WorkoutExercise fields
   exercise: Exercise!
   setType: SetType!

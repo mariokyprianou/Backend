@@ -17,13 +17,13 @@ import {
 import { CmsParams, CommonService } from '@lib/common';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { WorkoutCmsResolver } from './workout.cms.resolver';
-import { ExerciseLoaders } from '../exercise/exercise.loader';
+import { ExerciseCmsLoaders } from '../exercise/exercise.cms.loaders';
 
 @Resolver('OnDemandWorkout')
 export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorkout> {
   constructor(
     commonService: CommonService,
-    exerciseLoaders: ExerciseLoaders,
+    exerciseLoaders: ExerciseCmsLoaders,
     private workoutService: OnDemandWorkoutCmsService,
   ) {
     super(commonService, exerciseLoaders);

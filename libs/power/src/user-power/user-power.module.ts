@@ -7,6 +7,7 @@ import { UserWorkoutWeekModule } from '../user-workout-week';
 import { ScheduledWorkoutModule } from '../scheduled-workout';
 import { UserPowerLoaders } from './user-power.loaders';
 import { UserPowerService } from './user-power.service';
+import { WorkoutFeedbackModule } from '../feedback';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserPowerService } from './user-power.service';
     UserWorkoutModule,
     UserWorkoutWeekModule,
     ScheduledWorkoutModule,
+    WorkoutFeedbackModule,
   ],
   providers: [UserPowerService, UserPowerLoaders],
   exports: [UserPowerService, UserPowerLoaders],

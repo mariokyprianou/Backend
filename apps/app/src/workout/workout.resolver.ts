@@ -1,25 +1,6 @@
 import { CommonService } from '@lib/common';
-import {
-  OnDemandWorkout,
-  ProgrammeLoaders,
-  UserWorkout,
-  Workout,
-} from '@lib/power';
+import { ExerciseLoaders, ProgrammeLoaders, Workout } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-
-@Resolver('Workout')
-export class WorkoutResolver {
-  @ResolveField()
-  __resolveType(parent: UserWorkout | OnDemandWorkout) {
-    if (parent instanceof UserWorkout) {
-      return 'UserWorkout';
-    }
-    if (parent instanceof OnDemandWorkout) {
-      return 'OnDemandWorkout';
-    }
-    return null;
-  }
-}
 
 export abstract class AbstractWorkoutResolver<T> {
   constructor(
@@ -32,6 +13,7 @@ export abstract class AbstractWorkoutResolver<T> {
   @ResolveField('programme')
   public async getProgramme(@Parent() parent: T) {
     const workout = this.getWorkoutModel(parent);
+    console.log(workout);
     return this.programmeLoaders.findById.load(workout.trainingProgrammeId);
   }
 
@@ -75,10 +57,29 @@ export abstract class AbstractWorkoutResolver<T> {
     const workout = this.getWorkoutModel(parent);
     return workout.getTranslation(language)?.name;
   }
+}
+
+@Resolver('Workout')
+export class WorkoutResolver extends AbstractWorkoutResolver<Workout> {
+  constructor(
+    commonService: CommonService,
+    programmeLoaders: ProgrammeLoaders,
+    private readonly exerciseLoaders: ExerciseLoaders,
+  ) {
+    super(commonService, programmeLoaders);
+  }
+
+  protected getWorkoutModel(parent: Workout): Workout {
+    return parent;
+  }
+
+  @ResolveField('id')
+  public async getId(@Parent() workout: Workout) {
+    return workout.id;
+  }
 
   @ResolveField('exercises')
-  public async getExercises(@Parent() parent: T) {
-    const workout = this.getWorkoutModel(parent);
-    return null;
+  public async getExercises(@Parent() workout: Workout) {
+    return this.exerciseLoaders.findByWorkoutId.load(workout.id);
   }
 }

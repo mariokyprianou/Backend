@@ -1,5 +1,6 @@
-interface Workout {
-  programme: Programme!
+type Workout {
+  id: ID!
+  programme: ProgrammeOverview!
   duration: Int!
   exercises: [WorkoutExercise]
   intensity: IntensityEnum!
@@ -8,7 +9,7 @@ interface Workout {
   overviewImage: URL
 }
 
-interface WorkoutExercise {
+type WorkoutExercise {
   exercise: Exercise!
   setType: SetType!
   sets: [WorkoutSet]

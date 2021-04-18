@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import Objection from 'objection';
-import { WorkoutOrder } from '../types';
 import { UserWorkout } from './user-workout.model';
 
 // Note: this is untested
 @Injectable()
-export class UserWorkoutService {
+export class UserWorkoutCmsService {
   public findAll(
     page = 0,
     perPage = 25,

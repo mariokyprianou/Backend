@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UserWorkoutService } from './user-workout.service';
+import { UserWorkoutCmsService } from './user-workout.cms.service';
 
 @Module({
-  providers: [UserWorkoutService],
-  exports: [UserWorkoutService],
+  providers: [UserWorkoutCmsService],
+  exports: [UserWorkoutCmsService],
 })
 export class UserWorkoutModule {}

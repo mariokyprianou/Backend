@@ -18,7 +18,6 @@ import { RegionAppModule } from './region/region.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 import { ProgrammeAppModule } from './programme/programme.app.module';
 import { WorkoutAppModule } from './workout/workout.app.module';
-import { OnDemandWorkoutAppModule } from './on-demand-workout/on-demand-workout.app.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -34,7 +33,6 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         CountryAppModule,
         HMCAppModule,
         OnboardingAppModule,
-        OnDemandWorkoutAppModule,
         ProgrammeAppModule,
         RegionAppModule,
         TrainerAppModule,
@@ -69,7 +67,6 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     GraphQLProvider,
     HMCAppModule,
     OnboardingAppModule,
-    OnDemandWorkoutAppModule,
     ProgrammeAppModule,
     RegionAppModule,
     TrainerAppModule,

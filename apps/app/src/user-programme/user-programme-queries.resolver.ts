@@ -9,7 +9,7 @@ import { UserExerciseNoteService } from '@lib/power/user-exercise-note/user-exer
 import { UserPowerService } from '@lib/power/user-power';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CompleteWorkoutInputDto } from './dto/complete-workout.dto';
+import { CompleteWorkoutDto } from '../../../../libs/power/src/user-power/dto/complete-workout.dto';
 
 @Resolver()
 export class UserProgrammeQueryResolver {
@@ -53,15 +53,15 @@ export class UserProgrammeQueryResolver {
 
   @Mutation('completeWorkout')
   async completeWorkout(
-    @Args('input') input: CompleteWorkoutInputDto,
-    @Context('authContext') authContext: AuthContext,
+    @Args('input') input: CompleteWorkoutDto,
+    @Context('authContext') user: AuthContext,
   ) {
-    return this.userPowerService.completeWorkout(input, authContext.sub);
+    return this.userPowerService.completeWorkout(user.id, input);
   }
 
   @Mutation('completeWorkoutWeek')
-  async completeWorkoutWeek(@Context('authContext') authContext: AuthContext) {
-    return this.userPowerService.completeWorkoutWeek(authContext.id);
+  async completeWorkoutWeek(@Context('authContext') user: AuthContext) {
+    return this.userPowerService.completeWorkoutWeek(user.id);
   }
 
   @Mutation('updateExerciseNote')

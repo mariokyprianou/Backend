@@ -5,8 +5,9 @@ import { GenerateCsvReportService } from '@td/generate-csv-report';
 import { format } from 'date-fns';
 import { raw } from 'objection';
 import { ProgrammeEnvironment } from '../types';
+import { CompleteWorkoutDto } from '../user-power/dto/complete-workout.dto';
 import { UserWorkout } from '../user-workout';
-import { UserWorkoutFeedback } from './user-workout-feedback.model';
+import { WorkoutFeedback } from './workout-feedback.model';
 
 interface FeedbackRow {
   id: string;
@@ -17,8 +18,73 @@ interface FeedbackRow {
 }
 
 @Injectable()
-export class UserWorkoutFeedbackService {
+export class WorkoutFeedbackService {
   constructor(private reportService: GenerateCsvReportService) {}
+
+  public async saveWorkoutFeedback(
+    accountId: string,
+    params: CompleteWorkoutDto,
+  ) {
+    const workoutInfo = await this.findWorkoutInfo({
+      workoutId: params.workoutId,
+      accountId: accountId,
+    });
+    await WorkoutFeedback.query().insert({
+      accountId,
+      environment: workoutInfo.environment,
+      userWorkoutId: params.workoutId,
+      workoutId: workoutInfo.workoutId,
+      workoutName: workoutInfo.workoutName,
+      emoji: params.emoji,
+      trainerId: workoutInfo.trainerId,
+      trainerName: workoutInfo.trainerName,
+      workoutWeekNumber: workoutInfo.workoutWeekNumber,
+      feedbackIntensity: params.intensity,
+      timeTaken: params.timeTaken,
+    });
+  }
+
+  private async findWorkoutInfo(params: {
+    workoutId: string;
+    accountId: string;
+  }) {
+    type WorkoutInfoRecord = {
+      environment: ProgrammeEnvironment;
+      trainerId: string;
+      trainerName: string;
+      workoutId: string;
+      workoutName: string;
+      workoutWeekNumber: number;
+    };
+
+    const db = UserWorkout.knex();
+    return db
+      .select(
+        'training_programme.environment as environment',
+        'trainer_tr.trainer_id as trainerId',
+        'trainer_tr.name as trainerName',
+        'workout_tr.workout_id as workoutId',
+        'workout_tr.name as workoutName',
+        'user_workout_week.week_number as workoutWeekNumber',
+      )
+      .from('user_workout')
+      .join('workout', 'user_workout.workout_id', 'workout.id')
+      .join(
+        'training_programme',
+        'workout.training_programme_id',
+        'training_programme.id',
+      )
+      .leftJoin('trainer_tr', function () {
+        this.on('training_programme.trainer_id', '=', 'trainer_tr.trainer_id');
+        this.on('trainer_tr.language', '=', db.raw('?', ['en']));
+      })
+      .leftJoin('workout_tr', function () {
+        this.on('user_workout.workout_id', '=', 'workout_tr.workout_id');
+        this.on('workout_tr.language', '=', db.raw('?', ['en']));
+      })
+      .where('workout.id', params.workoutId)
+      .first<WorkoutInfoRecord>();
+  }
 
   public async findAll(params: ICmsParams<UserWorkoutFeedbackFilter>) {
     const query = this.baseQuery(params);
@@ -57,7 +123,7 @@ export class UserWorkoutFeedbackService {
   }
 
   private baseQuery(params: ICmsParams<UserWorkoutFeedbackFilter>) {
-    const query = UserWorkoutFeedback.query()
+    const query = WorkoutFeedback.query()
       .alias('feedback')
       .joinRelated('account')
       .withGraphFetched('account');
@@ -144,9 +210,7 @@ export class UserWorkoutFeedbackService {
   }
 
   public async export() {
-    const feedbacks = await UserWorkoutFeedback.query().withGraphFetched(
-      'account',
-    );
+    const feedbacks = await WorkoutFeedback.query().withGraphFetched('account');
 
     const data = feedbacks
       .map((feedback) => {

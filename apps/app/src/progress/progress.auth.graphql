@@ -4,9 +4,15 @@ enum ProgressType {
   NEW_PROGRAMME
 }
 
+enum WorkoutType {
+  ON_DEMAND
+  SCHEDULED
+}
+
 type ProgressDay {
   date: DateTime!
   type: ProgressType!
+  workoutType: WorkoutType
 }
 
 type ProgressMonth {

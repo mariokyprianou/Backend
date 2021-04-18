@@ -1,6 +1,6 @@
 type OnDemandWorkout implements Workout {
   # Workout fields
-  programme: ProgrammeOverview
+  programme: Programme
   isContinuous: Boolean!
   overviewImage: File
   intensity: IntensityEnum!
@@ -21,6 +21,7 @@ input CreateOnDemandWorkoutInput {
   orderIndex: Int!
   overviewImageKey: String
   programme: ID!
+  tagIds: [ID!]
 }
 
 input UpdateOnDemandWorkoutInput {
@@ -32,6 +33,7 @@ input UpdateOnDemandWorkoutInput {
   orderIndex: Int
   overviewImageKey: String
   programme: ID
+  tagIds: [ID!]
 }
 
 input OnDemandWorkoutFilterInput {

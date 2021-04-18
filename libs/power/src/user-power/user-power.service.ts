@@ -3,24 +3,21 @@ import { Account } from '../account/account.model';
 import { AccountService } from '../account/account.service';
 import { UserProgramme } from '../user-programme';
 import { Programme } from '../programme';
-import { UserWorkout, UserWorkoutService } from '../user-workout';
+import { UserWorkout } from '../user-workout';
 import { UserWorkoutWeek } from '../user-workout-week';
-import {
-  AuthContext,
-  CompleteWorkoutInput,
-  ProgrammeEnvironment,
-  WorkoutOrder,
-} from '../types';
+import { AuthContext, ProgrammeEnvironment, WorkoutOrder } from '../types';
 import {
   ScheduledWorkout,
   ScheduledWorkoutService,
 } from '../scheduled-workout';
 import { GraphQLError } from 'graphql';
 import * as uuid from 'uuid';
-import { UserWorkoutFeedback } from '../feedback';
+import { WorkoutFeedback, WorkoutFeedbackService } from '../feedback';
 import { PartialModelGraph, PartialModelObject, Transaction } from 'objection';
 import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
 import Knex from 'knex';
+import { WorkoutType } from '../workout';
+import { CompleteWorkoutDto } from './dto/complete-workout.dto';
 
 async function findHighestCompletedWeek(
   accountId: string,
@@ -46,11 +43,10 @@ async function findHighestCompletedWeek(
 @Injectable()
 export class UserPowerService {
   constructor(
-    private userWorkoutService: UserWorkoutService,
     private accountService: AccountService,
     private workoutService: ScheduledWorkoutService,
+    private workoutFeedbackService: WorkoutFeedbackService,
   ) {}
-
   public async getProgrammeInformation(
     relatedProgrammes: Programme[],
     authContext: AuthContext,
@@ -209,6 +205,8 @@ export class UserPowerService {
           startedAt: weekNumber === week ? now : null,
           createdAt: now,
           workouts: workouts.map((workout) => ({
+            accountId,
+            type: WorkoutType.SCHEDULED,
             workoutId: workout.workoutId,
             orderIndex: workout.orderIndex,
           })),
@@ -276,13 +274,6 @@ export class UserPowerService {
   }
 
   public async completeWorkoutWeek(accountId: string) {
-    // ensure authenticated request
-    // check all workouts have been completed
-    // fetch the next weeks workout data
-    // add the next weeks workout data
-    // TODO check the deletion of programme requirement
-    // what should happen to a week when the programme has been deleted
-
     const currentWeek = await this.findUsersCurrentWeek(accountId);
     if (!currentWeek) {
       throw new Error('User has no active programme');
@@ -309,27 +300,30 @@ export class UserPowerService {
     });
   }
 
-  public async completeWorkout(input: CompleteWorkoutInput, sub: string) {
-    const account = await this.accountService.findBySub(sub);
+  public async completeWorkout(accountId: string, params: CompleteWorkoutDto) {
+    const workout = await UserWorkout.query()
+      .findOne({
+        id: params.workoutId,
+        accountId,
+      })
+      .select('id', 'completed_at')
+      .throwIfNotFound({ id: params.workoutId });
 
-    const workoutInfo = await findWorkoutInfo({
-      userWorkoutId: input.workoutId,
-      userId: account.id,
-    });
-    if (!workoutInfo) {
-      throw new GraphQLError(`User workout does not exist: ${input.workoutId}`);
+    if (workout.completedAt !== null) {
+      return true;
     }
 
     try {
       await UserWorkout.transaction(async (trx) => {
-        const updateWorkout = UserWorkout.query(trx)
-          .findById(input.workoutId)
-          .patch({ completedAt: input.date });
+        const updateWorkout = workout
+          .$query(trx)
+          .findById(params.workoutId)
+          .patch({ completedAt: params.date });
 
-        const weightsUsed = (input.weightsUsed ?? []).map<
+        const weightsUsed = (params.weightsUsed ?? []).map<
           PartialModelObject<UserExerciseHistory>
         >((record) => ({
-          accountId: account.id,
+          accountId,
           exerciseId: record.exerciseId,
           setType: record.setType,
           setNumber: record.setNumber,
@@ -344,19 +338,12 @@ export class UserPowerService {
         await Promise.all([updateWorkout, updateWeightHistory]);
       });
 
-      await UserWorkoutFeedback.query().insert({
-        accountId: account.id,
-        environment: workoutInfo.environment,
-        userWorkoutId: input.workoutId,
-        workoutId: workoutInfo.workoutId,
-        workoutName: workoutInfo.workoutName,
-        emoji: input.emoji,
-        trainerId: workoutInfo.trainerId,
-        trainerName: workoutInfo.trainerName,
-        workoutWeekNumber: workoutInfo.workoutWeekNumber,
-        feedbackIntensity: input.intensity,
-        timeTaken: input.timeTaken,
-      });
+      try {
+        await this.workoutFeedbackService.saveWorkoutFeedback(
+          accountId,
+          params,
+        );
+      } catch (e) {}
 
       return true;
     } catch (error) {
@@ -447,56 +434,4 @@ export class UserPowerService {
           .whereNull('started_at'),
       );
   }
-}
-
-async function findWorkoutInfo(params: {
-  userWorkoutId: string;
-  userId: string;
-}) {
-  type WorkoutInfoRecord = {
-    environment: ProgrammeEnvironment;
-    trainerId: string;
-    trainerName: string;
-    workoutId: string;
-    workoutName: string;
-    workoutWeekNumber: number;
-  };
-
-  const db = UserWorkout.knex();
-  return db
-    .select(
-      'training_programme.environment as environment',
-      'trainer_tr.trainer_id as trainerId',
-      'trainer_tr.name as trainerName',
-      'workout_tr.workout_id as workoutId',
-      'workout_tr.name as workoutName',
-      'user_workout_week.week_number as workoutWeekNumber',
-    )
-    .from('user_workout')
-    .join(
-      'user_workout_week',
-      'user_workout.user_workout_week_id',
-      'user_workout_week.id',
-    )
-    .join(
-      'user_training_programme',
-      'user_workout_week.user_training_programme_id',
-      'user_training_programme.id',
-    )
-    .join(
-      'training_programme',
-      'user_training_programme.training_programme_id',
-      'training_programme.id',
-    )
-    .leftJoin('trainer_tr', function () {
-      this.on('training_programme.trainer_id', '=', 'trainer_tr.trainer_id');
-      this.on('trainer_tr.language', '=', db.raw('?', ['en']));
-    })
-    .leftJoin('workout_tr', function () {
-      this.on('user_workout.workout_id', '=', 'workout_tr.workout_id');
-      this.on('workout_tr.language', '=', db.raw('?', ['en']));
-    })
-    .where('user_workout.id', params.userWorkoutId)
-    .andWhere('user_training_programme.account_id', params.userId)
-    .first<WorkoutInfoRecord>();
 }

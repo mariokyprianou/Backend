@@ -1,0 +1,28 @@
+type OnDemandWorkoutConnection {
+  nodes: [Workout]
+  pageInfo: PageInfo!
+}
+
+extend type Query {
+  onDemandWorkout(id: ID!): Workout
+  onDemandWorkouts(tagIds: [ID!]): OnDemandWorkoutConnection!
+}
+
+type CompleteOnDemandWorkoutResponse {
+  success: Boolean!
+}
+
+input CompleteOnDemandWorkoutInput {
+  workoutId: ID!
+  date: DateTime!
+  intensity: Int!
+  emoji: String!
+  timeTaken: Int!
+  weightsUsed: [WorkoutSetWeightInput!]
+}
+
+extend type Mutation {
+  completeOnDemandWorkout(
+    input: CompleteOnDemandWorkoutInput!
+  ): CompleteOnDemandWorkoutResponse
+}

@@ -18,6 +18,9 @@ export class UserWorkoutWeekResolver {
 
   @ResolveField('workouts')
   public async getWorkouts(@Parent() week: UserWorkoutWeek) {
+    if (week.workouts) {
+      return week.workouts;
+    }
     return this.userPowerLoaders.findUserWorkoutsByWeekId.load(week.id);
   }
 }

@@ -1,13 +1,13 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { Workout } from '@lib/power';
 import { CommonService } from '@lib/common';
-import { ExerciseLoaders } from '../exercise/exercise.loader';
+import { ExerciseCmsLoaders } from '../exercise/exercise.cms.loaders';
 
 @Resolver('Workout')
 export class WorkoutCmsResolver<T = Workout> {
   constructor(
     private commonService: CommonService,
-    private exerciseLoaders: ExerciseLoaders,
+    private exerciseLoaders: ExerciseCmsLoaders,
   ) {}
 
   @ResolveField('overviewImage')

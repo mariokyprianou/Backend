@@ -1,4 +1,4 @@
-import { CompleteWorkoutInput, SetType } from '@lib/power';
+import { SetType } from '@lib/power';
 import { ArgsType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
@@ -14,7 +14,7 @@ import {
 } from 'class-validator';
 
 @ArgsType()
-export class CompleteWorkoutInputDto implements CompleteWorkoutInput {
+export class CompleteWorkoutDto {
   @IsUUID()
   workoutId: string;
 

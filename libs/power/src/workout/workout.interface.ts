@@ -7,6 +7,7 @@ export interface IWorkout {
   orderIndex: number;
   overviewImageKey?: string;
   programme: string;
+  tagIds?: string[];
 }
 
 export interface IWorkoutLocalisation {
@@ -42,4 +43,9 @@ export enum WorkoutIntensity {
 export enum SetType {
   REPS = 'REPS',
   TIME = 'TIME',
+}
+
+export enum WorkoutType {
+  SCHEDULED = 'SCHEDULED',
+  ON_DEMAND = 'ON_DEMAND',
 }

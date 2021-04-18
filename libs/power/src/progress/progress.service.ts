@@ -1,61 +1,65 @@
-/*
- * Author: Joseph Clough (joseph.clough@thedistance.co.uk)
- * Created: Thu, 11th February 212021
- * Copyright 2021 - The Distance
- */
-
 import { Injectable } from '@nestjs/common';
 import { startOfMonth } from 'date-fns';
 import { UserProgramme } from '../user-programme';
+import { UserWorkout } from '../user-workout';
 import { ProgressMonth, ProgressType } from './progress.interface';
 
 @Injectable()
 export class ProgressService {
   public async getProgress(accountId: string): Promise<ProgressMonth[]> {
-    const programmes: Partial<UserProgramme>[] = await UserProgramme.query()
+    const db = UserProgramme.knex();
+
+    const weekEvents = db
+      .select(
+        db.raw(
+          'CASE WHEN user_workout_week.week_number = 1 THEN ? ELSE ? END as type',
+          [ProgressType.NEW_PROGRAMME, ProgressType.NEW_WEEK],
+        ),
+        'user_workout_week.started_at as ts',
+        db.raw('NULL as workout_type'),
+      )
+      .from('user_training_programme')
+      .join(
+        'user_workout_week',
+        'user_workout_week.user_training_programme_id',
+        'user_training_programme.id',
+      )
       .where('account_id', accountId)
-      .withGraphFetched('userWorkoutWeeks.workouts');
+      .whereNotNull('user_workout_week.started_at');
+
+    const workoutEvents = db
+      .select(
+        db.raw('? as type', ProgressType.WORKOUT_COMPLETE),
+        'user_workout.completed_at as ts',
+        db.raw('user_workout.type::text as workout_type'),
+      )
+      .from('user_workout')
+      .where('account_id', accountId)
+      .whereNotNull('completed_at');
+
+    const results = await UserWorkout.knex()
+      .with('results', weekEvents.unionAll(workoutEvents))
+      .select('results.type', 'results.ts', 'results.workout_type')
+      .from('results')
+      .orderBy('ts', 'DESC');
 
     const progressMonths: {
       [month: string]: { type: ProgressType; date: Date }[];
     } = {};
 
-    programmes.forEach((programme) => {
-      programme.userWorkoutWeeks.forEach((week) => {
-        week.workouts.forEach((workout) => {
-          if (!workout.completedAt) {
-            // workout not complete
-            return;
-          }
+    results.forEach((row) => {
+      const record = {
+        type: row.type,
+        date: row.ts,
+        workoutType: row.workout_type,
+      };
 
-          const record = {
-            type: ProgressType.WORKOUT_COMPLETE,
-            date: workout.completedAt,
-          };
+      const month = startOfMonth(record.date).toISOString();
+      if (!progressMonths[month]) {
+        progressMonths[month] = [];
+      }
 
-          const month = startOfMonth(workout.completedAt).toISOString();
-          if (!progressMonths[month]) {
-            progressMonths[month] = [];
-          }
-          progressMonths[month].push(record);
-        });
-
-        if (week.weekNumber === 1) {
-          const record = {
-            type:
-              week.weekNumber === 1
-                ? ProgressType.NEW_PROGRAMME
-                : ProgressType.NEW_WEEK,
-            date: week.startedAt,
-          };
-
-          const month = startOfMonth(week.startedAt).toISOString();
-          if (!progressMonths[month]) {
-            progressMonths[month] = [];
-          }
-          progressMonths[month].push(record);
-        }
-      });
+      progressMonths[month].push(record);
     });
 
     return Object.entries(progressMonths).map(([month, days]) => ({

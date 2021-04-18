@@ -7,14 +7,14 @@
 import { ListMetadata, ProgrammeEnvironment } from '@lib/power/types';
 import {
   UserWorkoutFeedbackFilter,
-  UserWorkoutFeedbackService,
+  WorkoutFeedbackService,
 } from '@lib/power/feedback';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CmsParams } from '@lib/common';
 
 @Resolver('Feedback')
 export class FeedbackResolver {
-  constructor(private feedbackService: UserWorkoutFeedbackService) {}
+  constructor(private feedbackService: WorkoutFeedbackService) {}
   @Query('allFeedbacks')
   async allFeedbacks(
     @Args() params: CmsParams<UserWorkoutFeedbackFilter>,

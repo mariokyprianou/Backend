@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
+import type { TaxonomyTerm } from '@lib/taxonomy';
 import type { WorkoutIntensity } from './workout.interface';
 import type { Programme } from '../programme';
 import type { WorkoutExercise } from './workout-exercise.model';
@@ -21,6 +22,7 @@ export class Workout extends BaseModel {
   localisations: WorkoutTranslation[];
   exercises: WorkoutExercise[];
   trainingProgramme: Programme;
+  tags: TaxonomyTerm[];
 
   public getTranslation(language: string) {
     return (this.localisations ?? []).find((tr) => tr.language === language);
@@ -30,6 +32,7 @@ export class Workout extends BaseModel {
     const { Programme } = require('../programme/programme.model');
     const { WorkoutTranslation } = require('./workout-tr.model');
     const { WorkoutExercise } = require('./workout-exercise.model');
+    const { TaxonomyTerm } = require('@lib/taxonomy');
     return {
       localisations: {
         relation: BaseModel.HasManyRelation,
@@ -53,6 +56,18 @@ export class Workout extends BaseModel {
         join: {
           from: 'workout.training_programme_id',
           to: 'training_programme.id',
+        },
+      },
+      tags: {
+        relation: BaseModel.ManyToManyRelation,
+        modelClass: TaxonomyTerm,
+        join: {
+          from: 'workout.id',
+          through: {
+            from: 'workout_tag.workout_id',
+            to: 'workout_tag.taxonomy_term_id',
+          },
+          to: 'taxonomy_term.id',
         },
       },
     };
