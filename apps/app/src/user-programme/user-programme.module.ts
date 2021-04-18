@@ -9,6 +9,7 @@ import {
   TrainerModule,
   ProgrammeModule,
   AccountModule,
+  WorkoutModule,
 } from '@lib/power';
 import { CommonModule } from '@lib/common';
 import { UserWorkoutWeekResolver } from './user-workout-week.resolver';
@@ -26,6 +27,7 @@ import { ExerciseResolver } from './exercise.resolver';
     UserExerciseNoteModule,
     ScheduledWorkoutModule,
     TrainerModule,
+    WorkoutModule,
   ],
   providers: [
     UserProgrammeQueryResolver,

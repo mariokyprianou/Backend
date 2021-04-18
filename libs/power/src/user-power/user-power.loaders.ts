@@ -11,23 +11,24 @@ import { WorkoutExercise } from '../workout/workout-exercise.model';
 export class UserPowerLoaders {
   private async findWeeksByAccountId(
     accountId: string,
-  ): Promise<UserWorkoutWeek[]> {
+  ): Promise<UserWorkoutWeek> {
     return Account.relatedQuery<UserWorkoutWeek>('currentWorkoutWeeks')
       .for(accountId)
+      .whereNotNull('started_at')
       .whereNull('completed_at')
       .orderBy('created_at', 'DESC')
-      .limit(2);
+      .limit(1)
+      .first();
   }
 
-  public readonly findUserCurrentWeeks = new DataLoader<
-    string,
-    UserWorkoutWeek[]
-  >(async (accountIds) => {
-    const queries = accountIds.map((accountId) =>
-      this.findWeeksByAccountId(accountId),
-    );
-    return Promise.all(queries);
-  });
+  public readonly findUserCurrentWeek = new DataLoader<string, UserWorkoutWeek>(
+    async (accountIds) => {
+      const queries = accountIds.map((accountId) =>
+        this.findWeeksByAccountId(accountId),
+      );
+      return Promise.all(queries);
+    },
+  );
 
   public readonly findUserWorkoutsByWeekId = new DataLoader<
     string,

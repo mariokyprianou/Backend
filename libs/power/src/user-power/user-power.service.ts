@@ -5,14 +5,14 @@ import { UserProgramme } from '../user-programme';
 import { Programme } from '../programme';
 import { UserWorkout } from '../user-workout';
 import { UserWorkoutWeek } from '../user-workout-week';
-import { AuthContext, ProgrammeEnvironment, WorkoutOrder } from '../types';
+import { AuthContext, WorkoutOrder } from '../types';
 import {
   ScheduledWorkout,
   ScheduledWorkoutService,
 } from '../scheduled-workout';
 import { GraphQLError } from 'graphql';
 import * as uuid from 'uuid';
-import { WorkoutFeedback, WorkoutFeedbackService } from '../feedback';
+import { WorkoutFeedbackService } from '../feedback';
 import { PartialModelGraph, PartialModelObject, Transaction } from 'objection';
 import { UserExerciseHistory } from '../user-exercise-history/user-exercise-history.model';
 import Knex from 'knex';
