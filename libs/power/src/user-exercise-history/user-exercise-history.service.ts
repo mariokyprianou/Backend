@@ -11,6 +11,7 @@ export class UserExerciseHistoryService {
       .where('exercise_id', params.exerciseId)
       .andWhere('account_id', params.accountId)
       .orderBy('created_at', 'DESC')
+      .orderBy('exercise_id')
       .orderBy('set_number', 'DESC');
   }
 }

@@ -65,6 +65,7 @@ input WorkoutSetWeightInput {
   setNumber: Int!
   setType: SetType!
   quantity: Int!
+  completedAt: DateTime
 }
 
 type ExerciseWeight {

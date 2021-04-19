@@ -43,8 +43,9 @@ export class WorkoutSetWeightInputDto {
   @IsUUID()
   exerciseId: string;
 
+  @IsOptional()
   @IsDate()
-  date: Date;
+  completedAt?: Date;
 
   @Min(0)
   weight: number;

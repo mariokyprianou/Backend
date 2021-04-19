@@ -70,7 +70,7 @@ export class OnDemandWorkoutService {
         setNumber: record.setNumber,
         quantity: record.quantity,
         weight: record.weight,
-        completedAt: record.date,
+        completedAt: record.completedAt ?? params.date,
       }));
       await UserExerciseHistory.query(trx).insert(weightsUsed);
     });
