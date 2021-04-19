@@ -1,5 +1,5 @@
-import { Args, Query, Resolver } from '@nestjs/graphql';
-import { CountryFilter, CountryService } from '@lib/power/country';
+import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Country, CountryFilter, CountryService } from '@lib/power/country';
 import { ListMetadata } from '@lib/power/types';
 
 @Resolver('Country')
@@ -29,5 +29,32 @@ export class CountryResolver {
     return {
       count: await this.service.findAllMeta(filter),
     };
+  }
+
+  @ResolveField('id')
+  getId(@Parent() country: Country) {
+    return country.id;
+  }
+
+  @ResolveField('code')
+  getCode(@Parent() country: Country) {
+    return country.code;
+  }
+
+  @ResolveField('name')
+  getName(@Parent() country: Country) {
+    return country.name;
+  }
+
+  /** @deprecated */
+  @ResolveField('country')
+  getCountry(@Parent() country: Country) {
+    return country.name;
+  }
+
+  /** @deprecated */
+  @ResolveField('regions')
+  getRegions() {
+    return [];
   }
 }
