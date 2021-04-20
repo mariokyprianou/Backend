@@ -1,4 +1,8 @@
-import { Trainer, TrainerTranslation } from '@lib/power/trainer';
+import {
+  Trainer,
+  TrainerCmsService,
+  TrainerTranslation,
+} from '@lib/power/trainer';
 import {
   Args,
   Context,
@@ -8,7 +12,6 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { TrainerService } from '@lib/power/trainer/trainer.service';
 import { TrainerFilter, ListMetadata, TrainerLocalisation } from '@lib/power';
 import { CmsParams } from '@lib/common';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
@@ -16,7 +19,7 @@ import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 @Resolver('Trainer')
 export class TrainerResolver {
   constructor(
-    private trainerService: TrainerService,
+    private trainerService: TrainerCmsService,
     private trainerLoaders: TrainerLoaders,
   ) {}
 

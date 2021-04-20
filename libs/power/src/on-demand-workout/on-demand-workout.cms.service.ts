@@ -1,6 +1,7 @@
 import { ICmsParams } from '@lib/common';
 import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
+import { Programme } from '../programme';
 import { ListMetadata } from '../types';
 import { WorkoutService } from '../workout';
 import { CreateOnDemandWorkoutDto } from './dto';
@@ -13,7 +14,7 @@ export class OnDemandWorkoutCmsService {
 
   private baseQuery(params: ICmsParams<OnDemandWorkoutFilter> = {}) {
     const query = OnDemandWorkout.query()
-      .withGraphJoined('workout')
+      .withGraphJoined('workout.trainingProgramme')
       .withGraphFetched('workout.localisations');
 
     if (params?.filter) {
@@ -49,13 +50,18 @@ export class OnDemandWorkoutCmsService {
   }
 
   public async create(params: CreateOnDemandWorkoutDto) {
+    const trainingProgramme = await Programme.query()
+      .findById(params.programme)
+      .throwIfNotFound();
+
     const workoutId = await OnDemandWorkout.transaction(async (transaction) => {
       const workout = await this.workoutService.createWorkout(params, {
         transaction,
       });
-      const onDemandWorkout = await OnDemandWorkout.query(transaction).insert({
-        workoutId: workout.id,
-      });
+      const onDemandWorkout = await trainingProgramme
+        .$relatedQuery('onDemandWorkouts', transaction)
+        .insert({ workoutId: workout.id });
+
       return onDemandWorkout.id;
     });
 

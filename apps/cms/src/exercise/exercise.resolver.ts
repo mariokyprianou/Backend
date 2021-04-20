@@ -8,7 +8,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { ExerciseService } from '@lib/power/exercise/exercise.service';
+import { ExerciseCmsService } from '@lib/power/exercise/exercise.cms.service';
 import {
   ListMetadata,
   ExerciseLocalisation,
@@ -26,7 +26,7 @@ function returnKey(key) {
 @Resolver('Exercise')
 export class ExerciseResolver {
   constructor(
-    private readonly exerciseService: ExerciseService,
+    private readonly exerciseService: ExerciseCmsService,
     private readonly commonService: CommonService,
   ) {}
 

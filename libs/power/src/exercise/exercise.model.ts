@@ -1,15 +1,12 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseModel } from '@lib/database';
-import { Model, snakeCaseMappers } from 'objection';
-import { ExerciseCategory } from '../exercise-category';
-import { ExerciseTranslation } from './exercise-tr.model';
+import { Model } from 'objection';
+import type { ExerciseCategory } from '../exercise-category';
+import type { ExerciseTranslation } from './exercise-tr.model';
 
 export class Exercise extends BaseModel {
   static tableName = 'exercise';
-
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
 
   id: string;
   trainerId: string;
@@ -30,8 +27,9 @@ export class Exercise extends BaseModel {
   }
 
   static get relationMappings() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { ExerciseTranslation } = require('./exercise-tr.model');
     const { Trainer } = require('../trainer/trainer.model');
+    const { ExerciseCategory } = require('../exercise-category');
     return {
       trainer: {
         relation: Model.BelongsToOneRelation,

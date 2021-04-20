@@ -1,26 +1,28 @@
 import { CommonService } from '@lib/common';
-import { AccountService, AuthContext, ProgrammeService } from '@lib/power';
+import { Account, AuthContext, ProgrammeService } from '@lib/power';
 import { Args, Context, Query, Resolver } from '@nestjs/graphql';
 
 @Resolver('ProgrammeShareImage')
 export class ShareMediaResolver {
   constructor(
-    private account: AccountService,
-    private programme: ProgrammeService,
+    private programmeService: ProgrammeService,
     private common: CommonService,
   ) {}
 
   @Query('shareMedia')
   async shareMedia(
-    @Context('authContext') authContext: AuthContext,
+    @Context('authContext') user: AuthContext,
     @Args('type') type: ShareMediaEnum,
   ): Promise<ProgrammeShareImage> {
-    const account = await this.account
-      .findBySub(authContext.sub)
-      .withGraphFetched('trainingProgramme');
+    const account = await Account.query()
+      .joinRelated('trainingProgramme')
+      .select('trainingProgramme.training_programme_id as trainingProgrammeId')
+      .findById(user.id)
+      .toKnexQuery<{ trainingProgrammeId: string }>()
+      .first();
 
-    const shareMedia = await this.programme.findShareMedia(
-      account.trainingProgramme.trainingProgrammeId,
+    const shareMedia = await this.programmeService.findShareMedia(
+      account.trainingProgrammeId,
       type,
     );
 
@@ -42,9 +44,9 @@ export class ShareMediaResolver {
 }
 
 export enum ShareMediaEnum {
-  WEEK_COMPLETE,
-  CHALLENGE_COMPLETE,
-  PROGRESS,
+  WEEK_COMPLETE = 'WEEK_COMPLETE',
+  CHALLENGE_COMPLETE = 'CHALLENGE_COMPLETE',
+  PROGRESS = 'PROGRESS',
 }
 
 export interface ProgrammeShareImage {

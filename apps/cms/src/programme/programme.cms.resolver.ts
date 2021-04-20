@@ -10,33 +10,33 @@ import { ListMetadata } from '@lib/power/types';
 import { Programme, ProgrammeFilter } from '@lib/power';
 import { ProgrammeService } from '@lib/power/programme/programme.cms.service';
 import { CmsParams, CommonService } from '@lib/common';
-import { TrainerService } from '@lib/power/trainer';
+import { TrainerCmsService } from '@lib/power/trainer';
 import { ProgrammeImage } from '@lib/power/programme/programme-image.model';
-import { AccountService } from '@lib/power/account';
 import { CreateProgrammeDto } from './dto/create-programme.dto';
 import { UpdateProgrammeDto } from './dto/update-programme.dto';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver('Programme')
 export class ProgrammeResolver {
   constructor(
     private programmeService: ProgrammeService,
     private commonService: CommonService,
-    private trainerService: TrainerService,
-    private accountService: AccountService,
+    private trainerService: TrainerCmsService,
   ) {}
 
   @ResolveField('subscribers')
   async getSubscriber(@Parent() programme: Programme) {
     // Find all account (and user training programmes)
     // Filter by programme id
-    const accounts = await this.accountService
-      .findAll()
-      .withGraphFetched('trainingProgramme');
+    // const accounts = await this.accountService
+    //   .findAll()
+    //   .withGraphFetched('trainingProgramme');
+    // const activeProgs = accounts.filter(
+    //   (each) => each.trainingProgramme.trainingProgrammeId === programme.id,
+    // );
+    // return activeProgs.length;
 
-    const activeProgs = accounts.filter(
-      (each) => each.trainingProgramme.trainingProgrammeId === programme.id,
-    );
-    return activeProgs.length;
+    return 0;
   }
 
   @ResolveField('trainer')
@@ -108,24 +108,25 @@ export class ProgrammeResolver {
   }
 
   @Query('Programme')
-  async Programme(@Args('id') id: string): Promise<Programme> {
+  async Programme(@Args('id', ParseUUIDPipe) id: string): Promise<Programme> {
     return this.programmeService.findById(id);
   }
 
   @Mutation('updateProgramme')
   async updateProgramme(
-    @Args('id') id: string,
+    @Args('id', ParseUUIDPipe) id: string,
     @Args('programme') programme: UpdateProgrammeDto,
   ): Promise<Programme> {
     return this.programmeService.updateProgramme(id, programme);
   }
 
   @Mutation('deleteProgramme')
-  async deleteProgramme(@Args('id') id: string): Promise<Programme> {
-    const ProgrammeToDelete = await this.programmeService.findById(id);
-    await this.programmeService.delete(id);
-
-    return ProgrammeToDelete;
+  async deleteProgramme(
+    @Args('id', ParseUUIDPipe) id: string,
+  ): Promise<Programme> {
+    const programme = await this.programmeService.findById(id);
+    await this.programmeService.deleteProgramme(id);
+    return programme;
   }
 
   @Mutation('uploadMedia')

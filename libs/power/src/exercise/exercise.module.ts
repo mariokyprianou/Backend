@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ExerciseLoaders } from './exercise.loaders';
-import { ExerciseService } from './exercise.service';
+import { ExerciseCmsService } from './exercise.cms.service';
 
 @Module({
-  providers: [ExerciseService, ExerciseLoaders],
-  exports: [ExerciseService, ExerciseLoaders],
+  providers: [ExerciseCmsService, ExerciseLoaders],
+  exports: [ExerciseCmsService, ExerciseLoaders],
 })
 export class ExerciseModule {}

@@ -70,7 +70,7 @@ function joinSortColumn(params: FindExerciseParams, query) {
 }
 
 @Injectable()
-export class ExerciseService {
+export class ExerciseCmsService {
   // FIND ALL Exercise
 
   public async findAll(params: FindExerciseParams): Promise<Exercise[]> {
@@ -98,11 +98,54 @@ export class ExerciseService {
   }
 
   public async delete(id: string) {
-    // delete translations
-    // await ExerciseTranslation.query().delete().where('exercise_id', id);
-    // return Exercise.query().deleteById(id);
+    const exercise = await Exercise.query().findById(id).throwIfNotFound();
+    if (exercise.deletedAt !== null) {
+      return exercise;
+    }
+
+    await this.ensureExerciseIsInactive(exercise);
 
     return Exercise.query().patchAndFetchById(id, { deletedAt: new Date() });
+  }
+
+  private async ensureExerciseIsInactive(exercise: Exercise) {
+    const db = Exercise.knex();
+
+    const scheduledWorkouts = db
+      .count('* as count')
+      .from('training_programme')
+      .join(
+        'training_programme_workout',
+        'training_programme.id',
+        'training_programme_workout.training_programme_id',
+      )
+      .join('workout', 'training_programme_workout.workout_id', 'workout.id')
+      .join('workout_exercise', 'workout.id', 'workout_exercise.workout_id')
+      .where('workout_exercise.exercise_id', exercise.id);
+
+    const onDemandWorkouts = db
+      .count('* as count')
+      .from('training_programme')
+      .join(
+        'on_demand_workout',
+        'training_programme.id',
+        'on_demand_workout.training_programme_id',
+      )
+      .join('workout', 'on_demand_workout.workout_id', 'workout.id')
+      .join('workout_exercise', 'workout.id', 'workout_exercise.workout_id')
+      .where('workout_exercise.exercise_id', exercise.id);
+
+    // Ensure exercise is not attached to any active workouts
+    const { count } = await db
+      .sum('workouts.count as count')
+      .from(scheduledWorkouts.union(onDemandWorkouts).as('workouts'))
+      .first();
+
+    if (count > 0) {
+      throw new Error(
+        `Unable to delete exercise, it in-use by ${count} on-demand/scheduled workouts.`,
+      );
+    }
   }
 
   public async update(

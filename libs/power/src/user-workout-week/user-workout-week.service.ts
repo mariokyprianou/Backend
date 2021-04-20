@@ -11,16 +11,12 @@ export class UserWorkoutWeekService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: UserWorkoutWeekFilter = {},
   ) {
-    const findAllQuery = applyFilter(UserWorkoutWeek.query(), filter);
+    const query = UserWorkoutWeek.query();
+    applyFilter(query, filter);
+    query.limit(perPage).offset(perPage * page);
+    query.orderBy(sortField, sortOrder);
 
-    findAllQuery.limit(perPage).offset(perPage * page);
-    findAllQuery.orderBy(sortField, sortOrder);
-
-    return findAllQuery;
-  }
-
-  public query() {
-    return UserWorkoutWeek.query();
+    return query;
   }
 
   public findAllMeta(filter: UserWorkoutWeekFilter = {}) {

@@ -18,9 +18,7 @@ export class TrainerResolver {
 
   @Query('getTrainers')
   async getTrainers(@Context('language') language: string) {
-    return this.trainerService.findAll({
-      language,
-    });
+    return this.trainerService.findAll({ language });
   }
 
   @ResolveField('name')

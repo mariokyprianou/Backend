@@ -5,10 +5,6 @@ import { snakeCaseMappers } from 'objection';
 export class TrainerTranslation extends BaseModel {
   static tableName = 'trainer_tr';
 
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
-
   id: string;
   trainerId: string;
   language: string;

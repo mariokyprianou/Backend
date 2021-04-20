@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ShareMediaEnum } from 'apps/app/src/shareMedia/shareMedia.resolver';
-import { PartialModelGraph, QueryBuilder } from 'objection';
+import { PartialModelGraph, QueryBuilder, Transaction } from 'objection';
 import { ProgrammeEnvironment } from '../types';
 import {
   CreateProgrammeParams,
@@ -15,6 +15,7 @@ import { ValidationError } from 'apollo-server-express';
 import { ICmsParams } from '@lib/common';
 import { ProgrammeFilter } from './programme.interface';
 import { applyPagination } from '@lib/database';
+import { OnDemandWorkout } from '../on-demand-workout';
 
 const toShareImageModelGraph = (
   image: ShareMediaImage,
@@ -119,27 +120,67 @@ export class ProgrammeService {
       .findById(id);
   }
 
-  public async delete(id: string) {
-    // delete translations
-    // const mediaToDelete = await ShareMedia.query().where(
-    //   'training_programme_id',
-    //   id,
-    // );
-    // await ShareMediaTranslation.query()
-    //   .del()
-    //   .whereIn(
-    //     'share_media_image_id',
-    //     mediaToDelete.map((each) => each.id),
-    //   );
-    // await ShareMedia.query().del().where('training_programme_id', id);
-    // await ProgrammeTranslation.query()
-    //   .delete()
-    //   .where('training_programme_id', id);
-    // await ProgrammeImage.query().delete().where('training_programme_id', id);
-    // return Programme.query().deleteById(id);
+  public async deleteProgrammesByTrainer(
+    trainerId: string,
+    opts: { transaction: Transaction },
+  ) {
+    const programmes = await Programme.query(opts.transaction)
+      .select('id')
+      .where('trainer_id', trainerId)
+      .whereNull('deleted_at');
 
-    // Soft delete
-    return Programme.query().patchAndFetchById(id, { deletedAt: new Date() });
+    await Promise.all(
+      programmes.map((programme) =>
+        this.deleteProgramme(programme.id, { transaction: opts.transaction }),
+      ),
+    );
+  }
+
+  public async deleteProgramme(
+    trainingProgrammeId: string,
+    opts: { transaction?: Transaction } = {},
+  ) {
+    let transaction = opts.transaction;
+    if (!transaction) {
+      transaction = await Programme.startTransaction();
+    }
+
+    try {
+      const now = new Date();
+
+      await Programme.query(transaction)
+        .patch({ deletedAt: now })
+        .where('id', trainingProgrammeId)
+        .whereNull('deleted_at');
+
+      await OnDemandWorkout.query(transaction)
+        .whereIn(
+          'id',
+          OnDemandWorkout.query()
+            .select('on_demand_workout.id')
+            .joinRelated('workout')
+            .where('workout.training_programme_id', trainingProgrammeId),
+        )
+        .delete();
+
+      await Programme.relatedQuery('scheduledWorkouts', transaction)
+        .for(trainingProgrammeId)
+        .delete();
+
+      await Programme.relatedQuery('challenges', transaction)
+        .for(trainingProgrammeId)
+        .whereNull('deleted_at')
+        .patch({ deletedAt: now });
+
+      if (!opts.transaction) {
+        await transaction.commit();
+      }
+    } catch (e) {
+      if (!opts.transaction) {
+        await transaction.rollback();
+      }
+      throw e;
+    }
   }
 
   public async updateProgramme(
@@ -209,7 +250,7 @@ export class ProgrammeService {
       .first()
       .where('training_programme_id', programmeId)
       .andWhere('type', type)
-      .withGraphFetched('localisations')
+      .withGraphJoined('localisations')
       .modifyGraph('localisations', (qb) => qb.where('language', 'en'));
   }
 }

@@ -22,11 +22,7 @@ export class ScheduledWorkoutService {
   constructor(private readonly workoutService: WorkoutService) {}
 
   public findById(id: string): Promise<ScheduledWorkout> {
-    return this.baseQuery({
-      filter: { id },
-    })
-      .limit(1)
-      .first();
+    return this.baseQuery({ filter: { id } }).limit(1).first();
   }
 
   public findByProgrammeId(
@@ -59,12 +55,10 @@ export class ScheduledWorkoutService {
 
   private baseQuery(params: FindAllWorkoutsParams) {
     const query = ScheduledWorkout.query()
+      .joinRelated('[programme,workout]')
+      .whereNull('programme.deleted_at')
       .withGraphFetched(
         '[programme, workout.[localisations, exercises.[sets, localisations]]]',
-      )
-      .joinRelated('[programme,workout]')
-      .joinRaw(
-        `LEFT JOIN workout_tr ON (workout.id = workout_tr.workout_id AND language = 'en')`,
       );
 
     if (params.filter) {
@@ -86,11 +80,15 @@ export class ScheduledWorkoutService {
       }
 
       if (params.filter.name) {
-        query.where(
-          'workout_tr.name',
-          'ilike',
-          raw(`'%' || ? || '%'`, [params.filter.name]),
-        );
+        query
+          .joinRaw(
+            `LEFT JOIN workout_tr ON (workout.id = workout_tr.workout_id AND language = 'en')`,
+          )
+          .where(
+            'workout_tr.name',
+            'ilike',
+            raw(`'%' || ? || '%'`, [params.filter.name]),
+          );
       }
 
       if (params.filter.trainer) {

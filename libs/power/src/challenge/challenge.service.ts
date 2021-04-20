@@ -48,9 +48,7 @@ export class ChallengeService {
   public async create(challenge: CreateChallengeGraphQlInput) {
     const challengeModel = await Challenge.query().insertGraphAndFetch(
       challenge,
-      {
-        relate: true,
-      },
+      { relate: true },
     );
 
     return this.findById(challengeModel.id);
@@ -59,9 +57,7 @@ export class ChallengeService {
   public async update(challenge: UpdateChallengeGraphQlInput) {
     const challengeModel = await Challenge.query().upsertGraphAndFetch(
       challenge,
-      {
-        relate: true,
-      },
+      { relate: true },
     );
 
     return this.findById(challengeModel.id);
