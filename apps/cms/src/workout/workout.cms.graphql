@@ -1,4 +1,4 @@
-interface Workout {
+type Workout {
   isContinuous: Boolean!
   overviewImage: File
   intensity: IntensityEnum!

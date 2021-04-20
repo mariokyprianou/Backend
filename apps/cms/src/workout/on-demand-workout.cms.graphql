@@ -1,4 +1,4 @@
-type OnDemandWorkout implements Workout {
+type OnDemandWorkout {
   # Workout fields
   programme: Programme
   isContinuous: Boolean!
