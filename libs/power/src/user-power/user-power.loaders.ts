@@ -14,7 +14,6 @@ export class UserPowerLoaders {
   ): Promise<UserWorkoutWeek> {
     return Account.relatedQuery<UserWorkoutWeek>('currentWorkoutWeeks')
       .for(accountId)
-      .whereNotNull('started_at')
       .whereNull('completed_at')
       .orderBy('created_at', 'DESC')
       .limit(1)

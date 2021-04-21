@@ -64,7 +64,7 @@ export class AuthService {
         {
           accountId: account.id,
           trainingProgrammeId: input.programme,
-          week: 1,
+          weekNumber: 1,
         },
         { transaction },
       );

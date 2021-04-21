@@ -88,7 +88,7 @@ export class UserService {
       if (input.currentWeek) {
         await this.userPowerService.setUserProgramme({
           accountId,
-          week: input.currentWeek,
+          weekNumber: input.currentWeek,
         });
       }
 

@@ -25,3 +25,7 @@ alter table user_workout
   alter column type DROP DEFAULT,
   alter column account_id set not null,
   add constraint fk_user_workout_account foreign key (account_id) references account (id) on delete cascade;
+
+delete from user_workout_week where started_at is null;
+alter table user_workout_week drop started_at;
+

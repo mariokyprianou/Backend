@@ -8,7 +8,7 @@ export class UserWorkoutWeekResolver {
 
   @ResolveField('startedAt')
   public async getStartedAt(@Parent() week: UserWorkoutWeek) {
-    return week.startedAt;
+    return week.createdAt;
   }
 
   @ResolveField('weekNumber')

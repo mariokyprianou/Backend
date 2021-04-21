@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
-import { Model, snakeCaseMappers } from 'objection';
 import type { Programme } from '../programme';
 import type { UserWorkoutWeek } from '../user-workout-week';
 
 export class UserProgramme extends BaseModel {
   static tableName = 'user_training_programme';
-
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
 
   id: string;
   trainingProgrammeId: string;
@@ -26,7 +21,7 @@ export class UserProgramme extends BaseModel {
     const { UserWorkoutWeek } = require('../user-workout-week');
     return {
       trainingProgramme: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Programme,
         join: {
           from: 'user_training_programme.training_programme_id',
@@ -34,7 +29,7 @@ export class UserProgramme extends BaseModel {
         },
       },
       userWorkoutWeeks: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: UserWorkoutWeek,
         join: {
           from: 'user_training_programme.id',

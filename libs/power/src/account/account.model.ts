@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
-import { Model, snakeCaseMappers } from 'objection';
 import { DownloadQuality, WeightPreference } from '../types';
-import { UserProgramme } from '../user-programme';
+import type { UserProgramme } from '../user-programme';
 
 export class Account extends BaseModel {
   static tableName = 'account';
-
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
 
   id: string;
   cognitoUsername: string;
@@ -27,10 +22,11 @@ export class Account extends BaseModel {
   trainingProgramme: UserProgramme;
 
   static get relationMappings() {
+    const { UserProgramme } = require('../user-programme');
     const { UserWorkoutWeek } = require('../user-workout-week');
     return {
       currentWorkoutWeeks: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: UserWorkoutWeek,
         join: {
           from: 'account.user_training_programme_id',
@@ -38,7 +34,7 @@ export class Account extends BaseModel {
         },
       },
       trainingProgramme: {
-        relation: Model.HasOneRelation,
+        relation: BaseModel.HasOneRelation,
         modelClass: UserProgramme,
         join: {
           from: 'account.user_training_programme_id',

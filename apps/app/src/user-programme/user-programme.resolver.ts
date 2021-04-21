@@ -1,5 +1,6 @@
-import { AuthContext, Programme, ScheduledWorkoutService } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { isNil } from 'lodash';
+import { AuthContext, Programme, ScheduledWorkoutService } from '@lib/power';
 import { CommonService } from '@lib/common';
 import { AbstractProgrammeResolver } from '../programme/programme.app.resolver';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
@@ -20,6 +21,16 @@ export class UserProgrammeResolver extends AbstractProgrammeResolver {
     super(workoutService, commonService, trainerLoaders, programmeLoaders);
   }
 
+  @ResolveField('isComplete')
+  async getIsComplete(
+    @Context('authContext') user: AuthContext,
+  ): Promise<boolean> {
+    const currentWeek = await this.userPowerLoaders.findUserCurrentWeek.load(
+      user.id,
+    );
+    return isNil(currentWeek);
+  }
+
   @ResolveField('currentWeek')
   public async getCurrentWeek(@Context('authContext') user: AuthContext) {
     return this.userPowerLoaders.findUserCurrentWeek.load(user.id);
@@ -33,11 +44,19 @@ export class UserProgrammeResolver extends AbstractProgrammeResolver {
     const currentWeek = await this.userPowerLoaders.findUserCurrentWeek.load(
       user.id,
     );
+    if (!currentWeek) {
+      // Programme complete
+      return null;
+    }
 
     const weekNumber = currentWeek.weekNumber + 1;
     const workouts = await this.workoutLoaders.findWorkoutsByProgrammeAndWeek.load(
       [programme.id, weekNumber],
     );
+
+    if (!workouts?.length) {
+      return null;
+    }
 
     return { weekNumber, workouts };
   }

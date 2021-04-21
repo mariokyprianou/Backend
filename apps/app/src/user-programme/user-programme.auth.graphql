@@ -11,6 +11,7 @@ type UserProgramme implements Programme {
   programmeImage: URL
 
   # UserProgramme Fields
+  isComplete: Boolean
   currentWeek: UserWorkoutWeek
   nextWeek: UserWorkoutWeek
 }

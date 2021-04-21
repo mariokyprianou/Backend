@@ -15,7 +15,7 @@ export class ProgressService {
           'CASE WHEN user_workout_week.week_number = 1 THEN ? ELSE ? END as type',
           [ProgressType.NEW_PROGRAMME, ProgressType.NEW_WEEK],
         ),
-        'user_workout_week.started_at as ts',
+        'user_workout_week.created_at as ts',
         db.raw('NULL as workout_type'),
       )
       .from('user_training_programme')
@@ -24,8 +24,7 @@ export class ProgressService {
         'user_workout_week.user_training_programme_id',
         'user_training_programme.id',
       )
-      .where('account_id', accountId)
-      .whereNotNull('user_workout_week.started_at');
+      .where('account_id', accountId);
 
     const workoutEvents = db
       .select(
