@@ -96,6 +96,9 @@ export class TrainerCmsService {
       await trainer
         .$relatedQuery('exercises', transaction)
         .patch({ deletedAt: new Date() });
+      await trainer
+        .$relatedQuery('exercises', transaction)
+        .patch({ deletedAt: new Date() });
     });
     return trainer;
   }
