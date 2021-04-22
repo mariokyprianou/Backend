@@ -319,7 +319,7 @@ export class UserPowerService {
     const workout = await UserWorkout.query()
       .findOne({
         id: params.workoutId,
-        acount_id: accountId,
+        account_id: accountId,
       })
       .select('id', 'completed_at')
       .throwIfNotFound({ id: params.workoutId });
