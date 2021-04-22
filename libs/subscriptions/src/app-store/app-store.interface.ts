@@ -1,4 +1,6 @@
-export type AppStoreToken = string;
+export type AppStoreToken = {
+  receipt: string;
+};
 
 export interface AppStoreInAppPurchase {
   quantity: string;

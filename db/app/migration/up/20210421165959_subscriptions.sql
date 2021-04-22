@@ -6,7 +6,7 @@ CREATE TABLE subscription (
   expires_at timestamptz NOT NULL,
   last_verified_at timestamptz NOT NULL,
   provider text NOT NULL,
-  provider_token text NOT NULL,
+  provider_token jsonb NOT NULL,
   provider_response jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW(),

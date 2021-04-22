@@ -36,10 +36,11 @@ export class SubscriptionService {
   }
 
   public async registerSubscription(params: {
-    providerName: string;
     accountId: string;
+    providerName: string;
     providerToken: any;
   }) {
+    console.log(params);
     const provider = this.providers.get(params.providerName);
     if (!provider) {
       throw new Error(`Unknown subscription provider: ${params.providerName}`);
@@ -53,16 +54,13 @@ export class SubscriptionService {
       transaction_id: subscription.transactionId,
     });
 
+    const patch = toSubscriptionModelData(params.accountId, subscription);
     if (!existingSubscription) {
-      await SubscriptionModel.query().insert(
-        toSubscriptionModelData(params.accountId, subscription),
-      );
-    } else {
-      if (subscription.lastVerifiedAt > existingSubscription.lastVerifiedAt) {
-        await existingSubscription
-          .$query()
-          .patch(toSubscriptionModelData(params.accountId, subscription));
-      }
+      await SubscriptionModel.query().insert(patch);
+    } else if (
+      subscription.lastVerifiedAt > existingSubscription.lastVerifiedAt
+    ) {
+      await existingSubscription.$query().patch(patch);
     }
 
     return subscription;

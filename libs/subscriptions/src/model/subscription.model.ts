@@ -4,6 +4,8 @@ export class SubscriptionModel extends BaseModel {
   static tableName = 'subscription';
   static idColumn = 'id';
 
+  static jsonAttributes = ['providerToken', 'providerResponse'];
+
   id: string;
 
   accountId: string;

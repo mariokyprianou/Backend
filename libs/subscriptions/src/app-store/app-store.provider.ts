@@ -3,6 +3,7 @@ import { SubscriptionModel } from '../model';
 import { Subscription, SubscriptionProvider } from '../subscription.interface';
 import { AppStoreClient } from './app-store.client';
 import { APP_STORE_PROVIDER_NAME } from './app-store.constants';
+import { AppStoreToken } from './app-store.interface';
 import { AppStoreSubscription } from './app-store.subscription';
 
 export type AppStoreProviderCtorParams = {
@@ -25,12 +26,12 @@ export class AppStoreSubscriptionProvider implements SubscriptionProvider {
   }
 
   async getSubscriptionInfo(
-    receiptOrSubscription: string | SubscriptionModel,
+    tokenOrSubscription: AppStoreToken | SubscriptionModel,
   ): Promise<Subscription> {
-    let receipt: string;
-    if (receiptOrSubscription instanceof SubscriptionModel) {
-      const { providerResponse, transactionId } = receiptOrSubscription;
-      receipt = receiptOrSubscription.providerToken;
+    let receipt: AppStoreToken;
+    if (tokenOrSubscription instanceof SubscriptionModel) {
+      const { providerResponse, transactionId } = tokenOrSubscription;
+      receipt = tokenOrSubscription.providerToken;
       const subscription = AppStoreSubscription.fromApiResponse(
         providerResponse,
         this.productIds,
@@ -42,7 +43,7 @@ export class AppStoreSubscriptionProvider implements SubscriptionProvider {
         return subscription;
       }
     } else {
-      receipt = receiptOrSubscription;
+      receipt = tokenOrSubscription;
     }
 
     const subscriptionDetails = await this.fetchLatestReceiptData(receipt);
@@ -55,7 +56,7 @@ export class AppStoreSubscriptionProvider implements SubscriptionProvider {
     return subscription;
   }
 
-  private fetchLatestReceiptData(token: string) {
-    return this.client.verifyReceipt(token, true);
+  private fetchLatestReceiptData(token: AppStoreToken) {
+    return this.client.verifyReceipt(token.receipt, true);
   }
 }

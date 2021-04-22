@@ -73,7 +73,7 @@ export class AppStoreSubscription
     );
 
     const subscription = new AppStoreSubscription(
-      response.latest_receipt,
+      { receipt: response.latest_receipt },
       response,
     );
     subscription.environment = response.environment;
