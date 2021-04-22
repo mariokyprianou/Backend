@@ -1,5 +1,5 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { ListMetadata } from '@lib/power/types';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AuthContext, ListMetadata } from '@lib/power/types';
 import {
   AdministratorService,
   AdministratorFilter,
@@ -52,7 +52,10 @@ export class AdministratorResolver {
   }
 
   @Mutation('deleteAdministrator')
-  async deleteAdministrator(@Args('id') id: string) {
+  async deleteAdministrator(
+    @Context('authContext') auth: AuthContext,
+    @Args('id') id: string,
+  ) {
     return await this.service.delete(id);
   }
 }

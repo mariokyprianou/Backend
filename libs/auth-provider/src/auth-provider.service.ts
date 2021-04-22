@@ -1,7 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
-import { AdminCreateUserRequest } from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import {
+  AdminCreateUserRequest,
+  AdminGetUserResponse,
+  ListUsersResponse,
+} from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 @Injectable()
 export class AuthProviderService {
@@ -78,7 +82,7 @@ export class AuthProviderService {
   }
 
   public async delete(Username: string) {
-    const userToDelete = await this.getUser(Username);
+    const user = await this.getUser(Username);
 
     await this.cognito
       .adminDeleteUser({
@@ -87,13 +91,13 @@ export class AuthProviderService {
       })
       .promise();
 
-    return userToDelete;
+    return user;
   }
 
   public async updateAttributes(
     Username: string,
     UserAttributes: { Name: string; Value: string }[],
-  ) {
+  ): Promise<AdminGetUserResponse> {
     await this.cognito
       .adminUpdateUserAttributes({
         Username,
@@ -105,13 +109,10 @@ export class AuthProviderService {
     return this.getUser(Username);
   }
 
-  public async getUser(Username: string) {
-    const params = {
-      UserPoolId: this.UserPoolId,
-      Username,
-    };
-
-    return this.cognito.adminGetUser(params).promise();
+  public async getUser(Username: string): Promise<AdminGetUserResponse> {
+    return this.cognito
+      .adminGetUser({ UserPoolId: this.UserPoolId, Username })
+      .promise();
   }
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html#listUsers-property
@@ -122,7 +123,7 @@ export class AuthProviderService {
       Limit?: number;
       PaginationToken?: string;
     } = {},
-  ) {
+  ): Promise<ListUsersResponse> {
     const params = {
       UserPoolId: this.UserPoolId,
       ...props,
