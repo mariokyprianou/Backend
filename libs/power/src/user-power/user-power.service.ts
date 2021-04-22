@@ -198,7 +198,6 @@ export class UserPowerService {
         await UserWorkoutWeek.query(trx).insertGraph({
           userTrainingProgrammeId: currentProgramme.userTrainingProgrammeId,
           weekNumber,
-          startedAt: now,
           createdAt: now,
           workouts: workouts.map((workout) => ({
             accountId,
@@ -212,10 +211,12 @@ export class UserPowerService {
       if (!opts.transaction) {
         await trx.commit();
       }
-    } catch {
+    } catch (error) {
+      console.log('setUserProgramme', 'error', error);
       if (!opts.transaction) {
         await trx.rollback();
       }
+      throw error;
     }
 
     return true;

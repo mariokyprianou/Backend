@@ -10,7 +10,8 @@ CREATE TABLE subscription (
   provider_response jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_subscription_account FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
+  CONSTRAINT fk_subscription_account FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE,
+  CONSTRAINT uq_subscription_transaction_id UNIQUE (transaction_id)
 );
-CREATE TRIGGER set_timestamp BEFORE UPDATE ON subscription FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON subscription FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

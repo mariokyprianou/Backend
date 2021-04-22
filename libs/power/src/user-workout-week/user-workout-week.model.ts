@@ -14,7 +14,6 @@ export class UserWorkoutWeek extends BaseModel {
   id: string;
   userTrainingProgrammeId: string;
   weekNumber: number;
-  startedAt?: Date;
   completedAt: Date;
   createdAt: Date;
   updatedAt: Date;
