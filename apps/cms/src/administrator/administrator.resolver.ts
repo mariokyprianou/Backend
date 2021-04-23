@@ -1,9 +1,10 @@
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { AuthContext, ListMetadata } from '@lib/power/types';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ListMetadata } from '@lib/power/types';
 import {
   AdministratorService,
   AdministratorFilter,
 } from '@lib/power/administrator';
+import { CmsUser } from '../context';
 
 @Resolver('Administrator')
 export class AdministratorResolver {
@@ -52,10 +53,11 @@ export class AdministratorResolver {
   }
 
   @Mutation('deleteAdministrator')
-  async deleteAdministrator(
-    @Context('authContext') auth: AuthContext,
-    @Args('id') id: string,
-  ) {
+  async deleteAdministrator(@CmsUser() user: CmsUser, @Args('id') id: string) {
+    if (user.sub === id) {
+      throw new Error('Unable to delete own user.');
+    }
+
     return await this.service.delete(id);
   }
 }

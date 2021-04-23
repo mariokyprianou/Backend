@@ -22,6 +22,7 @@ import { CountryCMSModule } from './country/region.module';
 import { AuthProviderModule } from '@td/auth-provider';
 import userAuthKeysConfig from '../../common/user-auth-keys.config';
 import { GenerateCsvReportModule } from '@td/generate-csv-report';
+import { createContext } from './context';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -52,6 +53,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         './apps/common/common.graphql',
       ],
       path: '/cms',
+      context: createContext,
       formatError,
       resolvers: {
         ...scalars,
