@@ -141,4 +141,16 @@ export class ProgrammeLoaders {
       });
     },
   );
+
+  public findSubscriberCount = new DataLoader<string, number>(
+    async (trainingProgrammeIds) => {
+      const results = await Programme.knex()
+        .select('training_programme_id', 'count')
+        .from('subscriber_stats')
+        .whereIn('training_programme_id', trainingProgrammeIds);
+      return trainingProgrammeIds
+        .map((id) => results.find((row) => row.training_programme_id === id))
+        .map((row) => row?.count ?? 0);
+    },
+  );
 }

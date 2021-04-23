@@ -1,1 +1,1 @@
-DROP TABLE subscription;
+DROP VIEW subscriber_stats;

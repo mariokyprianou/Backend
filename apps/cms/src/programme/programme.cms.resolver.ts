@@ -7,7 +7,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
-import { Programme, ProgrammeFilter } from '@lib/power';
+import { Programme, ProgrammeFilter, ProgrammeLoaders } from '@lib/power';
 import { ProgrammeService } from '@lib/power/programme/programme.cms.service';
 import { CmsParams, CommonService } from '@lib/common';
 import { TrainerCmsService } from '@lib/power/trainer';
@@ -22,21 +22,12 @@ export class ProgrammeResolver {
     private programmeService: ProgrammeService,
     private commonService: CommonService,
     private trainerService: TrainerCmsService,
+    private programmeLoaders: ProgrammeLoaders,
   ) {}
 
   @ResolveField('subscribers')
-  async getSubscriber(@Parent() programme: Programme) {
-    // Find all account (and user training programmes)
-    // Filter by programme id
-    // const accounts = await this.accountService
-    //   .findAll()
-    //   .withGraphFetched('trainingProgramme');
-    // const activeProgs = accounts.filter(
-    //   (each) => each.trainingProgramme.trainingProgrammeId === programme.id,
-    // );
-    // return activeProgs.length;
-
-    return 0;
+  async getSubscribers(@Parent() programme: Programme) {
+    return this.programmeLoaders.findSubscriberCount.load(programme.id);
   }
 
   @ResolveField('trainer')
