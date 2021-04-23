@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { UpdateUserInput } from 'apps/cms/src/user/user.resolver';
 import { addDays, isAfter } from 'date-fns';
 import Objection from 'objection';
+import { Country } from '../country';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
 import { UserPowerService } from '../user-power';
 import { User } from './user.model';
@@ -142,14 +143,19 @@ const applyFilter = (
   }
 
   if (filter.country) {
-    query.where('country.name', 'ilike', `%${filter.country}%`);
+    query.whereIn(
+      'account.country_id',
+      Country.query()
+        .select('id')
+        .where('name', 'ilike', `%${filter.country}%`),
+    );
   }
 
   return query;
 };
 
 function baseQuery(params: ICmsParams<UserFilter> = {}) {
-  const query = User.query().withGraphJoined('[country, region]');
+  const query = User.query().withGraphJoined('country');
   applyFilter(query, params.filter);
   return query;
 }
