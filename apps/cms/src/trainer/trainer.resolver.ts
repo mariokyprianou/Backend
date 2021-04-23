@@ -5,7 +5,6 @@ import {
 } from '@lib/power/trainer';
 import {
   Args,
-  Context,
   Mutation,
   Parent,
   Query,
@@ -15,6 +14,7 @@ import {
 import { TrainerFilter, ListMetadata, TrainerLocalisation } from '@lib/power';
 import { CmsParams } from '@lib/common';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver('Trainer')
 export class TrainerResolver {
@@ -32,11 +32,10 @@ export class TrainerResolver {
 
   @Query('_allTrainersMeta')
   async _allTrainersMeta(
-    @Context('language') language: string,
     @Args() params: CmsParams<TrainerFilter>,
   ): Promise<ListMetadata> {
     const { count } = await this.trainerService.findTrainerCount({
-      language,
+      language: 'en',
       page: params.page,
       perPage: params.perPage,
       filter: params.filter,
@@ -48,11 +47,10 @@ export class TrainerResolver {
 
   @Query('allTrainers')
   async allTrainers(
-    @Context('language') language: string,
     @Args() params: CmsParams<TrainerFilter>,
   ): Promise<Trainer[]> {
     const trainers = await this.trainerService.findAll({
-      language,
+      language: 'en',
       page: params.page,
       perPage: params.perPage,
       filter: params.filter,
@@ -64,7 +62,7 @@ export class TrainerResolver {
   }
 
   @Query('Trainer')
-  async Trainer(@Args('id') id: string): Promise<Trainer> {
+  async Trainer(@Args('id', ParseUUIDPipe) id: string): Promise<Trainer> {
     return this.trainerService.findById(id);
   }
 
@@ -77,14 +75,14 @@ export class TrainerResolver {
 
   @Mutation('updateTrainer')
   async updateTrainer(
-    @Args('id') id: string,
+    @Args('id', ParseUUIDPipe) id: string,
     @Args('localisations') localisations: TrainerLocalisation[],
   ): Promise<Trainer> {
     return this.trainerService.updateTrainer(id, localisations);
   }
 
   @Mutation('deleteTrainer')
-  async deleteTrainer(@Args('id') id: string): Promise<Trainer> {
+  async deleteTrainer(@Args('id', ParseUUIDPipe) id: string): Promise<Trainer> {
     return this.trainerService.deleteTrainer(id);
   }
 }

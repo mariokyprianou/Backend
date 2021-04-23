@@ -25,7 +25,7 @@ function baseQuery(params: TrainerQueryParams) {
 
   if (params.language) {
     query.modifyGraph('localisations', (qb) =>
-      qb.where('language', params.language),
+      qb.where('language', params.language ?? 'en'),
     );
   }
 
@@ -106,22 +106,23 @@ export class TrainerCmsService {
     trainerId: string,
     localisations: TrainerLocalisation[],
   ) {
-    const trainer = await this.findById(trainerId);
-    return trainer.$query().upsertGraphAndFetch({
-      id: trainerId,
-      localisations,
+    return Trainer.transaction((trx) => {
+      return Trainer.query(trx).upsertGraphAndFetch({
+        id: trainerId,
+        localisations,
+      });
     });
   }
 
   // CREATE TRAINER //
   public async createTrainer(localisations: TrainerLocalisation[]) {
-    return Trainer.query().insertGraphAndFetch({
-      localisations: localisations.map((localisation) => {
-        return {
+    return Trainer.transaction((trx) => {
+      return Trainer.query(trx).insertGraphAndFetch({
+        localisations: localisations.map((localisation) => ({
           language: localisation.language,
           name: localisation.name,
-        };
-      }),
+        })),
+      });
     });
   }
 }
