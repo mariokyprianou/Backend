@@ -4,6 +4,7 @@ import {
   OnDemandWorkoutModule,
   ScheduledWorkoutModule,
   TrainerModule,
+  WorkoutModule,
 } from '@lib/power';
 import { Module } from '@nestjs/common';
 import { ExerciseCMSModule } from '../exercise/exercise.module';
@@ -20,6 +21,7 @@ import { WorkoutCmsResolver } from './workout.cms.resolver';
     TrainerModule,
     ExerciseModule,
     ExerciseCMSModule,
+    WorkoutModule,
   ],
   providers: [
     OnDemandWorkoutCmsResolver,

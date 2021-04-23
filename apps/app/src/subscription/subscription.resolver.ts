@@ -54,7 +54,7 @@ export class SubscriptionResolver {
       const subscription = await this.subscriptionService.registerSubscription({
         providerName: APP_STORE_PROVIDER_NAME,
         accountId: user.id,
-        providerToken: input.receiptData,
+        providerToken: { receipt: input.receiptData },
       });
       return { success: true, subscription };
     } catch (error) {

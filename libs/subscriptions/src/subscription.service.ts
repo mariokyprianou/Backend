@@ -1,4 +1,6 @@
 import { PartialModelObject } from 'objection';
+import { AppStoreToken } from './app-store';
+import { GooglePlayToken } from './google-play';
 import { SubscriptionModel } from './model';
 import { Subscription, SubscriptionProvider } from './subscription.interface';
 
@@ -38,9 +40,8 @@ export class SubscriptionService {
   public async registerSubscription(params: {
     accountId: string;
     providerName: string;
-    providerToken: any;
+    providerToken: GooglePlayToken | AppStoreToken;
   }) {
-    console.log(params);
     const provider = this.providers.get(params.providerName);
     if (!provider) {
       throw new Error(`Unknown subscription provider: ${params.providerName}`);

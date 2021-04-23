@@ -3,6 +3,8 @@ import * as _ from 'lodash';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { ScheduledWorkout } from '../scheduled-workout/scheduled-workout.model';
 import { CONTEXT } from '@nestjs/graphql';
+import { TaxonomyTerm } from '@lib/taxonomy';
+import { Workout } from './workout.model';
 
 @Injectable({ scope: Scope.REQUEST })
 export class WorkoutLoaders {
@@ -11,6 +13,21 @@ export class WorkoutLoaders {
   constructor(@Inject(CONTEXT) context: { language: string }) {
     this.language = context.language ?? 'en';
   }
+
+  public readonly findWorkoutTagIdsByWorkoutId = new DataLoader<
+    string,
+    TaxonomyTerm[]
+  >(async (workoutIds) => {
+    const results = await Workout.knex()
+      .select('workout_id', 'taxonomy_term_id')
+      .from('workout_tag')
+      .whereIn('workout_id', workoutIds);
+    return workoutIds.map((workoutId) =>
+      results
+        .filter((result) => result.workout_id === workoutId)
+        .map((result) => result.taxonomy_term_id),
+    );
+  });
 
   public readonly findWorkoutsByProgrammeAndWeek = new DataLoader<
     [programmeId: string, week: number],

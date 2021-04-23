@@ -18,6 +18,7 @@ import { CmsParams, CommonService } from '@lib/common';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { WorkoutCmsResolver } from './workout.cms.resolver';
 import { ExerciseCmsLoaders } from '../exercise/exercise.cms.loaders';
+import { WorkoutLoaders } from '@lib/power/workout/workout.loaders';
 
 @Resolver('OnDemandWorkout')
 export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorkout> {
@@ -25,6 +26,7 @@ export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorko
     commonService: CommonService,
     exerciseLoaders: ExerciseCmsLoaders,
     private workoutService: OnDemandWorkoutCmsService,
+    private workoutLoaders: WorkoutLoaders,
   ) {
     super(commonService, exerciseLoaders);
   }
@@ -81,5 +83,12 @@ export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorko
   @ResolveField('id')
   async getId(@Parent() workout: OnDemandWorkout) {
     return workout.id;
+  }
+
+  @ResolveField('tagIds')
+  async getTagIds(@Parent() onDemandWorkout: OnDemandWorkout) {
+    return this.workoutLoaders.findWorkoutTagIdsByWorkoutId.load(
+      onDemandWorkout.workout.id,
+    );
   }
 }

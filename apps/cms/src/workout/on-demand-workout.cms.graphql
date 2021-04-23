@@ -10,6 +10,7 @@ type OnDemandWorkout {
 
   # OnDemandWorkout fields
   id: ID!
+  tagIds: [ID!]
 }
 
 input CreateOnDemandWorkoutInput {
