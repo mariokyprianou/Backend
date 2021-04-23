@@ -14,9 +14,10 @@ export class SubscriptionService {
   }
 
   public async findSubscription(accountId: string) {
-    const subscriptionModel = await SubscriptionModel.query().findOne({
-      account_id: accountId,
-    });
+    const subscriptionModel = await SubscriptionModel.query()
+      .where('account_id', accountId)
+      .orderBy('expires_at', 'DESC')
+      .first();
 
     if (!subscriptionModel) {
       return null;

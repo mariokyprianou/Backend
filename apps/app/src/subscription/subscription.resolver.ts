@@ -1,11 +1,10 @@
-import { AuthContext } from '@lib/power';
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
   SubscriptionService,
   APP_STORE_PROVIDER_NAME,
   GOOGLE_PLAY_PROVIDER_NAME,
 } from '@td/subscriptions';
-import {} from 'libs/subscriptions/src/google-play/google-play.constants';
+import { User } from '../context';
 import { RegisterAppStoreSubscriptionDto } from './register-app-store-subscription.dto copy';
 import { RegisterGooglePlaySubscriptionDto } from './register-google-play-subscription.dto';
 
@@ -14,17 +13,16 @@ export class SubscriptionResolver {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
   @Query('subscription')
-  async getSubscription(@Context('authContext') user: AuthContext) {
+  async getSubscription(@User() user: User) {
     const subscription = await this.subscriptionService.findSubscription(
       user.id,
     );
-    console.log({ subscription });
     return subscription;
   }
 
   @Mutation('registerGooglePlaySubscription')
   async registerGooglePlaySubscription(
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
     @Args('input') input: RegisterGooglePlaySubscriptionDto,
   ) {
     try {
@@ -47,7 +45,7 @@ export class SubscriptionResolver {
 
   @Mutation('registerAppStoreSubscription')
   async registerAppStoreSubscription(
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
     @Args('input') input: RegisterAppStoreSubscriptionDto,
   ) {
     try {

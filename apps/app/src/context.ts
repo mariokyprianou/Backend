@@ -61,7 +61,7 @@ export async function createContext({
       sub,
     },
     user: {
-      id: account.id,
+      id: account?.id,
       sub,
       language,
     },
