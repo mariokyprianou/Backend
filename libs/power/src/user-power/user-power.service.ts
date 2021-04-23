@@ -240,10 +240,11 @@ export class UserPowerService {
         'account.user_training_programme_id',
         'user_training_programme.id',
       )
-      .leftJoin(
-        'user_workout_week',
-        'user_training_programme.id',
-        'user_workout_week.user_training_programme_id',
+      .joinRaw(
+        `left join "user_workout_week" on (
+          "user_training_programme"."id" = "user_workout_week"."user_training_programme_id" and 
+          "user_workout_week"."completed_at" is null
+        )`,
       )
       .where('account.id', accountId)
       .whereNull('user_workout_week.completed_at')
@@ -305,12 +306,11 @@ export class UserPowerService {
 
     // fetch account
     return Account.transaction(async (transaction) => {
-      await currentWeek.$query(transaction).patch({ completedAt: new Date() });
-
       await this.setUserProgramme(
         { accountId, weekNumber: currentWeek.weekNumber + 1 },
         { transaction },
       );
+      await currentWeek.$query(transaction).patch({ completedAt: new Date() });
 
       return true;
     });

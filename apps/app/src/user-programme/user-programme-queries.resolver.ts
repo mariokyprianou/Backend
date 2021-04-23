@@ -1,15 +1,10 @@
-import {
-  AuthContext,
-  ExerciseNote,
-  ExerciseWeight,
-  WorkoutOrder,
-} from '@lib/power/types';
+import { ExerciseNote, ExerciseWeight, WorkoutOrder } from '@lib/power/types';
 import { UserExerciseHistoryService } from '@lib/power/user-exercise-history/user-exercise-history.service';
 import { UserExerciseNoteService } from '@lib/power/user-exercise-note/user-exercise-note.service';
-import { UserPowerService } from '@lib/power/user-power';
+import { UserPowerService, CompleteWorkoutDto } from '@lib/power';
 import { ParseUUIDPipe } from '@nestjs/common';
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CompleteWorkoutDto } from '../../../../libs/power/src/user-power/dto/complete-workout.dto';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { User } from '../context';
 
 @Resolver()
 export class UserProgrammeQueryResolver {
@@ -20,13 +15,13 @@ export class UserProgrammeQueryResolver {
   ) {}
 
   @Query('getProgramme')
-  async userProgramme(@Context('authContext') user: AuthContext) {
+  async userProgramme(@User() user: User) {
     return this.userPowerService.findCurrentProgramme(user.id);
   }
 
   @Query('getExerciseWeight')
   async getExerciseWeight(
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
     @Args('exercise', ParseUUIDPipe) excerciseId: string,
   ): Promise<ExerciseWeight[]> {
     const weightRecords = await this.exerciseHistoryService.findByExercise({
@@ -54,31 +49,31 @@ export class UserProgrammeQueryResolver {
   @Mutation('completeWorkout')
   async completeWorkout(
     @Args('input') input: CompleteWorkoutDto,
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
   ) {
     return this.userPowerService.completeWorkout(user.id, input);
   }
 
   @Mutation('completeWorkoutWeek')
-  async completeWorkoutWeek(@Context('authContext') user: AuthContext) {
+  async completeWorkoutWeek(@User() user: User) {
     return this.userPowerService.completeWorkoutWeek(user.id);
   }
 
   @Mutation('updateExerciseNote')
   async updateExerciseNote(
-    @Context('authContext') authContext: AuthContext,
+    @User() user: User,
     @Args('input') input: ExerciseNote,
   ) {
-    return this.exerciseNoteService.addExerciseNote(input, authContext.sub);
+    return this.exerciseNoteService.addExerciseNote(input, user.sub);
   }
 
   @Mutation('continueProgramme')
   async continueProgramme(
     @Args('input') input: { programme: string },
-    @Context('authContext') authContext: AuthContext,
+    @User() user: User,
   ) {
     return this.userPowerService.continueProgramme({
-      accountId: authContext.id,
+      accountId: user.id,
       trainingProgrammeId: input.programme,
     });
   }
@@ -86,10 +81,10 @@ export class UserProgrammeQueryResolver {
   @Mutation('startProgramme')
   async startProgramme(
     @Args('input') input: { programme: string },
-    @Context('authContext') authContext: AuthContext,
+    @User() user: User,
   ) {
     return this.userPowerService.startProgramme({
-      accountId: authContext.id,
+      accountId: user.id,
       trainingProgrammeId: input.programme,
     });
   }
@@ -97,10 +92,10 @@ export class UserProgrammeQueryResolver {
   @Mutation('restartProgramme')
   async restartProgramme(
     @Args('input') input: { programme: string },
-    @Context('authContext') authContext: AuthContext,
+    @User() user: User,
   ) {
     return this.userPowerService.restartProgramme({
-      accountId: authContext.id,
+      accountId: user.id,
       trainingProgrammeId: input.programme,
     });
   }

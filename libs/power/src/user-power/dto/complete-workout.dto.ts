@@ -3,7 +3,7 @@ import { ArgsType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
   IsDate,
-  IsIn,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -55,7 +55,7 @@ export class WorkoutSetWeightInputDto {
   @Max(100)
   setNumber: number;
 
-  @IsIn([SetType.REPS, SetType.TIME])
+  @IsEnum(SetType)
   setType: SetType;
 
   @IsInt()
