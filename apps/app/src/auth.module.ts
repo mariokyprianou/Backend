@@ -19,7 +19,7 @@ import scalars from '../../common/scalars';
 import { AuthAppModule } from './authentication/auth.module';
 import { ConfigAppModule } from './config/config.module';
 import { CountryAppModule } from './country/region.module';
-import { createContext } from './createContext';
+import { createContext } from './context';
 import { HMCAppModule } from './hmc/hmc.module';
 
 import { OnboardingAppModule } from './onboarding/onboarding.module';

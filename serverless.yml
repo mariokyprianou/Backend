@@ -8,7 +8,7 @@ provider:
   runtime: nodejs14.x
   stage: ${opt:stage, 'development'}
   profile: power
-  useDotenv:
+  lambdaHashingVersion: '20201221'
   environment:
     NODE_ENV: ${env:NODE_ENV}
     APP_STORE_SHARED_SECRET: ${env:APP_STORE_SHARED_SECRET}
