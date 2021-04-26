@@ -8,14 +8,12 @@ import {
   Mutation,
 } from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
-import { UserProgrammeService } from '@lib/power/user-programme/user-programme.service';
 import { AuthService } from '@lib/power/auth';
 import { GraphQLError } from 'graphql';
 import { CmsParams } from '@lib/common';
 import { UserExportService } from '@lib/power/user/user-export.service';
 import { UpdateUserInputDto } from './dto/update-user-input.dto';
 import { ParseUUIDPipe } from '@nestjs/common';
-import { UserPowerService } from '@lib/power/user-power';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 import { SubscriptionLoaders } from '@td/subscriptions';
@@ -24,10 +22,8 @@ import { SubscriptionLoaders } from '@td/subscriptions';
 export class UserResolver {
   constructor(
     private userService: UserService,
-    private userProgramService: UserProgrammeService,
     private authService: AuthService,
     private userExportService: UserExportService,
-    private userPowerService: UserPowerService,
     private readonly accountLoaders: AccountLoaders,
     private readonly programmeLoaders: ProgrammeLoaders,
     private readonly subscriptionLoaders: SubscriptionLoaders,
@@ -52,21 +48,22 @@ export class UserResolver {
 
   @ResolveField('currentWeek')
   async getCurrentWeek(@Parent() user: User): Promise<number> {
-    const workoutWeek = await this.userPowerService.findUsersCurrentWeek(
+    const programmes = await this.programmeLoaders.findProgrammeInfoByAccountId.load(
       user.id,
     );
+    const activeProgramme = programmes.find(
+      (programme) => programme.isActive === true,
+    );
 
-    return workoutWeek?.weekNumber;
+    return activeProgramme?.currentWeek;
   }
 
   @ResolveField('previousTrainers')
   async getPreviousTrainers(@Parent() user: User) {
-    const allProgrammes = await this.userProgramService.allUserProgrammes(
+    const programmes = await this.programmeLoaders.findProgrammeInfoByAccountId.load(
       user.id,
     );
-    return [
-      ...new Set(allProgrammes.map((each) => each.trainingProgramme.trainerId)),
-    ];
+    return programmes.map((p) => p.trainerId);
   }
 
   @ResolveField('deviceLimit')
@@ -76,18 +73,17 @@ export class UserResolver {
 
   @ResolveField('currentTrainingProgramme')
   async getCurrentTrainingProgramme(@Parent() user: User) {
-    const trainingProgramme = await this.programmeLoaders.findActiveProgrammeByAccountId.load(
+    const programmes = await this.programmeLoaders.findProgrammeInfoByAccountId.load(
       user.id,
     );
-
-    if (trainingProgramme) {
+    const activeProgramme = programmes.find(
+      (programme) => programme.isActive === true,
+    );
+    if (activeProgramme) {
       return {
-        id: trainingProgramme.id,
-        name: trainingProgramme.localisations.find((tr) => tr.language === 'en')
-          ?.description,
+        id: activeProgramme.trainingProgrammeId,
+        name: activeProgramme.trainingProgrammeName,
       };
-    } else {
-      return null;
     }
   }
 

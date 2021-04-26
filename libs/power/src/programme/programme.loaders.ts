@@ -4,7 +4,6 @@ import * as DataLoader from 'dataloader';
 import { ref } from 'objection';
 import { Account } from '../account';
 import { PublishStatus } from '../types';
-import { UserProgramme } from '../user-programme';
 import { ProgrammeImage } from './programme-image.model';
 import { Programme } from './programme.model';
 import { ShareMedia } from './share-media.model';
@@ -13,6 +12,16 @@ type ProgrammeProgress = {
   id: string;
   latestWeek: number;
   isActive: boolean;
+};
+
+type AccountProgrammeInfo = {
+  accountId: string;
+  trainerId: string;
+  trainerName: string;
+  trainingProgrammeId: string;
+  trainingProgrammeName: string;
+  isActive: boolean;
+  currentWeek: number;
 };
 
 @Injectable({ scope: Scope.REQUEST })
@@ -119,29 +128,41 @@ export class ProgrammeLoaders {
     });
   });
 
-  public findProgrammeInfoByAccountId = new DataLoader<string, Programme>(
-    async (accountIds) => {
-      const userProgrammes = await Account.relatedQuery<UserProgramme>(
-        'trainingProgramme',
-      )
-        .withGraphJoined('trainingProgramme')
-        .for(accountIds as string[]);
+  public findProgrammeInfoByAccountId = new DataLoader<
+    string,
+    AccountProgrammeInfo[]
+  >(async (accountIds) => {
+    const { rows } = await Programme.knex().raw(
+      `
+    SELECT
+      DISTINCT ON (account.id, training_programme.id)
+      account.id as "accountId",
+      training_programme.id as "trainingProgrammeId",
+      training_programme_tr.description as "trainingProgrammeName",
+      trainer.id as "trainerId",
+      trainer_tr.name as "trainerName",
+      user_workout_week.week_number as "currentWeek",
+      account.user_training_programme_id = user_training_programme.id as "isActive"
+    FROM account
+      JOIN user_training_programme on account.id = user_training_programme.account_id
+      JOIN training_programme on training_programme.id = user_training_programme.training_programme_id
+      JOIN training_programme_tr on (training_programme_tr.training_programme_id = training_programme.id and training_programme_tr.language = ?)
+      JOIN trainer on training_programme.trainer_id = trainer.id
+      JOIN trainer_tr on (trainer.id = trainer_tr.trainer_id and trainer_tr.language = ?)
+      JOIN user_workout_week on user_workout_week.user_training_programme_id = user_training_programme.id
+    WHERE account.id IN (${accountIds.map(() => '?').join(',')})
+    ORDER BY 
+      account.id, 
+      training_programme.id, 
+      user_workout_week.created_at DESC
+    `,
+      [this.language, this.language, ...accountIds],
+    );
 
-      await Programme.fetchGraph(
-        userProgrammes.map((p) => p.trainingProgramme),
-        'localisations',
-      ).modifyGraph('localisations', (qb) =>
-        qb.where(ref('language'), this.language),
-      );
-
-      return accountIds.map((accountId) => {
-        const userProgramme = userProgrammes.find(
-          (programme) => programme.accountId === accountId,
-        );
-        return userProgramme?.trainingProgramme;
-      });
-    },
-  );
+    return accountIds.map((accountId) => {
+      return rows.filter((row) => row.accountId === accountId);
+    });
+  });
 
   public findSubscriberCount = new DataLoader<string, number>(
     async (trainingProgrammeIds) => {
