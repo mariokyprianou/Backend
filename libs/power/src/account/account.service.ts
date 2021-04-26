@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { raw } from 'objection';
 import { Account } from './account.model';
-import { UserPreference } from '../types';
 
 @Injectable()
 export class AccountService {
@@ -26,10 +25,5 @@ export class AccountService {
       .patch({ deletedAt: raw('NOW()') })
       .returning('*')
       .first();
-  }
-
-  public async updatePreference(input: UserPreference, sub: string) {
-    const account = await this.findBySub(sub);
-    return account.$query().patchAndFetch(input);
   }
 }

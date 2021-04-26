@@ -25,6 +25,12 @@ export class User extends UserModel {
   createdAt: Date;
   updatedAt: Date;
 
+  // Preferences
+  allowEmailMarketing: boolean;
+  allowErrorReports: boolean;
+  allowAnalytics: boolean;
+  allowNotifications: boolean;
+
   country: Country;
   region: Region;
 

@@ -6,6 +6,7 @@ import { User } from './user.model';
 import { Account } from '../account';
 import { batchingStream, unbatchingStream } from './batch';
 import { S3 } from 'aws-sdk';
+import { SubscriptionPlanSku } from 'libs/subscriptions/src/subscription.constants';
 
 export type ExportUsersResponse = {
   downloadUrl: string;
@@ -48,6 +49,7 @@ export class UserExportService {
         'account.first_name as firstName',
         'account.last_name as lastName',
         'account.email as email',
+        'account.allow_email_marketing as emailMarketing',
         db.raw(`COALESCE(account.gender, 'unspecified') as gender`),
         db.raw('account.date_of_birth::date as "dateOfBirth"'),
         'country.name as country',
@@ -58,37 +60,48 @@ export class UserExportService {
       .stream();
   }
 
-  private addAdditionalAttributes = () =>
-    through2.obj(async function (batchUsers, enc, callback) {
+  private addSubscriptionAttributes = () =>
+    through2.obj(async function (batchUsers, enc, callback): Promise<void> {
       // Batch load user info from secondary db
       const accountIds = batchUsers.map((account) => account.id);
 
-      // Email Marketing Preferences
-      // todo: Subscriber Status
-      // todo: Subscription Start Date
-      // todo: Registration Date
-      // todo: Billing cadence (yearly/monthly)
-      const accounts = await Account.query()
+      const db = Account.knex();
+      const subscriptions = await db
         .select(
-          'id',
-          Account.knex().raw(
-            `CASE emails WHEN true THEN 'Y' ELSE 'N' END as marketingEmails`,
-          ),
-          'created_at as createdAt',
+          db.raw('distinct on (account.id) account.id as "accountId"'),
+          'subscription.sku as sku',
+          'subscription.created_at as startDate',
+          'subscription.provider as platform',
         )
-        .whereIn('id', accountIds);
+        .from('account')
+        .leftJoin('subscription', 'account.id', 'subscription.account_id')
+        .whereIn('account.id', accountIds)
+        .orderBy('account.id')
+        .orderBy('subscription.expires_at', 'desc');
 
-      const accountsById = new Map();
-      for (const account of accounts) {
-        accountsById.set(account.id, account);
+      const subscriptionsByAccountId = new Map();
+      for (const subscription of subscriptions) {
+        subscriptionsByAccountId.set(subscription.accountId, subscription);
       }
 
       for (const user of batchUsers) {
-        if (user.inspected_by_id) {
-          const account = accountsById.get(user.id);
-          if (account) {
-            user.emailMarketing = account.emailMarketing;
+        const subscription = subscriptionsByAccountId.get(user.id);
+        if (subscription) {
+          let billingCadence: string;
+          switch (subscription.sku) {
+            case SubscriptionPlanSku.LIFETIME:
+              billingCadence = 'lifetime';
+            case SubscriptionPlanSku.YEARLY:
+              billingCadence = 'yearly';
+            case SubscriptionPlanSku.YEARLY:
+              billingCadence = 'monthly';
+            default:
+              billingCadence = subscription.sku;
           }
+
+          user.subscriptionBillingCadence = billingCadence;
+          user.subscriptionStartDate = subscription.startDate;
+          user.subscriptionPlatform = subscription.platform;
         }
       }
 
@@ -105,7 +118,7 @@ export class UserExportService {
     this.getUserQueryStream()
       .on('error', (e) => console.log('stream error', e))
       .pipe(batchingStream(100))
-      .pipe(this.addAdditionalAttributes())
+      .pipe(this.addSubscriptionAttributes())
       .pipe(unbatchingStream())
       .pipe(
         stringify({
@@ -119,6 +132,12 @@ export class UserExportService {
             { key: 'country', header: 'Country' },
             { key: 'emailMarketing', header: 'Email Marketing' },
             { key: 'createdAt', header: 'Registration Date' },
+            { key: 'subscriptionPlatform', header: 'Subscription Platform' },
+            { key: 'subscriptionPlatform', header: 'Subscription Start Date' },
+            {
+              key: 'subscriptionBillingCadence',
+              header: 'Subscription Billing Cadence',
+            },
           ],
         }),
       )

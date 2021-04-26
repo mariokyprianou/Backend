@@ -12,7 +12,7 @@ import {
   UserPreference,
   UserProfileInput,
 } from '../types';
-import { UserService } from '../user';
+import { User, UserService } from '../user';
 import { UserPowerService } from '../user-power';
 import { UserProgrammeService } from '../user-programme';
 import { UserWorkoutCmsService } from '../user-workout';
@@ -123,11 +123,21 @@ export class AuthService {
     return generateProfile(profile);
   }
 
-  public async updatePreference(
-    input: UserPreference,
-    authContext: AuthContext,
-  ) {
-    return this.accountService.updatePreference(input, authContext.sub);
+  public async updateUserPreferences(
+    accountId: string,
+    params: UserPreference,
+  ): Promise<UserPreference> {
+    const [account] = await Promise.all([
+      Account.query().findById(accountId).patch(params).returning('*').first(),
+      User.query().findById(accountId).patch({
+        allowAnalytics: params.analytics,
+        allowEmailMarketing: params.emails,
+        allowErrorReports: params.errorReports,
+        allowNotifications: params.notifications,
+      }),
+    ]);
+
+    return account;
   }
 
   public async changeDevice(input: ChangeDevice, authContext: AuthContext) {

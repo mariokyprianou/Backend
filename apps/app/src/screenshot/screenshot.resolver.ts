@@ -1,5 +1,4 @@
 import { ScreenshotService } from '@lib/power/screenshot';
-import { UserService } from '@lib/power/user';
 import { Mutation, Resolver, ResolveField } from '@nestjs/graphql';
 import { User } from '../context';
 
@@ -26,10 +25,7 @@ export class ScreenshotQueryResolver {
 
 @Resolver('UserProfile')
 export class ScreenshotUserProfileResolver {
-  constructor(
-    private userService: UserService,
-    private screenshotService: ScreenshotService,
-  ) {}
+  constructor(private screenshotService: ScreenshotService) {}
 
   @ResolveField('screenshotsTaken')
   async getScreenshotsTaken(@User() user: User) {

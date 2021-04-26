@@ -1,11 +1,11 @@
 import {
+  AuthService,
   UserProfile,
   AuthContext,
   UserPreference,
   UserProfileInput,
   ChangeDevice,
-} from '@lib/power/types';
-import { AuthService } from '@lib/power/auth';
+} from '@lib/power';
 import {
   Query,
   Context,
@@ -14,14 +14,15 @@ import {
   Args,
   ResolveField,
 } from '@nestjs/graphql';
+import { User } from '../context';
 
 @Resolver('UserProfile')
 export class ProfileResolver {
-  constructor(private user: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @ResolveField('completedWorkouts')
   async getCompletedWorkouts(@Context('authContext') authContext: AuthContext) {
-    return this.user.allCompletedUserWorkouts(authContext);
+    return this.authService.allCompletedUserWorkouts(authContext);
   }
 
   @Mutation('ping')
@@ -33,14 +34,14 @@ export class ProfileResolver {
   async profile(
     @Context('authContext') authContext: AuthContext,
   ): Promise<UserProfile> {
-    return this.user.profile(authContext);
+    return this.authService.profile(authContext);
   }
 
   @Query('preferences')
   async preferences(
     @Context('authContext') authContext: AuthContext,
   ): Promise<UserPreference> {
-    return this.user.preference(authContext);
+    return this.authService.preference(authContext);
   }
 
   @Mutation('updateProfile')
@@ -48,15 +49,15 @@ export class ProfileResolver {
     @Args('input') input: UserProfileInput,
     @Context('authContext') authContext: AuthContext,
   ): Promise<UserProfile> {
-    return this.user.updateProfile(input, authContext);
+    return this.authService.updateProfile(input, authContext);
   }
 
   @Mutation('updatePreference')
   async updatePreference(
     @Args('input') input: UserPreference,
-    @Context('authContext') authContext: AuthContext,
+    @User() user: User,
   ): Promise<UserPreference> {
-    return this.user.updatePreference(input, authContext);
+    return this.authService.updateUserPreferences(user.id, input);
   }
 
   @Mutation('changeDevice')
@@ -64,7 +65,7 @@ export class ProfileResolver {
     @Args('input') input: ChangeDevice,
     @Context('authContext') authContext: AuthContext,
   ): Promise<boolean> {
-    return this.user.changeDevice(input, authContext);
+    return this.authService.changeDevice(input, authContext);
   }
 
   @Mutation('updateEmail')
@@ -72,6 +73,6 @@ export class ProfileResolver {
     @Args('email') email: string,
     @Context('authContext') authContext: AuthContext,
   ): Promise<boolean> {
-    return this.user.updateEmail(email, authContext);
+    return this.authService.updateEmail(email, authContext);
   }
 }
