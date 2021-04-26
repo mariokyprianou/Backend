@@ -19,6 +19,7 @@ type User {
 enum SubscriptionPlatform {
   GOOGLE_PLAY
   APP_STORE
+  MANUAL_OVERRIDE
 }
 
 type CurrentTrainingProgramme {

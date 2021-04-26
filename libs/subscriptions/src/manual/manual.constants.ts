@@ -1,0 +1,1 @@
+export const MANUAL_PROVIDER_NAME = 'MANUAL_OVERRIDE';

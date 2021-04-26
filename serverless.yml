@@ -12,13 +12,9 @@ provider:
   environment:
     NODE_ENV: ${env:NODE_ENV}
     APP_STORE_SHARED_SECRET: ${env:APP_STORE_SHARED_SECRET}
-    APP_STORE_MONTHLY_SUBSCRIPTION_PRODUCT_ID: ${env:APP_STORE_MONTHLY_SUBSCRIPTION_PRODUCT_ID,'app.power.subscription.monthly'}
-    APP_STORE_YEARLY_SUBSCRIPTION_PRODUCT_ID: ${env:APP_STORE_YEARLY_SUBSCRIPTION_PRODUCT_ID, 'app.power.subscription.yearly'}
     GOOGLE_PLAY_PACKAGE_NAME: ${env:GOOGLE_PLAY_PACKAGE_NAME}
     GOOGLE_PLAY_SERVICE_ACCOUNT_CLIENT_EMAIL: ${env:GOOGLE_PLAY_SERVICE_ACCOUNT_CLIENT_EMAIL}
     GOOGLE_PLAY_SERVICE_ACCOUNT_PRIVATE_KEY: ${env:GOOGLE_PLAY_SERVICE_ACCOUNT_PRIVATE_KEY}
-    GOOGLE_PLAY_MONTHLY_SUBSCRIPTION_PRODUCT_ID: ${env:GOOGLE_PLAY_MONTHLY_SUBSCRIPTION_PRODUCT_ID, 'app.power.subscription.monthly'}
-    GOOGLE_PLAY_YEARLY_SUBSCRIPTION_PRODUCT_ID: ${env:GOOGLE_PLAY_YEARLY_SUBSCRIPTION_PRODUCT_ID,'app.power.subscription.yearly'}
     AUTH_REGION: ${env:AUTH_REGION}
     DB_HOST: ${env:DB_HOST}
     DB_DATABASE: ${env:DB_DATABASE}
@@ -171,6 +167,7 @@ custom:
       # Include dynamically imported modules
       forceInclude:
         - 'pg'
+        - 'pg-query-stream'
         - 'apollo-server-express'
         - '@nestjs/platform-express'
         - 'class-validator'
