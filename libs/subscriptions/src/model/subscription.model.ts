@@ -21,4 +21,8 @@ export class SubscriptionModel extends BaseModel {
 
   createdAt: Date;
   updatedAt: Date;
+
+  get isActive() {
+    return this.expiresAt > new Date();
+  }
 }

@@ -101,11 +101,6 @@ enum SetType {
   TIME
 }
 
-enum SubscriptionPlatform {
-  ANDROID
-  IOS
-}
-
 type HmcQuestionLocalisation {
   language: ISOLanguage!
   question: String!

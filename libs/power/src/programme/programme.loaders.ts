@@ -119,7 +119,7 @@ export class ProgrammeLoaders {
     });
   });
 
-  public findActiveProgrammeByAccountId = new DataLoader<string, Programme>(
+  public findProgrammeInfoByAccountId = new DataLoader<string, Programme>(
     async (accountIds) => {
       const userProgrammes = await Account.relatedQuery<UserProgramme>(
         'trainingProgramme',

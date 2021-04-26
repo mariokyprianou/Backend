@@ -3,6 +3,7 @@ import { AppStoreSubscriptionModule } from './app-store/app-store.module';
 import { AppStoreSubscriptionProvider } from './app-store/app-store.provider';
 import { GooglePlaySubscriptionProvider } from './google-play';
 import { GooglePlaySubscriptionModule } from './google-play/google-play.module';
+import { SubscriptionLoaders } from './subscription.loaders';
 import { SubscriptionService } from './subscription.service';
 
 @Module({
@@ -18,11 +19,13 @@ import { SubscriptionService } from './subscription.service';
         return new SubscriptionService([appStoreProvider, googlePlayProvider]);
       },
     },
+    SubscriptionLoaders,
   ],
   exports: [
     SubscriptionService,
     AppStoreSubscriptionModule,
     GooglePlaySubscriptionModule,
+    SubscriptionLoaders,
   ],
 })
 export class SubscriptionModule {}

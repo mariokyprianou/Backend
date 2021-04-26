@@ -18,6 +18,7 @@ import { ParseUUIDPipe } from '@nestjs/common';
 import { UserPowerService } from '@lib/power/user-power';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
+import { SubscriptionLoaders } from '@td/subscriptions';
 
 @Resolver('User')
 export class UserResolver {
@@ -29,6 +30,7 @@ export class UserResolver {
     private userPowerService: UserPowerService,
     private readonly accountLoaders: AccountLoaders,
     private readonly programmeLoaders: ProgrammeLoaders,
+    private readonly subscriptionLoaders: SubscriptionLoaders,
   ) {}
 
   @Query('allUsers')
@@ -90,18 +92,17 @@ export class UserResolver {
   }
 
   @ResolveField('subscription')
-  async getCurrentSubscription() {
-    // TODO hook with subscription
-    return {
-      isSubscribed: true,
-      platform: 'ANDROID',
-    };
+  async getCurrentSubscription(@Parent() user: User) {
+    const subscription = await this.subscriptionLoaders.findActiveSubscriptionByAccountId.load(
+      user.id,
+    );
+
+    return subscription;
   }
 
   @ResolveField('emailMarketing')
   async getEmailMarketing(@Parent() user: User) {
     const account = await this.accountLoaders.findById.load(user.id);
-
     return account?.emails ?? false;
   }
 

@@ -23,6 +23,10 @@ import { AuthProviderModule } from '@td/auth-provider';
 import userAuthKeysConfig from '../../common/user-auth-keys.config';
 import { GenerateCsvReportModule } from '@td/generate-csv-report';
 import { createContext } from './context';
+import {
+  appStoreSubscriptionConfig,
+  googlePlaySubscriptionConfig,
+} from '@td/subscriptions';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -71,7 +75,13 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     ConfigCMSModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [commonConfig, databaseConfig, userAuthKeysConfig],
+      load: [
+        commonConfig,
+        databaseConfig,
+        userAuthKeysConfig,
+        appStoreSubscriptionConfig,
+        googlePlaySubscriptionConfig,
+      ],
     }),
     CountryCMSModule,
     DatabaseModule,

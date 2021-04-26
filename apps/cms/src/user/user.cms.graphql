@@ -8,12 +8,17 @@ type User {
   timeZone: String!
   currentTrainingProgramme: CurrentTrainingProgramme
   emailMarketing: Boolean!
-  subscription: UserSubscription!
+  subscription: UserSubscription
   currentWeek: Int
   previousTrainers: [ID]
   deviceLimit: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+enum SubscriptionPlatform {
+  GOOGLE_PLAY
+  APP_STORE
 }
 
 type CurrentTrainingProgramme {
@@ -26,11 +31,9 @@ input UserFilter {
   ids: [ID!]
   email: String
   country: String
-  # subscriberStatus
-  # Current Trainer
-  # Current Week
-  # 30 day devise limit
-  # User Timezone
+  isSubscribed: Boolean
+  emailMarketing: Boolean
+  subscriptionPlatform: SubscriptionPlatform
 }
 
 input UpdateUserInput {
@@ -62,8 +65,10 @@ extend type Query {
 }
 
 type UserSubscription {
-  isSubscribed: Boolean!
+  isActive: Boolean!
   platform: SubscriptionPlatform!
+  startedAt: Date!
+  expiresAt: Date!
 }
 
 type ExportUsersResponse {

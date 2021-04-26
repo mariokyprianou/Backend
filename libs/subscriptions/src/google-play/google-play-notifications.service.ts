@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Subscription } from '@nestjs/graphql';
 import { SubscriptionModel } from '../model';
 import { toSubscriptionModelData } from '../subscription.service';
 import {
   GooglePlayNotification,
-  GooglePlayToken,
   NotificationType,
   SubscriptionNotification,
 } from './google-play.interface';

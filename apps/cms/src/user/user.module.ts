@@ -1,9 +1,12 @@
-import { ProgrammeModule } from '@lib/power';
-import { AccountModule } from '@lib/power/account';
-import { AuthModule } from '@lib/power/auth';
-import { UserPowerModule } from '@lib/power/user-power';
-import { UserProgrammeModule } from '@lib/power/user-programme/user-programme.module';
-import { UserModule } from '@lib/power/user/user.module';
+import {
+  ProgrammeModule,
+  AccountModule,
+  AuthModule,
+  UserPowerModule,
+  UserProgrammeModule,
+  UserModule,
+} from '@lib/power';
+import { SubscriptionModule } from '@td/subscriptions';
 import { Module } from '@nestjs/common';
 import { UserResolver } from './user.resolver';
 
@@ -15,6 +18,7 @@ import { UserResolver } from './user.resolver';
     AuthModule,
     UserPowerModule,
     ProgrammeModule,
+    SubscriptionModule,
   ],
   providers: [UserResolver],
 })

@@ -1,6 +1,6 @@
 import { AppStoreEnvironment } from './app-store.interface';
 
-export const APP_STORE_PROVIDER_NAME = 'appstore';
+export const APP_STORE_PROVIDER_NAME = 'APP_STORE';
 
 export const endpoints: { [env in AppStoreEnvironment]: string } = {
   [AppStoreEnvironment.Sandbox]: 'https://sandbox.itunes.apple.com',
