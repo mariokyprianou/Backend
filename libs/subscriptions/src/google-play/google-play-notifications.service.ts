@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from 'eventemitter2';
+import { SubscriptionUpdatedEvent } from '../event/subscription-updated.event';
 import { SubscriptionModel } from '../model';
 import { toSubscriptionModelData } from '../subscription.service';
 import {
@@ -10,7 +12,10 @@ import { GooglePlaySubscriptionProvider } from './google-play.provider';
 
 @Injectable()
 export class GooglePlayNotificationsService {
-  constructor(private readonly provider: GooglePlaySubscriptionProvider) {}
+  constructor(
+    private readonly eventEmitter: EventEmitter2,
+    private readonly provider: GooglePlaySubscriptionProvider,
+  ) {}
 
   async handleRealtimeNotification(notification: GooglePlayNotification) {
     if (notification.testNotification) {
@@ -67,35 +72,30 @@ export class GooglePlayNotificationsService {
       return;
     }
 
-    const subscription = await SubscriptionModel.query()
+    let subscription = await SubscriptionModel.query()
       .where('transaction_id', subscriptionInfo.transactionId)
       .first();
 
-    // If the purchase token hasn't changed then we can simply update with the new info
-    if (subscription) {
-      await subscription
-        .$query()
-        .patch(
-          toSubscriptionModelData(subscription.accountId, subscriptionInfo),
-        );
+    // If the purchase token HAS changed, we need to find the linked subscription
+    // and update it with the new token and data.
+    if (!subscription && subscriptionInfo.linkedPurchaseToken) {
+      subscription = await SubscriptionModel.query()
+        .where('transaction_id', subscriptionInfo.linkedPurchaseToken)
+        .first();
+    }
+
+    if (!subscription) {
+      // Nothing we can do
       return;
     }
 
-    // If the purchase token HAS changed, we need to find the linked subscription
-    // and update it with the new token and data.
-    if (subscriptionInfo.linkedPurchaseToken) {
-      const subscription = await SubscriptionModel.query()
-        .where('transaction_id', subscriptionInfo.linkedPurchaseToken)
-        .first();
-      if (!subscription) {
-        return;
-      }
+    await subscription
+      .$query()
+      .patch(toSubscriptionModelData(subscription.accountId, subscriptionInfo));
 
-      await subscription
-        .$query()
-        .patch(
-          toSubscriptionModelData(subscription.accountId, subscriptionInfo),
-        );
-    }
+    await this.eventEmitter.emitAsync(
+      'subscription.updated',
+      new SubscriptionUpdatedEvent(subscription.accountId, subscriptionInfo),
+    );
   }
 }

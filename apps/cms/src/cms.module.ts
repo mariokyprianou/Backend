@@ -27,6 +27,7 @@ import {
   appStoreSubscriptionConfig,
   googlePlaySubscriptionConfig,
 } from '@td/subscriptions';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -68,6 +69,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     AdministratorCMSModule,
     AuthProviderModule,
     ChallengeCMSModule,

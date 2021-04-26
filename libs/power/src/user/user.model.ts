@@ -1,4 +1,5 @@
 import { UserModel } from '@lib/database';
+import { SubscriptionPlatform } from '@td/subscriptions';
 import { Model, snakeCaseMappers } from 'objection';
 import { Country } from '../country';
 import { Region } from '../region';
@@ -30,6 +31,9 @@ export class User extends UserModel {
   allowErrorReports: boolean;
   allowAnalytics: boolean;
   allowNotifications: boolean;
+
+  subscriptionPlatform: SubscriptionPlatform | null;
+  subscriptionExpiresAt: Date;
 
   country: Country;
   region: Region;

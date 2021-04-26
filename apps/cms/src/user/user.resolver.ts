@@ -17,7 +17,7 @@ import { UpdateUserInputDto } from './dto/update-user-input.dto';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
-import { SubscriptionLoaders } from '@td/subscriptions';
+import { SubscriptionLoaders, SubscriptionPlatform } from '@td/subscriptions';
 
 @Resolver('User')
 export class UserResolver {
@@ -97,6 +97,17 @@ export class UserResolver {
     return subscription;
   }
 
+  @ResolveField('isManuallySubscribed')
+  async isManuallySubscription(@Parent() user: User) {
+    const subscription = await this.getCurrentSubscription(user);
+
+    if (subscription?.platform === SubscriptionPlatform.ManualOverride) {
+      return subscription.isActive;
+    }
+
+    return false;
+  }
+
   @ResolveField('emailMarketing')
   async getEmailMarketing(@Parent() user: User) {
     const account = await this.accountLoaders.findById.load(user.id);
@@ -149,15 +160,4 @@ export class UserResolver {
       downloadUrl: res.downloadUrl,
     };
   }
-}
-
-export interface UpdateUserInput {
-  firstName: string;
-  lastName: string;
-  country: string;
-  region?: string;
-  timezone: string;
-  deviceLimit: Date;
-  trainingProgrammeId?: string;
-  currentWeek?: number;
 }

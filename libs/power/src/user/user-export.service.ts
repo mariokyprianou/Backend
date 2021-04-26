@@ -113,6 +113,9 @@ export class UserExportService {
             case SubscriptionPlanSku.MONTHLY:
               billingCadence = 'monthly';
               break;
+            case SubscriptionPlanSku.MANUAL:
+              billingCadence = 'manual';
+              break;
             default:
               billingCadence = subscription.sku;
           }

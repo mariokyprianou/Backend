@@ -1,5 +1,6 @@
 import { ArgsType } from '@nestjs/graphql';
 import {
+  IsBoolean,
   IsDate,
   IsInt,
   IsOptional,
@@ -9,10 +10,9 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { UpdateUserInput } from '../user.resolver';
 
 @ArgsType()
-export class UpdateUserInputDto implements UpdateUserInput {
+export class UpdateUserInputDto {
   @IsString()
   @MinLength(1)
   @MaxLength(50)
@@ -23,12 +23,9 @@ export class UpdateUserInputDto implements UpdateUserInput {
   @MaxLength(50)
   lastName: string;
 
-  @IsUUID()
-  country: string;
-
   @IsOptional()
   @IsUUID()
-  region: string;
+  country: string;
 
   @IsString()
   timezone: string;
@@ -44,4 +41,8 @@ export class UpdateUserInputDto implements UpdateUserInput {
   @IsOptional()
   @IsUUID()
   trainingProgrammeId?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isManuallySubscribed?: boolean;
 }

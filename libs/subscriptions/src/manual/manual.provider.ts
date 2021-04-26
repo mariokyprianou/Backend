@@ -24,18 +24,21 @@ export class ManualSubscriptionProvider implements SubscriptionProvider {
   public async getSubscriptionInfo(
     subscriptionOrToken: SubscriptionModel | ManualToken,
   ): Promise<Subscription> {
+    // No third party involvement so the token is always "up to date"
+    if (subscriptionOrToken instanceof SubscriptionModel) {
+      return subscriptionOrToken;
+    }
+
+    const expiresAt = subscriptionOrToken.expiresAt ?? new Date(9999, 0, 1);
     return {
       provider: this.platform,
-      lastVerifiedAt:
-        (subscriptionOrToken as SubscriptionModel)?.lastVerifiedAt ??
-        new Date(),
-      transactionId:
-        (subscriptionOrToken as SubscriptionModel).transactionId ?? uuid.v4(),
-      isActive: true,
-      sku: SubscriptionPlanSku.LIFETIME,
-      expiresAt: new Date(9999, 0, 1),
-      providerToken: subscriptionOrToken?.providerToken ?? {},
-      providerResponse: subscriptionOrToken?.providerResponse ?? {},
+      lastVerifiedAt: new Date(),
+      transactionId: subscriptionOrToken.accountId,
+      isActive: new Date() < expiresAt,
+      sku: SubscriptionPlanSku.MANUAL,
+      expiresAt,
+      providerToken: subscriptionOrToken,
+      providerResponse: {},
     };
   }
 }

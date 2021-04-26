@@ -1,18 +1,33 @@
 import { ICmsFilter, ICmsParams } from '@lib/common';
 import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
-import { UpdateUserInput } from 'apps/cms/src/user/user.resolver';
 import { addDays, isAfter } from 'date-fns';
 import Objection from 'objection';
 import { Country } from '../country';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
 import { UserPowerService } from '../user-power';
 import { User } from './user.model';
-import { SubscriptionPlatform } from '@td/subscriptions';
+import { SubscriptionPlatform, SubscriptionService } from '@td/subscriptions';
+import { isNil } from 'lodash';
+
+export interface UpdateUserInput {
+  firstName: string;
+  lastName: string;
+  country: string;
+  region?: string;
+  timezone: string;
+  deviceLimit: Date;
+  trainingProgrammeId?: string;
+  currentWeek?: number;
+  isManuallySubscribed?: boolean;
+}
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userPowerService: UserPowerService) {}
+  constructor(
+    private readonly subscriptionService: SubscriptionService,
+    private readonly userPowerService: UserPowerService,
+  ) {}
 
   public findAll(params: ICmsParams<UserFilter>): Promise<User[]> {
     const query = baseQuery(params);
@@ -91,6 +106,13 @@ export class UserService {
         await this.userPowerService.setUserProgramme({
           accountId,
           weekNumber: input.currentWeek,
+        });
+      }
+
+      if (!isNil(input.isManuallySubscribed)) {
+        await this.subscriptionService.setSubscriptionOverrideStatus({
+          accountId,
+          enabled: input.isManuallySubscribed,
         });
       }
 

@@ -10,6 +10,7 @@ import {
   googlePlaySubscriptionConfig,
 } from '@td/subscriptions';
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AuthProviderModule } from '@td/auth-provider';
@@ -84,6 +85,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [

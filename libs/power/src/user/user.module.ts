@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SubscriptionModule } from '@td/subscriptions';
 import { S3 } from 'aws-sdk';
 import { UserPowerModule } from '../user-power';
 import { UserExportService } from './user-export.service';
 import { UserService } from './user.service';
 
 @Module({
-  imports: [UserPowerModule],
+  imports: [UserPowerModule, SubscriptionModule],
   providers: [
     UserService,
     {
@@ -22,6 +23,6 @@ import { UserService } from './user.service';
       },
     },
   ],
-  exports: [UserService, UserExportService],
+  exports: [UserService, UserExportService, SubscriptionModule],
 })
 export class UserModule {}

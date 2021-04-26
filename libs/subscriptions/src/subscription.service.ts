@@ -1,5 +1,7 @@
+import { EventEmitter2 } from 'eventemitter2';
 import { PartialModelObject } from 'objection';
 import { AppStoreToken } from './app-store';
+import { SubscriptionUpdatedEvent } from './event/subscription-updated.event';
 import { GooglePlayToken } from './google-play';
 import { ManualToken } from './manual/manual.interface';
 import { SubscriptionModel } from './model';
@@ -12,13 +14,16 @@ export class SubscriptionService {
     SubscriptionProvider
   > = new Map();
 
-  constructor(providers: SubscriptionProvider[]) {
+  constructor(
+    private readonly eventEmitter: EventEmitter2,
+    providers: SubscriptionProvider[],
+  ) {
     providers.forEach((provider) =>
       this.providers.set(provider.platform, provider),
     );
   }
 
-  public async findSubscription(accountId: string) {
+  public async findActiveSubscription(accountId: string) {
     const subscriptionModel = await SubscriptionModel.query()
       .where('account_id', accountId)
       .orderBy('expires_at', 'DESC')
@@ -35,12 +40,31 @@ export class SubscriptionService {
     }
 
     if (subscription.lastVerifiedAt > subscriptionModel.lastVerifiedAt) {
+      await this.upsertSubscription(accountId, subscription, subscriptionModel);
+    }
+
+    return subscription;
+  }
+
+  private async upsertSubscription(
+    accountId: string,
+    subscription: Subscription,
+    subscriptionModel?: SubscriptionModel,
+  ) {
+    const patch = toSubscriptionModelData(accountId, subscription);
+
+    if (!subscriptionModel) {
+      await SubscriptionModel.query().insert(patch);
+    } else {
       await subscriptionModel
         .$query()
         .patch(toSubscriptionModelData(accountId, subscription));
     }
 
-    return subscription;
+    await this.eventEmitter.emitAsync(
+      'subscription.updated',
+      new SubscriptionUpdatedEvent(accountId, subscription),
+    );
   }
 
   public async registerSubscription(params: {
@@ -61,16 +85,46 @@ export class SubscriptionService {
       transaction_id: subscription.transactionId,
     });
 
-    const patch = toSubscriptionModelData(params.accountId, subscription);
-    if (!existingSubscription) {
-      await SubscriptionModel.query().insert(patch);
-    } else if (
-      subscription.lastVerifiedAt > existingSubscription.lastVerifiedAt
-    ) {
-      await existingSubscription.$query().patch(patch);
-    }
+    await this.upsertSubscription(
+      params.accountId,
+      subscription,
+      existingSubscription,
+    );
 
     return subscription;
+  }
+
+  public async setSubscriptionOverrideStatus(params: {
+    accountId: string;
+    enabled: boolean;
+    expiresAt?: Date;
+  }) {
+    if (params.enabled) {
+      return await this.registerSubscription({
+        accountId: params.accountId,
+        platform: SubscriptionPlatform.ManualOverride,
+        providerToken: {
+          accountId: params.accountId,
+          expiresAt: params.expiresAt,
+        },
+      });
+    }
+
+    const subscription = await SubscriptionModel.query().findOne({
+      account_id: params.accountId,
+      provider: SubscriptionPlatform.ManualOverride,
+    });
+
+    if (!subscription) {
+      // Nothing to disable
+      return;
+    }
+
+    await subscription.$query().patch({ expiresAt: new Date() });
+    await this.eventEmitter.emitAsync(
+      'subscription.updated',
+      new SubscriptionUpdatedEvent(params.accountId, subscription),
+    );
   }
 }
 

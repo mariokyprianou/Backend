@@ -10,7 +10,7 @@ export class SubscriptionResolver {
 
   @Query('subscription')
   async getSubscription(@User() user: User) {
-    const subscription = await this.subscriptionService.findSubscription(
+    const subscription = await this.subscriptionService.findActiveSubscription(
       user.id,
     );
     return subscription;

@@ -1,2 +1,7 @@
-export type ManualToken = Record<string, unknown>;
+/** Implementation detail - manual subscriptions should never be registered externally */
+export type ManualToken = {
+  accountId: string;
+  expiresAt?: Date;
+};
+
 export type ManualProviderResponse = Record<string, unknown>;
