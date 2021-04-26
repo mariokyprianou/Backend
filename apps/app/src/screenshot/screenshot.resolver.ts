@@ -1,7 +1,7 @@
 import { ScreenshotService } from '@lib/power/screenshot';
 import { UserService } from '@lib/power/user';
-import { AuthContext } from '@lib/power/types';
-import { Context, Mutation, Resolver, ResolveField } from '@nestjs/graphql';
+import { Mutation, Resolver, ResolveField } from '@nestjs/graphql';
+import { User } from '../context';
 
 interface ScreenshotTakenResponse {
   success: boolean;
@@ -10,16 +10,10 @@ interface ScreenshotTakenResponse {
 
 @Resolver()
 export class ScreenshotQueryResolver {
-  constructor(
-    private userService: UserService,
-    private screenshotService: ScreenshotService,
-  ) {}
+  constructor(private screenshotService: ScreenshotService) {}
 
   @Mutation('screenshotTaken')
-  async screenshotTaken(
-    @Context('authContext') authContext: AuthContext,
-  ): Promise<ScreenshotTakenResponse> {
-    const user = await this.userService.findBySub(authContext.sub);
+  async screenshotTaken(@User() user: User): Promise<ScreenshotTakenResponse> {
     const screenshotsTaken = await this.screenshotService.screenshotTaken(
       user.id,
     );
@@ -38,8 +32,7 @@ export class ScreenshotUserProfileResolver {
   ) {}
 
   @ResolveField('screenshotsTaken')
-  async getScreenshotsTaken(@Context('authContext') authContext: AuthContext) {
-    const user = await this.userService.findBySub(authContext.sub);
+  async getScreenshotsTaken(@User() user: User) {
     return this.screenshotService.getScreenshotsTaken(user.id);
   }
 }
