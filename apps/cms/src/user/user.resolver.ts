@@ -1,3 +1,4 @@
+import { uniq } from 'lodash';
 import { User, UserFilter, UserService } from '@lib/power/user';
 import {
   Resolver,
@@ -63,7 +64,7 @@ export class UserResolver {
     const programmes = await this.programmeLoaders.findProgrammeInfoByAccountId.load(
       user.id,
     );
-    return programmes.map((p) => p.trainerId);
+    return uniq(programmes.map((p) => p.trainerId));
   }
 
   @ResolveField('deviceLimit')
