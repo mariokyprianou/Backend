@@ -1,1 +1,0 @@
-export const GOOGLE_PLAY_PROVIDER_NAME = 'GOOGLE_PLAY';

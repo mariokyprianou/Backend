@@ -5,7 +5,7 @@ import {
   GooglePlayNotification,
   GooglePlayNotificationsService,
   GooglePubSubPayload,
-  GOOGLE_PLAY_PROVIDER_NAME,
+  SubscriptionPlatform,
 } from '@td/subscriptions';
 
 let app: NestApplication = null;
@@ -20,7 +20,7 @@ const handler: SQSHandler = async (event) => {
   const jobs = event.Records.map(async (record) => {
     const message: { provider: string; body: any } = JSON.parse(record.body);
 
-    if (message.provider === GOOGLE_PLAY_PROVIDER_NAME) {
+    if (message.provider === SubscriptionPlatform.GooglePlay) {
       const payload = message.body as GooglePubSubPayload;
       const json = Buffer.from(payload.message.data, 'base64').toString(
         'utf-8',

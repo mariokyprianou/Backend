@@ -1,4 +1,5 @@
 import { BaseModel } from '@lib/database';
+import { SubscriptionPlatform } from '../subscription.constants';
 
 export class SubscriptionModel extends BaseModel {
   static tableName = 'subscription';
@@ -15,7 +16,7 @@ export class SubscriptionModel extends BaseModel {
   expiresAt: Date;
   lastVerifiedAt: Date;
 
-  provider: string;
+  provider: SubscriptionPlatform;
   providerToken: any;
   providerResponse: any;
 

@@ -1,15 +1,20 @@
 import { PartialModelObject } from 'objection';
 import { AppStoreToken } from './app-store';
 import { GooglePlayToken } from './google-play';
+import { ManualToken } from './manual/manual.interface';
 import { SubscriptionModel } from './model';
+import { SubscriptionPlatform } from './subscription.constants';
 import { Subscription, SubscriptionProvider } from './subscription.interface';
 
 export class SubscriptionService {
-  private readonly providers: Map<string, SubscriptionProvider> = new Map();
+  private readonly providers: Map<
+    SubscriptionPlatform,
+    SubscriptionProvider
+  > = new Map();
 
   constructor(providers: SubscriptionProvider[]) {
     providers.forEach((provider) =>
-      this.providers.set(provider.providerName, provider),
+      this.providers.set(provider.platform, provider),
     );
   }
 
@@ -40,12 +45,12 @@ export class SubscriptionService {
 
   public async registerSubscription(params: {
     accountId: string;
-    providerName: string;
-    providerToken: GooglePlayToken | AppStoreToken;
+    platform: SubscriptionPlatform;
+    providerToken: GooglePlayToken | AppStoreToken | ManualToken;
   }) {
-    const provider = this.providers.get(params.providerName);
+    const provider = this.providers.get(params.platform);
     if (!provider) {
-      throw new Error(`Unknown subscription provider: ${params.providerName}`);
+      throw new Error(`Unknown subscription provider: ${params.platform}`);
     }
 
     const subscription = await provider.getSubscriptionInfo(

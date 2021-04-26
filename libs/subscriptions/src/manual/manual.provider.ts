@@ -3,13 +3,15 @@ import { Subscription, SubscriptionProvider } from '../subscription.interface';
 
 import { SubscriptionModel } from '../model';
 import { Injectable } from '@nestjs/common';
-import { MANUAL_PROVIDER_NAME } from './manual.constants';
 import { ManualToken } from './manual.interface';
-import { SubscriptionPlanSku } from '../subscription.constants';
+import {
+  SubscriptionPlanSku,
+  SubscriptionPlatform,
+} from '../subscription.constants';
 
 @Injectable()
 export class ManualSubscriptionProvider implements SubscriptionProvider {
-  public readonly providerName = MANUAL_PROVIDER_NAME;
+  public readonly platform = SubscriptionPlatform.ManualOverride;
 
   public async getSubscriptionInfo(
     model: SubscriptionModel,
@@ -23,7 +25,7 @@ export class ManualSubscriptionProvider implements SubscriptionProvider {
     subscriptionOrToken: SubscriptionModel | ManualToken,
   ): Promise<Subscription> {
     return {
-      provider: this.providerName,
+      provider: this.platform,
       lastVerifiedAt:
         (subscriptionOrToken as SubscriptionModel)?.lastVerifiedAt ??
         new Date(),

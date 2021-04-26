@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { SubscriptionModel } from '../model';
+import { SubscriptionPlatform } from '../subscription.constants';
 import { Subscription, SubscriptionProvider } from '../subscription.interface';
 import { AppStoreClient } from './app-store.client';
-import { APP_STORE_PROVIDER_NAME } from './app-store.constants';
 import { AppStoreToken } from './app-store.interface';
 import { AppStoreSubscription } from './app-store.subscription';
 
@@ -13,7 +13,7 @@ export type AppStoreProviderCtorParams = {
 
 @Injectable()
 export class AppStoreSubscriptionProvider implements SubscriptionProvider {
-  readonly providerName: string = APP_STORE_PROVIDER_NAME;
+  public readonly platform = SubscriptionPlatform.AppStore;
   readonly sku: string;
   readonly productIds: string[];
 

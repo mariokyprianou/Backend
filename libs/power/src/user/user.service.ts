@@ -8,6 +8,7 @@ import { Country } from '../country';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
 import { UserPowerService } from '../user-power';
 import { User } from './user.model';
+import { SubscriptionPlatform } from '@td/subscriptions';
 
 @Injectable()
 export class UserService {
@@ -120,6 +121,9 @@ export interface UserFilter extends ICmsFilter {
   ids?: string[];
   email?: string;
   country?: string;
+  isSubscribed?: boolean;
+  emailMarketing?: boolean;
+  subscriptionPlatform?: SubscriptionPlatform;
 }
 
 const applyFilter = (

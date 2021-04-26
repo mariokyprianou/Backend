@@ -1,4 +1,5 @@
 import { SubscriptionModel } from './model';
+import { SubscriptionPlatform } from './subscription.constants';
 
 export interface Subscription {
   /** A non-provider-specific id representing the subscription plan */
@@ -9,7 +10,7 @@ export interface Subscription {
   isActive: boolean;
 
   /** The subscription provider name */
-  provider: string;
+  provider: SubscriptionPlatform;
   /** The data required to request updated subscription info from the provider */
   providerToken: any;
   /** The most recent raw data received from the provider's api */
@@ -22,7 +23,7 @@ export interface Subscription {
 }
 
 export interface SubscriptionProvider {
-  providerName: string;
+  platform: SubscriptionPlatform;
 
   /**
    * Gets subscription info from the subscription provider. It is up to the
@@ -40,7 +41,7 @@ export interface SubscriptionProvider {
 
 export class AbstractSubscription<T, R> {
   constructor(
-    public readonly provider: string,
+    public readonly provider: SubscriptionPlatform,
     public readonly providerToken: T,
     public readonly providerResponse: R,
   ) {}

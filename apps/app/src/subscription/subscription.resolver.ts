@@ -1,9 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import {
-  SubscriptionService,
-  APP_STORE_PROVIDER_NAME,
-  GOOGLE_PLAY_PROVIDER_NAME,
-} from '@td/subscriptions';
+import { SubscriptionService, SubscriptionPlatform } from '@td/subscriptions';
 import { User } from '../context';
 import { RegisterAppStoreSubscriptionDto } from './register-app-store-subscription.dto copy';
 import { RegisterGooglePlaySubscriptionDto } from './register-google-play-subscription.dto';
@@ -27,7 +23,7 @@ export class SubscriptionResolver {
   ) {
     try {
       const subscription = await this.subscriptionService.registerSubscription({
-        providerName: GOOGLE_PLAY_PROVIDER_NAME,
+        platform: SubscriptionPlatform.GooglePlay,
         accountId: user.id,
         providerToken: input,
       });
@@ -50,7 +46,7 @@ export class SubscriptionResolver {
   ) {
     try {
       const subscription = await this.subscriptionService.registerSubscription({
-        providerName: APP_STORE_PROVIDER_NAME,
+        platform: SubscriptionPlatform.AppStore,
         accountId: user.id,
         providerToken: { receipt: input.receiptData },
       });

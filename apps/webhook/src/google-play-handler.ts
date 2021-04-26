@@ -1,4 +1,4 @@
-import { GOOGLE_PLAY_PROVIDER_NAME } from '@td/subscriptions';
+import { SubscriptionPlatform } from '@td/subscriptions';
 import type { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { SQS } from 'aws-sdk';
 
@@ -14,7 +14,7 @@ const handler: APIGatewayProxyHandlerV2<void> = async (event, context) => {
       .sendMessage({
         QueueUrl: process.env.WEBHOOK_QUEUE_URL,
         MessageBody: JSON.stringify({
-          provider: GOOGLE_PLAY_PROVIDER_NAME,
+          provider: SubscriptionPlatform.GooglePlay,
           body: JSON.parse(event.body),
         }),
       })

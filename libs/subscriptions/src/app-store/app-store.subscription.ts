@@ -1,5 +1,5 @@
+import { SubscriptionPlatform } from '../subscription.constants';
 import { AbstractSubscription, Subscription } from '../subscription.interface';
-import { APP_STORE_PROVIDER_NAME } from './app-store.constants';
 import {
   VerifyReceiptSuccessResponse,
   ExpirationIntent,
@@ -12,7 +12,7 @@ export class AppStoreSubscription
   extends AbstractSubscription<AppStoreToken, VerifyReceiptSuccessResponse>
   implements Subscription {
   constructor(token: AppStoreToken, response: VerifyReceiptSuccessResponse) {
-    super(APP_STORE_PROVIDER_NAME, token, response);
+    super(SubscriptionPlatform.AppStore, token, response);
   }
   verificationDate: Date;
 

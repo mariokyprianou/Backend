@@ -1,5 +1,5 @@
+import { SubscriptionPlatform } from '../subscription.constants';
 import { AbstractSubscription, Subscription } from '../subscription.interface';
-import { GOOGLE_PLAY_PROVIDER_NAME } from './google-play.constants';
 import {
   GooglePlaySubscriptionResponse,
   GooglePlayToken,
@@ -13,7 +13,7 @@ export class GooglePlaySubscription
     token: GooglePlayToken,
     response: GooglePlaySubscriptionResponse,
   ) {
-    super(GOOGLE_PLAY_PROVIDER_NAME, token, response);
+    super(SubscriptionPlatform.GooglePlay, token, response);
   }
 
   providerResponse: GooglePlaySubscriptionResponse;

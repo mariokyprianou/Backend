@@ -3,9 +3,9 @@ import type { androidpublisher_v3 as androidpublisher } from 'googleapis';
 import { SubscriptionError, SubscriptionErrorCode } from '../errors';
 import { GooglePlayToken } from './google-play.interface';
 import { SubscriptionProvider } from '../subscription.interface';
-import { GOOGLE_PLAY_PROVIDER_NAME } from './google-play.constants';
 import { GooglePlaySubscription } from './google-play.subscription';
 import { SubscriptionModel } from '../model';
+import { SubscriptionPlatform } from '../subscription.constants';
 
 export type GooglePlayProviderCtorParams = {
   packageName: string;
@@ -16,8 +16,7 @@ export type GooglePlayProviderCtorParams = {
 };
 
 export class GooglePlaySubscriptionProvider implements SubscriptionProvider {
-  public readonly providerName = GOOGLE_PLAY_PROVIDER_NAME;
-
+  public readonly platform = SubscriptionPlatform.GooglePlay;
   private readonly packageName: string;
   private readonly client: androidpublisher.Androidpublisher;
 
