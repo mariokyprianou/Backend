@@ -143,7 +143,7 @@ export class ExerciseCmsService {
 
     if (count > 0) {
       throw new Error(
-        `Unable to delete exercise, it in-use by ${count} on-demand/scheduled workouts.`,
+        `Unable to delete exercise, it is in use by ${count} on-demand/scheduled workouts.`,
       );
     }
   }
