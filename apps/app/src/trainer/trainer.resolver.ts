@@ -31,6 +31,6 @@ export class TrainerResolver {
 
   @ResolveField('programmes')
   async programmes(@Parent() trainer: Trainer) {
-    return this.programmeLoaders.findByTrainerId.load(trainer.id);
+    return this.programmeLoaders.findActiveByTrainerId.load(trainer.id);
   }
 }

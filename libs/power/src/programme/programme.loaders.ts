@@ -40,11 +40,12 @@ export class ProgrammeLoaders {
     return ids.map((id) => programmes.find((programme) => programme.id === id));
   });
 
-  public readonly findByTrainerId = new DataLoader<string, Programme[]>(
+  public readonly findActiveByTrainerId = new DataLoader<string, Programme[]>(
     async (trainerIds) => {
       const programmes = await this.baseQuery()
         .whereIn('trainer_id', trainerIds as string[])
-        .andWhere('status', PublishStatus.PUBLISHED);
+        .andWhere('status', PublishStatus.PUBLISHED)
+        .whereNull('deleted_at');
 
       return trainerIds.map((trainerId) =>
         programmes.filter((programme) => programme.trainerId === trainerId),
