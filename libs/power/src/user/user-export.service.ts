@@ -1,3 +1,4 @@
+import { SubscriptionPlanSku } from '@td/subscriptions';
 import * as stream from 'stream';
 import * as zlib from 'zlib';
 import { stringify } from 'csv';
@@ -6,7 +7,7 @@ import { User } from './user.model';
 import { Account } from '../account';
 import { batchingStream, unbatchingStream } from './batch';
 import { S3 } from 'aws-sdk';
-import { SubscriptionPlanSku } from 'libs/subscriptions/src/subscription.constants';
+import { format } from 'date-fns';
 
 export type ExportUsersResponse = {
   downloadUrl: string;
@@ -15,6 +16,11 @@ export type ExportUsersResponse = {
 export type UserExportServiceCtorParams = {
   s3Client: S3;
   bucketName: string;
+};
+
+const formatDate = (ts?: Date) => {
+  if (!ts) return null;
+  return format(ts, 'yyyy-MM-dd');
 };
 
 export class UserExportService {
@@ -49,7 +55,10 @@ export class UserExportService {
         'account.first_name as firstName',
         'account.last_name as lastName',
         'account.email as email',
-        'account.allow_email_marketing as emailMarketing',
+        db.raw(
+          `CASE WHEN account.allow_email_marketing THEN 'Y' ELSE 'N' END as "emailMarketing"`,
+        ),
+        'account.created_at as registeredAt',
         db.raw(`COALESCE(account.gender, 'unspecified') as gender`),
         db.raw('account.date_of_birth::date as "dateOfBirth"'),
         'country.name as country',
@@ -69,6 +78,9 @@ export class UserExportService {
       const subscriptions = await db
         .select(
           db.raw('distinct on (account.id) account.id as "accountId"'),
+          db.raw(
+            `COALESCE(NOW() < subscription.expires_at, false) as "isSubscribed"`,
+          ),
           'subscription.sku as sku',
           'subscription.created_at as startDate',
           'subscription.provider as platform',
@@ -85,22 +97,29 @@ export class UserExportService {
       }
 
       for (const user of batchUsers) {
+        user.dateOfBirth = formatDate(user.dateOfBirth);
+        user.registeredAt = formatDate(user.registeredAt);
+
         const subscription = subscriptionsByAccountId.get(user.id);
         if (subscription) {
           let billingCadence: string;
           switch (subscription.sku) {
             case SubscriptionPlanSku.LIFETIME:
               billingCadence = 'lifetime';
+              break;
             case SubscriptionPlanSku.YEARLY:
               billingCadence = 'yearly';
-            case SubscriptionPlanSku.YEARLY:
+              break;
+            case SubscriptionPlanSku.MONTHLY:
               billingCadence = 'monthly';
+              break;
             default:
               billingCadence = subscription.sku;
           }
 
+          user.isSubscribed = subscription.isSubscribed ? 'Y' : 'N';
           user.subscriptionBillingCadence = billingCadence;
-          user.subscriptionStartDate = subscription.startDate;
+          user.subscriptionStartDate = formatDate(subscription.startDate);
           user.subscriptionPlatform = subscription.platform;
         }
       }
@@ -131,9 +150,10 @@ export class UserExportService {
             { key: 'dateOfBirth', header: 'Date of Birth' },
             { key: 'country', header: 'Country' },
             { key: 'emailMarketing', header: 'Email Marketing' },
-            { key: 'createdAt', header: 'Registration Date' },
+            { key: 'registeredAt', header: 'Registration Date' },
+            { key: 'isSubscribed', header: 'Subscribed' },
             { key: 'subscriptionPlatform', header: 'Subscription Platform' },
-            { key: 'subscriptionPlatform', header: 'Subscription Start Date' },
+            { key: 'subscriptionStartDate', header: 'Subscription Start Date' },
             {
               key: 'subscriptionBillingCadence',
               header: 'Subscription Billing Cadence',
