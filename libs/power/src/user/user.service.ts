@@ -2,7 +2,7 @@ import { ICmsFilter, ICmsParams } from '@lib/common';
 import { applyPagination } from '@lib/database';
 import { Injectable } from '@nestjs/common';
 import { addDays, isAfter } from 'date-fns';
-import Objection from 'objection';
+import Objection, { raw } from 'objection';
 import { Country } from '../country';
 import { ChangeDevice, RegisterUserInput, UserProfileInput } from '../types';
 import { UserPowerService } from '../user-power';
@@ -175,6 +175,30 @@ const applyFilter = (
         .select('id')
         .where('name', 'ilike', `%${filter.country}%`),
     );
+  }
+
+  if (!isNil(filter.emailMarketing)) {
+    query.where('account.allow_email_marketing', filter.emailMarketing);
+  }
+
+  if (!isNil(filter.isSubscribed)) {
+    if (filter.isSubscribed) {
+      query.where('account.subscription_expires_at', '>', raw('NOW()'));
+    } else {
+      query.where((qb) =>
+        qb
+          .whereNull('account.subscription_expires_at')
+          .orWhere('account.subscription_expires_at', '<=', raw('NOW()')),
+      );
+    }
+  }
+
+  if (!isNil(filter.subscriptionPlatform)) {
+    if (filter.subscriptionPlatform === null) {
+      query.whereNull('account.subscription_platform');
+    } else {
+      query.where('account.subscription_platform', filter.subscriptionPlatform);
+    }
   }
 
   return query;
