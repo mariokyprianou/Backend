@@ -23,7 +23,10 @@ export class SubscriptionService {
     );
   }
 
-  public async findActiveSubscription(accountId: string) {
+  public async findActiveSubscription(
+    accountId: string,
+    opts: { preventUpdate?: boolean } = {},
+  ): Promise<Subscription> {
     const subscriptionModel = await SubscriptionModel.query()
       .where('account_id', accountId)
       .orderBy('expires_at', 'DESC')
@@ -31,6 +34,10 @@ export class SubscriptionService {
 
     if (!subscriptionModel) {
       return null;
+    }
+
+    if (opts.preventUpdate) {
+      return subscriptionModel;
     }
 
     const provider = this.providers.get(subscriptionModel.provider);

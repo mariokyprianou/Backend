@@ -18,6 +18,11 @@ import { RegionAppModule } from './region/region.module';
 import { TrainerAppModule } from './trainer/trainer.module';
 import { ProgrammeAppModule } from './programme/programme.app.module';
 import { WorkoutAppModule } from './workout/workout.app.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import {
+  appStoreSubscriptionConfig,
+  googlePlaySubscriptionConfig,
+} from '@td/subscriptions';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -54,9 +59,16 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [commonConfig, databaseConfig, userAuthKeysConfig],
+      load: [
+        commonConfig,
+        databaseConfig,
+        userAuthKeysConfig,
+        googlePlaySubscriptionConfig,
+        appStoreSubscriptionConfig,
+      ],
     }),
     AuthAppModule,
     AuthProviderModule,

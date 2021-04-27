@@ -3,12 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { SubscriptionModule } from '@td/subscriptions';
 import { S3 } from 'aws-sdk';
 import { UserPowerModule } from '../user-power';
+import { SubscriptionUpdateHandler } from './subscription.event-handler';
 import { UserExportService } from './user-export.service';
 import { UserService } from './user.service';
 
 @Module({
   imports: [UserPowerModule, SubscriptionModule],
   providers: [
+    SubscriptionUpdateHandler,
     UserService,
     {
       provide: UserExportService,
@@ -23,6 +25,6 @@ import { UserService } from './user.service';
       },
     },
   ],
-  exports: [UserService, UserExportService, SubscriptionModule],
+  exports: [UserService, UserExportService],
 })
 export class UserModule {}

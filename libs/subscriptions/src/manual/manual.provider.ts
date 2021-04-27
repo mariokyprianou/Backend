@@ -1,4 +1,3 @@
-import * as uuid from 'uuid';
 import { Subscription, SubscriptionProvider } from '../subscription.interface';
 
 import { SubscriptionModel } from '../model';

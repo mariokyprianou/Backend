@@ -71,7 +71,10 @@ export class UserService {
   }
 
   public async update(input: UserProfileInput, sub: string) {
-    const profile = await User.query().findOne('cognito_sub', sub);
+    const profile = await User.query()
+      .findOne('cognito_sub', sub)
+      .throwIfNotFound();
+
     await profile.$query().patch({
       firstName: input.givenName,
       lastName: input.familyName,
@@ -84,7 +87,9 @@ export class UserService {
   }
 
   public async updateEmail(email: string, sub: string) {
-    const profile = await User.query().findOne('cognito_sub', sub);
+    const profile = await User.query()
+      .findOne('cognito_sub', sub)
+      .throwIfNotFound();
     return profile.$query().patchAndFetch({
       email,
     });

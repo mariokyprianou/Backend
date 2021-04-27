@@ -6,7 +6,6 @@ import { GooglePlaySubscriptionProvider } from './google-play';
 import { GooglePlaySubscriptionModule } from './google-play/google-play.module';
 import { ManualSubscriptionModule } from './manual/manual.module';
 import { ManualSubscriptionProvider } from './manual/manual.provider';
-import { SubscriptionUpdateHandler } from './subscription.event-handler';
 import { SubscriptionLoaders } from './subscription.loaders';
 import { SubscriptionService } from './subscription.service';
 
@@ -39,7 +38,6 @@ import { SubscriptionService } from './subscription.service';
       },
     },
     SubscriptionLoaders,
-    SubscriptionUpdateHandler,
   ],
   exports: [
     SubscriptionService,
