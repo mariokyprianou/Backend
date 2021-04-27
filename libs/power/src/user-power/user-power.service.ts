@@ -107,6 +107,7 @@ export class UserPowerService {
    * If not specified this will default to the highest week number the user has previously reached
    * on the target programme, or week 1 if no user history on the programme.
    *
+   * @param opts.forceUpdate optional. If 'true' the user's week will be reset even if the programme and week number match their current programme/week.
    * @param opts.transaction optional. The database transaction to be used for querying.
    *
    * @returns
@@ -117,7 +118,10 @@ export class UserPowerService {
       trainingProgrammeId?: string;
       weekNumber?: number;
     },
-    opts: { transaction?: Transaction } = {},
+    opts: {
+      forceUpdate?: boolean;
+      transaction?: Transaction;
+    } = {},
   ) {
     const { accountId } = params;
     let { trainingProgrammeId, weekNumber } = params;
@@ -141,7 +145,7 @@ export class UserPowerService {
       isProgrammeChanged ||
       (weekNumber != null && weekNumber !== currentProgramme.weekNumber);
 
-    if (!isProgrammeChanged && !isWeekChanged) {
+    if (!opts.forceUpdate && !(isProgrammeChanged || isWeekChanged)) {
       // Nothing to do
       return;
     }
@@ -281,11 +285,14 @@ export class UserPowerService {
     accountId: string;
     trainingProgrammeId: string;
   }) {
-    await this.setUserProgramme({
-      accountId: params.accountId,
-      trainingProgrammeId: params.trainingProgrammeId,
-      weekNumber: 1,
-    });
+    await this.setUserProgramme(
+      {
+        accountId: params.accountId,
+        trainingProgrammeId: params.trainingProgrammeId,
+        weekNumber: 1,
+      },
+      { forceUpdate: true },
+    );
 
     return true;
   }
