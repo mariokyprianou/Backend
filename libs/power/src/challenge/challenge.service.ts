@@ -1,16 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ChallengeInt,
-  ChallengeType,
-} from 'apps/app/src/challenge/challenge.resolver';
-import {
-  CreateChallengeGraphQlInput,
-  UpdateChallengeGraphQlInput,
-} from 'apps/cms/src/challenge/challenge.cms.resolver';
 import Objection from 'objection';
 import { Account } from '../account';
 import { ChallengeHistory } from './challenge-history.model';
+import { ChallengeType, IChallenge } from './challenge.interface';
 import { Challenge } from './challenge.model';
+import { CreateChallengeDto, UpdateChallengeDto } from './dto';
 
 @Injectable()
 export class ChallengeService {
@@ -21,17 +15,15 @@ export class ChallengeService {
     sortOrder: 'ASC' | 'DESC' | null = 'ASC',
     filter: ChallengeFilter = {},
   ) {
-    const findAllQuery = applyFilter(
-      Challenge.query()
-        .whereNull('deleted_at')
-        .withGraphFetched('localisations'),
-      filter,
-    );
+    const query = Challenge.query()
+      .whereNull('deleted_at')
+      .withGraphFetched('localisations');
+    applyFilter(query, filter);
 
-    findAllQuery.limit(perPage).offset(perPage * page);
-    findAllQuery.orderBy(sortField, sortOrder);
+    query.limit(perPage).offset(perPage * page);
+    query.orderBy(sortField, sortOrder);
 
-    return findAllQuery;
+    return query;
   }
 
   public findAllMeta(filter: ChallengeFilter = {}) {
@@ -45,7 +37,7 @@ export class ChallengeService {
     return this.findAll().findById(id);
   }
 
-  public async create(challenge: CreateChallengeGraphQlInput) {
+  public async create(challenge: CreateChallengeDto) {
     const challengeModel = await Challenge.query().insertGraphAndFetch(
       challenge,
       { relate: true },
@@ -54,11 +46,10 @@ export class ChallengeService {
     return this.findById(challengeModel.id);
   }
 
-  public async update(challenge: UpdateChallengeGraphQlInput) {
-    const challengeModel = await Challenge.query().upsertGraphAndFetch(
-      challenge,
-      { relate: true },
-    );
+  public async update(challenge: UpdateChallengeDto) {
+    const challengeModel = await Challenge.query()
+      .upsertGraphAndFetch(challenge, { relate: true })
+      .first();
 
     return this.findById(challengeModel.id);
   }
@@ -138,7 +129,7 @@ export class ChallengeService {
   public async findUserChallenges(params: {
     accountId: string;
     language: string;
-  }): Promise<ChallengeInt[]> {
+  }): Promise<IChallenge[]> {
     const userProgramme = await Account.relatedQuery('trainingProgramme')
       .for(params.accountId)
       .first();
@@ -161,10 +152,7 @@ export interface ChallengeFilter {
   programmeId?: string;
 }
 
-const toChallengeDto = (
-  challenge: Challenge,
-  language: string,
-): ChallengeInt => {
+const toChallengeDto = (challenge: Challenge, language: string): IChallenge => {
   const locale = challenge.getTranslation(language);
   return {
     id: challenge.id,
@@ -175,6 +163,7 @@ const toChallengeDto = (
     createdAt: challenge.createdAt,
     duration: challenge.duration,
     unitType: challenge.unitType,
+    imageKey: challenge.imageKey,
   };
 };
 

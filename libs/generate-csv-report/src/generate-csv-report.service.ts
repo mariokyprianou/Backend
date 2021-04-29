@@ -32,13 +32,6 @@ export class GenerateCsvReportService {
         })
         .promise();
 
-      // await this.common.uploadObject(
-      //   key,
-      //   this.common.env().REPORTS_BUCKET,
-      //   'text/csv',
-      //   csvString,
-      // );
-
       const accessUrl = await this.common.getPresignedUrl(
         key,
         this.common.env().REPORTS_BUCKET,

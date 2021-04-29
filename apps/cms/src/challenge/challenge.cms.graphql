@@ -4,6 +4,7 @@ type Challenge {
   type: ChallengeType!
   duration: Int
   localisations: [ChallengeLocalisation]
+  image: Image
 }
 
 enum ChallengeUnitType {
@@ -18,6 +19,11 @@ enum ChallengeType {
   OTHER
 }
 
+type Image {
+  key: String!
+  url: URL!
+}
+
 type ChallengeLocalisation {
   language: ISOLanguage!
   name: String!
@@ -26,19 +32,21 @@ type ChallengeLocalisation {
 }
 
 input CreateChallengeInput {
+  trainingProgrammeId: ID!
   type: ChallengeType!
   unitType: ChallengeUnitType
   duration: Int
   localisations: [ChallengeLocalisationInput!]!
-  trainingProgrammeId: ID!
+  imageKey: ID
 }
 
 input UpdateChallengeInput {
   id: ID!
-  unitType: ChallengeUnitType
   type: ChallengeType!
+  unitType: ChallengeUnitType
   duration: Int
   localisations: [ChallengeLocalisationInput!]!
+  imageKey: ID
 }
 
 input ChallengeLocalisationInput {

@@ -7,9 +7,16 @@ export default () => {
     REPORTS_BUCKET: envalid.str(),
     VIDEO_BUCKET_REGION: envalid.str({ default: process.env.REGION }),
     VIDEO_BUCKET_DESTINATION: envalid.str(),
+    FILES_BUCKET_REGION: envalid.str({ default: process.env.REGION }),
+    FILES_BUCKET: envalid.str(),
   });
+
   return {
     storage: {
+      files: {
+        region: env.FILES_BUCKET_REGION,
+        bucket: env.FILES_BUCKET,
+      },
       videos: {
         region: env.VIDEO_BUCKET_REGION,
         bucket: env.VIDEO_BUCKET_DESTINATION,

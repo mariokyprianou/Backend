@@ -28,6 +28,7 @@ import {
   googlePlaySubscriptionConfig,
 } from '@td/subscriptions';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CommonCmsModule } from './common/common.cms.module';
 
 const GraphQLProvider = GraphQLModule.forRootAsync({
   imports: [ConfigModule],
@@ -40,6 +41,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
         AdministratorCMSModule,
         ChallengeCMSModule,
         CommonModule,
+        CommonCmsModule,
         ConfigCMSModule,
         CountryCMSModule,
         ExerciseCategoryCMSModule,
@@ -74,6 +76,7 @@ const GraphQLProvider = GraphQLModule.forRootAsync({
     AuthProviderModule,
     ChallengeCMSModule,
     CommonModule,
+    CommonCmsModule,
     ConfigCMSModule,
     ConfigModule.forRoot({
       isGlobal: true,

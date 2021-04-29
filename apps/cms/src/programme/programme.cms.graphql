@@ -71,6 +71,7 @@ extend type Query {
 input UploadMediaInput {
   contentType: String!
   key: String!
+  purpose: String
 }
 
 type UploadMedia {

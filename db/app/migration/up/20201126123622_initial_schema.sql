@@ -273,6 +273,7 @@ CREATE TYPE challenge_type_enum AS enum ('COUNTDOWN', 'STOPWATCH', 'OTHER');
 CREATE TABLE challenge (
   id uuid CONSTRAINT pk_challenge PRIMARY KEY DEFAULT uuid_generate_v4(),
   type challenge_type_enum NOT NULL,
+  image_key text DEFAULT NULL,
   duration INTEGER DEFAULT NULL CHECK (duration IS NULL OR (duration IS NOT NULL AND type = 'COUNTDOWN')),
   created_at timestamptz NOT NULL DEFAULT NOW(),
 	updated_at timestamptz NOT NULL DEFAULT NOW(),

@@ -1,18 +1,29 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { ListMetadata } from '@lib/power/types';
 import {
   ChallengeFilter,
   ChallengeService,
 } from '@lib/power/challenge/challenge.service';
-import { ChallengeType } from 'apps/app/src/challenge/challenge.resolver';
+import { Challenge } from '@lib/power';
+import {
+  CreateChallengeDto,
+  UpdateChallengeDto,
+} from '@lib/power/challenge/dto';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
-  constructor(private readonly service: ChallengeService) {}
+  constructor(private readonly challengeService: ChallengeService) {}
 
   @Query('Challenge')
-  async Challenge(@Args('id') id): Promise<ChallengeGraphQlType> {
-    return await this.service.findById(id);
+  async Challenge(@Args('id') id): Promise<Challenge> {
+    return await this.challengeService.findById(id);
   }
 
   @Query('allChallenges')
@@ -22,8 +33,14 @@ export class ChallengeResolver {
     @Args('sortField') sortField = 'created_at',
     @Args('sortOrder') sortOrder: 'ASC' | 'DESC' = 'ASC',
     @Args('filter') filter: ChallengeFilter = {},
-  ): Promise<ChallengeGraphQlType[]> {
-    return this.service.findAll(page, perPage, sortField, sortOrder, filter);
+  ): Promise<Challenge[]> {
+    return this.challengeService.findAll(
+      page,
+      perPage,
+      sortField,
+      sortOrder,
+      filter,
+    );
   }
 
   @Query('_allChallengesMeta')
@@ -31,60 +48,31 @@ export class ChallengeResolver {
     @Args('filter') filter: ChallengeFilter = {},
   ): Promise<ListMetadata> {
     return {
-      count: await this.service.findAllMeta(filter),
+      count: await this.challengeService.findAllMeta(filter),
     };
+  }
+
+  @ResolveField('image')
+  public getImage(@Parent() challenge: Challenge) {
+    return challenge.imageKey;
   }
 
   @Mutation('createChallenge')
   async createChallenge(
-    @Args('input') input: CreateChallengeGraphQlInput,
-  ): Promise<ChallengeGraphQlType> {
-    return await this.service.create(input);
+    @Args('input') input: CreateChallengeDto,
+  ): Promise<Challenge> {
+    return await this.challengeService.create(input);
   }
 
   @Mutation('updateChallenge')
   async updateChallenge(
-    @Args('input') input: UpdateChallengeGraphQlInput,
-  ): Promise<ChallengeGraphQlType> {
-    return await this.service.update(input);
+    @Args('input') input: UpdateChallengeDto,
+  ): Promise<Challenge> {
+    return await this.challengeService.update(input);
   }
 
   @Mutation('deleteChallenge')
-  async deleteChallenge(@Args('id') id: string): Promise<ChallengeGraphQlType> {
-    return await this.service.delete(id);
+  async deleteChallenge(@Args('id') id: string): Promise<Challenge> {
+    return await this.challengeService.delete(id);
   }
-}
-
-interface ChallengeGraphQlType {
-  id: string;
-  type: ChallengeType;
-  unitType: ChallengeUnitType;
-  localisations: ChallengeLocalisationGraphQlType[];
-}
-
-export enum ChallengeUnitType {
-  WEIGHT,
-  REPS,
-  DISTANCE,
-}
-
-interface ChallengeLocalisationGraphQlType {
-  language: string;
-  name: string;
-  fieldTitle: string;
-  fieldDescription: string;
-}
-
-// TODO: move to common?
-export interface CreateChallengeGraphQlInput {
-  type: ChallengeType;
-  unitType: ChallengeUnitType;
-  duration: number;
-  localisations: ChallengeLocalisationGraphQlType[];
-  trainingProgrammeId: string;
-}
-
-export interface UpdateChallengeGraphQlInput
-  extends CreateChallengeGraphQlInput {
-  id: string;
 }

@@ -19,6 +19,7 @@ type Challenge {
   createdAt: DateTime
   duration: Int
   unitType: ChallengeUnitType
+  imageUrl: URL
 }
 
 input ChallengeResponseInput {

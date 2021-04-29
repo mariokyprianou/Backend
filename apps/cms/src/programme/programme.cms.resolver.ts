@@ -1,3 +1,5 @@
+import * as uuid from 'uuid';
+import * as mime from 'mime';
 import {
   Args,
   Mutation,
@@ -122,15 +124,28 @@ export class ProgrammeResolver {
 
   @Mutation('uploadMedia')
   async uploadMedia(@Args('input') input: UploadMediaInput) {
+    let contentType = input.contentType;
+    if (!input.contentType) {
+      contentType = mime.getType(input.key);
+    }
+
+    const ext = mime.getExtension(contentType);
+    if (!ext) {
+      throw new Error('Unsupported Content-Type:' + contentType);
+    }
+
+    const prefix = input.purpose ? `${input.purpose.toLowerCase()}/` : '';
+    const key = `${prefix}${uuid.v4()}.${ext}`;
+
     return {
+      key,
       contentType: input.contentType,
-      key: input.key,
       uploadUrl: await this.commonService.getPresignedUrl(
         input.key,
         this.commonService.env().FILES_BUCKET,
         'putObject',
         'ap-south-1',
-        5,
+        15,
         input.contentType,
       ),
     };
@@ -138,6 +153,7 @@ export class ProgrammeResolver {
 }
 
 export interface UploadMediaInput {
+  purpose?: string;
   contentType: string;
   key: string;
 }

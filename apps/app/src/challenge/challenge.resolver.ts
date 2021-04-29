@@ -1,20 +1,28 @@
-import { AuthContext } from '@lib/power/types';
-import { ChallengeService } from '@lib/power/challenge';
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { ChallengeUnitType } from 'apps/cms/src/challenge/challenge.cms.resolver';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { ChallengeService, IChallenge, IChallengeHistory } from '@lib/power';
+import { User } from '../context';
+import { ConfigService } from '@nestjs/config';
+import { S3 } from 'aws-sdk';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
-  constructor(private challengeService: ChallengeService) {}
+  constructor(
+    private challengeService: ChallengeService,
+    private configService: ConfigService,
+  ) {}
 
   @Query('challenges')
-  async challenges(
-    @Context('authContext') user: AuthContext,
-    @Context('language') language: string,
-  ): Promise<ChallengeInt[]> {
+  async challenges(@User() user: User): Promise<IChallenge[]> {
     const challenges = await this.challengeService.findUserChallenges({
       accountId: user.id,
-      language,
+      language: user.language,
     });
 
     return challenges;
@@ -23,7 +31,7 @@ export class ChallengeResolver {
   @Mutation('completeChallenge')
   async completeChallenge(
     @Args('input') input: ChallengeInput,
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
   ): Promise<boolean> {
     return this.challengeService.submitChallenge({
       accountId: user.id,
@@ -33,13 +41,25 @@ export class ChallengeResolver {
   }
 
   @Query('challengeHistory')
-  async challengeHistory(
-    @Context('authContext') user: AuthContext,
-    @Context('language') language: string,
-  ): Promise<ChallengeHistory[]> {
+  async challengeHistory(@User() user: User): Promise<IChallengeHistory[]> {
     return this.challengeService.findUserHistory({
       accountId: user.id,
-      language,
+      language: user.language,
+    });
+  }
+
+  @ResolveField('imageUrl')
+  getImageUrl(@Parent() challenge: IChallenge) {
+    if (!challenge.imageKey) {
+      return null;
+    }
+
+    const { bucket, region } = this.configService.get('storage.files');
+    const s3 = new S3({ region });
+    return s3.getSignedUrlPromise('getObject', {
+      Bucket: bucket,
+      Key: challenge.imageKey,
+      Expires: 60 * 60,
     });
   }
 }
@@ -47,32 +67,4 @@ export class ChallengeResolver {
 export interface ChallengeInput {
   challengeId: string;
   result: string;
-}
-
-export interface ChallengeHistory {
-  challenge: ChallengeInt;
-  history: ChallengeResult[];
-}
-
-export interface ChallengeResult {
-  id: string;
-  createdAt: Date;
-  value: string;
-}
-
-export interface ChallengeInt {
-  id: string;
-  type: ChallengeType;
-  name: string;
-  fieldDescription: string;
-  fieldTitle: string;
-  createdAt?: Date;
-  duration?: number;
-  unitType?: ChallengeUnitType;
-}
-
-export enum ChallengeType {
-  OTHER,
-  COUNTDOWN,
-  STOPWATCH,
 }

@@ -1,24 +1,20 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { BaseModel } from '@lib/database';
-import { ChallengeUnitType } from 'apps/cms/src/challenge/challenge.cms.resolver';
-import { Model, snakeCaseMappers } from 'objection';
-import { ChallengeType } from '../../../../apps/app/src/challenge/challenge.resolver';
-import { ChallengeTranslation } from './challenge-translation.model';
+import { ChallengeType, ChallengeUnitType } from './challenge.interface';
+import type { ChallengeTranslation } from './challenge-translation.model';
 
 export class Challenge extends BaseModel {
   static tableName = 'challenge';
 
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
-
   id: string;
+  trainingProgrammeId: string;
   type: ChallengeType;
   duration?: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
   unitType: ChallengeUnitType;
-  trainingProgrammeId: string;
+  imageKey: string;
 
   localisations: ChallengeTranslation[];
 
@@ -26,14 +22,17 @@ export class Challenge extends BaseModel {
     return (this.localisations ?? []).find((tr) => tr.language === language);
   }
 
-  static relationMappings = () => ({
-    localisations: {
-      relation: Model.HasManyRelation,
-      modelClass: ChallengeTranslation,
-      join: {
-        from: 'challenge.id',
-        to: 'challenge_tr.challenge_id',
+  static get relationMappings() {
+    const { ChallengeTranslation } = require('./challenge-translation.model');
+    return {
+      localisations: {
+        relation: BaseModel.HasManyRelation,
+        modelClass: ChallengeTranslation,
+        join: {
+          from: 'challenge.id',
+          to: 'challenge_tr.challenge_id',
+        },
       },
-    },
-  });
+    };
+  }
 }
