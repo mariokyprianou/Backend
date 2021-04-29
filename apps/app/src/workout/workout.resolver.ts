@@ -13,7 +13,6 @@ export abstract class AbstractWorkoutResolver<T> {
   @ResolveField('programme')
   public async getProgramme(@Parent() parent: T) {
     const workout = this.getWorkoutModel(parent);
-    console.log(workout);
     return this.programmeLoaders.findById.load(workout.trainingProgrammeId);
   }
 

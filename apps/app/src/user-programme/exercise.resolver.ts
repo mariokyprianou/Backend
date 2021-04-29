@@ -1,14 +1,10 @@
 import { CommonService } from '@lib/common';
-import { AuthContext, DownloadQuality } from '@lib/power';
+import { DownloadQuality } from '@lib/power';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { Exercise } from '@lib/power/exercise';
 import { ConfigService } from '@nestjs/config';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-
-const generateKey = (key: string, downloadQuality: DownloadQuality) =>
-  downloadQuality === DownloadQuality.HIGH
-    ? `${key}_1080.mp4`
-    : `${key}_480.mp4`;
+import { User } from '../context';
 
 @Resolver('Exercise')
 export class ExerciseResolver {
@@ -49,60 +45,61 @@ export class ExerciseResolver {
   }
 
   @ResolveField('video')
-  public async getVideo(
-    @Parent() exercise: Exercise,
-    @Context('authContext') user: AuthContext,
-  ) {
+  public async getVideo(@Parent() exercise: Exercise, @User() user: User) {
     if (!exercise.videoKey) {
       return;
     }
-    const account = await this.accountLoaders.findById.load(user.id);
-    const bucket = this.configService.get('storage.videos');
-    return this.commonService.getPresignedUrl(
-      generateKey(exercise.videoKey, account.downloadQuality),
-      bucket.bucket,
-      'getObject',
-      bucket.region,
-      15,
+    const { downloadQuality } = await this.accountLoaders.findById.load(
+      user.id,
     );
+    return this.getVideoDownloadUrl(exercise.videoKey, downloadQuality);
   }
 
   @ResolveField('videoEasy')
-  public async getVideoEasy(
-    @Parent() exercise: Exercise,
-    @Context('authContext') user: AuthContext,
-  ) {
+  public async getVideoEasy(@Parent() exercise: Exercise, @User() user: User) {
     if (!exercise.videoKeyEasy) {
       return;
     }
-    const account = await this.accountLoaders.findById.load(user.id);
-    const bucket = this.configService.get('storage.videos');
-    return this.commonService.getPresignedUrl(
-      generateKey(exercise.videoKeyEasy, account.downloadQuality),
-      bucket.bucket,
-      'getObject',
-      bucket.region,
-      15,
+    const { downloadQuality } = await this.accountLoaders.findById.load(
+      user.id,
     );
+
+    return this.getVideoDownloadUrl(exercise.videoKeyEasy, downloadQuality);
   }
 
   @ResolveField('videoEasiest')
   public async getVideoEasiest(
     @Parent() exercise: Exercise,
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
   ) {
     if (!exercise.videoKeyEasiest) {
       return;
     }
 
-    const account = await this.accountLoaders.findById.load(user.id);
-    const bucket = this.configService.get('storage.videos');
+    const { downloadQuality } = await this.accountLoaders.findById.load(
+      user.id,
+    );
+    return this.getVideoDownloadUrl(exercise.videoKeyEasiest, downloadQuality);
+  }
+
+  private getVideoDownloadUrl(key: string, downloadQuality: DownloadQuality) {
+    const { bucket, region } = this.configService.get('storage.videos');
+
+    // Expire the link after 1 week. In reality the link expires along with the lambda IAM credentials
+    // but one week is the theoretical max using sigv4.
+    const ONE_WEEK = 60 * 24 * 7;
+
+    const qualitySpecificKey =
+      downloadQuality === DownloadQuality.HIGH
+        ? `${key}_1080.mp4`
+        : `${key}_480.mp4`;
+
     return this.commonService.getPresignedUrl(
-      generateKey(exercise.videoKeyEasiest, account.downloadQuality),
-      bucket.bucket,
+      qualitySpecificKey,
+      bucket,
       'getObject',
-      bucket.region,
-      15,
+      region,
+      ONE_WEEK,
     );
   }
 }
