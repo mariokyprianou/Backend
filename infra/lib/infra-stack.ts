@@ -233,6 +233,7 @@ export class InfraStack extends cdk.Stack {
         generateSecret: false,
         preventUserExistenceErrors: 'ENABLED',
         readAttributes: ['email', 'email_verified'],
+        refreshTokenValidity: 365 * 10, // 10 years
       },
     );
     frontendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
