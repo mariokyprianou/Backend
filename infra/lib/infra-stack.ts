@@ -3,6 +3,7 @@ import * as cognito from '@aws-cdk/aws-cognito';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as rds from '@aws-cdk/aws-rds';
 import * as s3 from '@aws-cdk/aws-s3';
+import * as s3n from '@aws-cdk/aws-s3-notifications';
 import * as sqs from '@aws-cdk/aws-sqs';
 import { CfnOutput, Duration, RemovalPolicy } from '@aws-cdk/core';
 import { DeploymentStage } from './interface';
@@ -74,10 +75,20 @@ export class InfraStack extends cdk.Stack {
       this.cmsUserPool = this.addCognitoCmsUserPool(props.cmsUserPool);
     }
 
-    this.addS3Bucket('Assets');
+    const assetsBucket = this.addS3Bucket('Assets');
     this.addS3Bucket('Reports');
 
     this.addQueue('IncomingWebhooks');
+
+    const transformationImageQueue = this.addQueue(
+      'IncomingTransformationImages',
+    );
+
+    assetsBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED_PUT,
+      new s3n.SqsDestination(transformationImageQueue),
+      { prefix: 'transformations/' },
+    );
   }
 
   get isProduction() {
@@ -359,11 +370,21 @@ export class InfraStack extends cdk.Stack {
   }
 
   private addQueue(name: string) {
-    const queue = new sqs.Queue(this, `${name}Queue`, {
-      queueName: `${this.resourcePrefix}-${_.kebabCase(name)}`,
-      encryption: sqs.QueueEncryption.KMS_MANAGED,
+    const dlq = new sqs.Queue(this, `${name}DeadLetterQueue`, {
+      queueName: `${this.resourcePrefix}-${_.kebabCase(name)}-dlq`,
     });
 
+    this.addOutput(this, `${name}DeadLetterQueueArn`, dlq.queueArn);
+    this.addOutput(this, `${name}DeadLetterQueueName`, dlq.queueName);
+    this.addOutput(this, `${name}DeadLetterQueueUrl`, dlq.queueUrl);
+
+    const queue = new sqs.Queue(this, `${name}Queue`, {
+      queueName: `${this.resourcePrefix}-${_.kebabCase(name)}`,
+      deadLetterQueue: {
+        maxReceiveCount: 5,
+        queue: dlq,
+      },
+    });
     this.addOutput(this, `${name}QueueArn`, queue.queueArn);
     this.addOutput(this, `${name}QueueName`, queue.queueName);
     this.addOutput(this, `${name}QueueUrl`, queue.queueUrl);

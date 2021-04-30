@@ -15,6 +15,7 @@ export * from './region';
 export * from './scheduled-workout';
 export * from './screenshot';
 export * from './trainer';
+export * from './transformation-image';
 export * from './types';
 export * from './user-exercise-history';
 export * from './user-exercise-note';

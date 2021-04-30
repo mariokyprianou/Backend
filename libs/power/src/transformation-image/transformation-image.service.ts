@@ -1,55 +1,52 @@
-/*
- * Author: Joseph Clough (joseph.clough@thedistance.co.uk)
- * Created: Wed, 10th February 212021
- * Copyright 2021 - The Distance
- */
-
-import { Injectable } from '@nestjs/common';
-import { AuthContext } from '../types';
-import { v4 as uuid } from 'uuid';
-import { AccountService } from '../account';
-import { CommonService } from '@lib/common';
-import { TransformationImage } from './transformation-image.model';
+import { S3 } from 'aws-sdk';
+import { format } from 'date-fns';
 import { GraphQLError } from 'graphql';
+import { v4 as uuid } from 'uuid';
+import * as mime from 'mime';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { CommonService } from '@lib/common';
+
+import { UploadProgressImageDto } from './dto';
+import { TransformationImage } from './transformation-image.model';
 
 @Injectable()
 export class TransformationImageService {
-  constructor(private account: AccountService, private common: CommonService) {}
+  constructor(
+    private commonService: CommonService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  public async generateUploadUrl(authContext: AuthContext) {
-    const account = await this.account.findBySub(authContext.sub);
+  public async generateUploadUrl(accountId: string) {
     const id = uuid();
-    const imageKey = `transformations/${account.id}/${id}`;
-    const url = await this.common.getPresignedUrl(
+    const imageKey = `transformations/${accountId}/${id}`;
+    const url = await this.commonService.getPresignedUrl(
       imageKey,
-      this.common.env().FILES_BUCKET,
+      this.commonService.env().FILES_BUCKET,
       'putObject',
     );
     // Update the model
     await TransformationImage.query().insert({
       id,
-      accountId: account.id,
+      accountId,
       imageKey,
     });
 
     return { id, url };
   }
 
-  public async allImages(authContext: AuthContext) {
-    const account = await this.account.findBySub(authContext.sub);
-    const tImages = await TransformationImage.query().where(
-      'account_id',
-      account.id,
-    );
-
-    return tImages;
+  public async getUserImages(accountId: string) {
+    return TransformationImage.query().where('account_id', accountId);
   }
 
-  public async getImage(id: string, createdAt: Date, authContext: AuthContext) {
-    const account = await this.account.findBySub(authContext.sub);
-    const url = await this.common.getPresignedUrl(
-      `transformations/${account.id}/${id}`,
-      this.common.env().FILES_BUCKET,
+  public async getImage(params: {
+    accountId: string;
+    transformationImageId: string;
+    createdAt: Date;
+  }) {
+    const url = await this.commonService.getPresignedUrl(
+      `transformations/${params.accountId}/${params.transformationImageId}`,
+      this.commonService.env().FILES_BUCKET,
     );
 
     if (!url) {
@@ -57,21 +54,56 @@ export class TransformationImageService {
     }
     return {
       url,
-      id,
-      createdAt,
+      id: params.transformationImageId,
+      createdAt: params.createdAt, // ??
     };
   }
 
-  public async deleteImage(id: string, authContext: AuthContext) {
+  public async deleteImage(params: {
+    accountId: string;
+    transformationImageId: string;
+  }) {
     try {
-      const account = await this.account.findBySub(authContext.sub);
       await TransformationImage.query()
         .del()
-        .where('id', id)
-        .andWhere('account_id', account.id);
+        .where('id', params.transformationImageId)
+        .andWhere('account_id', params.accountId);
       return true;
     } catch (error) {
       return false;
     }
+  }
+
+  public async getUploadDetails(
+    accountId: string,
+    params: UploadProgressImageDto,
+  ) {
+    const { bucket, region } = this.configService.get('storage.files');
+    const s3 = new S3({ region });
+
+    return {
+      uploadUrl: await s3.getSignedUrlPromise('putObject', {
+        Bucket: bucket,
+        Key: `transformations/${accountId}/${format(
+          params.date,
+          'yyyy-MM-dd',
+        )}.${mime.getExtension(params.contentType)}`,
+      }),
+    };
+  }
+
+  public async onImageUploaded(params: {
+    accountId: string;
+    imageKey: string;
+    date: string;
+  }) {
+    await TransformationImage.knexQuery()
+      .insert({
+        account_id: params.accountId,
+        image_key: params.imageKey,
+        taken_on: params.date,
+      })
+      .onConflict(['account_id', 'taken_on'])
+      .merge();
   }
 }

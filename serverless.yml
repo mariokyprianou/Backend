@@ -44,6 +44,7 @@ provider:
     FILES_BUCKET: ${env:FILES_BUCKET}
     REPORTS_BUCKET_REGION: ${env:REPORTS_BUCKET_REGION, '${self:provider.region}'}
     REPORTS_BUCKET: ${env:REPORTS_BUCKET}
+    TRANSFORMATION_IMAGE_QUEUE_ARN: ${env:TRANSFORMATION_IMAGE_QUEUE_ARN}
     WEBHOOK_QUEUE_URL: ${env:WEBHOOK_QUEUE_URL}
     WEBHOOK_QUEUE_ARN: ${env:WEBHOOK_QUEUE_ARN}
   httpApi:
@@ -158,6 +159,13 @@ functions:
     events:
       - sqs:
           arn: ${env:WEBHOOK_QUEUE_ARN}
+          batchSize: 1
+
+  processTransformationImage:
+    handler: apps/process-transformation-image/src/handler.default
+    events:
+      - sqs:
+          arn: ${env:TRANSFORMATION_IMAGE_QUEUE_ARN}
           batchSize: 1
 
 custom:

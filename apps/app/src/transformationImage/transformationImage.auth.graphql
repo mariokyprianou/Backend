@@ -1,5 +1,7 @@
 type ProgressImage {
   id: ID!
+  takenOn: Date!
+  url: URL!
   createdAt: DateTime!
 }
 
@@ -14,16 +16,33 @@ type ProgressImageResponse {
   createdAt: DateTime!
 }
 
-type UploadImage {
-  id: ID!
-  url: String!
-}
-
 extend type Query {
   progressImages: [ProgressImage!]
   progressImage(input: ProgressImageInput!): ProgressImageResponse!
 }
 
+input UploadProgressImageInput {
+  contentType: String
+  date: Date
+}
+
+type UploadProgressImageResponse {
+  uploadUrl: URL!
+}
+
+extend type Mutation {
+  uploadProgressImage(
+    input: UploadProgressImageInput!
+  ): UploadProgressImageResponse
+}
+
+# Deprecated
+type UploadImage {
+  id: ID!
+  url: String!
+}
+
+# Deprecated
 extend type Mutation {
   uploadUrl: UploadImage!
   uploadFailed(id: ID!): Boolean!

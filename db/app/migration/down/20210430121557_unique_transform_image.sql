@@ -1,0 +1,1 @@
+alter table transformation_image drop taken_on;
