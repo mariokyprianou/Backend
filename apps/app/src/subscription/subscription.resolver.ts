@@ -13,6 +13,11 @@ export class SubscriptionResolver {
     const subscription = await this.subscriptionService.findActiveSubscription(
       user.id,
     );
+
+    if (!subscription) {
+      return { active: false };
+    }
+
     return subscription;
   }
 
