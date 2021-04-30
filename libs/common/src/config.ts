@@ -9,9 +9,23 @@ export default () => {
     VIDEO_BUCKET_DESTINATION: envalid.str(),
     FILES_BUCKET_REGION: envalid.str({ default: process.env.REGION }),
     FILES_BUCKET: envalid.str(),
+
+    VIDEO_CLOUDFRONT_ENABLED: envalid.bool({ default: false }),
+    VIDEO_CLOUDFRONT_URL: envalid.url(),
+    VIDEO_CLOUDFRONT_KEYPAIR_ID: envalid.str(),
+    VIDEO_CLOUDFRONT_PRIVATE_KEY: envalid.str(),
   });
 
   return {
+    cloudfront: {
+      enabled: env.VIDEO_CLOUDFRONT_ENABLED,
+      url: env.VIDEO_CLOUDFRONT_URL,
+      keypairId: env.VIDEO_CLOUDFRONT_KEYPAIR_ID,
+      privateKey: Buffer.from(
+        env.VIDEO_CLOUDFRONT_PRIVATE_KEY,
+        'base64',
+      ).toString('utf-8'),
+    },
     storage: {
       files: {
         region: env.FILES_BUCKET_REGION,

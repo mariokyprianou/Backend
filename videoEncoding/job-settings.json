@@ -16,9 +16,8 @@
               }
             },
             "VideoDescription": {
-              "Width": 1920,
+              "Width": 1080,
               "ScalingBehavior": "DEFAULT",
-              "Height": 1080,
               "VideoPreprocessors": {
                 "Deinterlacer": {
                   "Algorithm": "INTERPOLATE",
@@ -93,9 +92,8 @@
               }
             },
             "VideoDescription": {
-              "Width": 640,
+              "Width": 480,
               "ScalingBehavior": "DEFAULT",
-              "Height": 480,
               "VideoPreprocessors": {
                 "Deinterlacer": {
                   "Algorithm": "INTERPOLATE",

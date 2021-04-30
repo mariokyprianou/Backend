@@ -58,7 +58,7 @@ export class ExerciseResolver {
       returnKey(exercise.videoKey),
       this.commonService.env().VIDEO_BUCKET_DESTINATION,
       'getObject',
-      'us-east-1',
+      this.commonService.env().VIDEO_BUCKET_REGION,
     );
   }
 
@@ -79,7 +79,7 @@ export class ExerciseResolver {
       returnKey(exercise.videoKeyEasy),
       this.commonService.env().VIDEO_BUCKET_DESTINATION,
       'getObject',
-      'us-east-1',
+      this.commonService.env().VIDEO_BUCKET_REGION,
     );
   }
 
@@ -100,7 +100,7 @@ export class ExerciseResolver {
       returnKey(exercise.videoKeyEasiest),
       this.commonService.env().VIDEO_BUCKET_DESTINATION,
       'getObject',
-      'us-east-1',
+      this.commonService.env().VIDEO_BUCKET_REGION,
     );
   }
 
@@ -182,7 +182,7 @@ export class ExerciseResolver {
   }> {
     const key = `${uuid()}`;
 
-    const s3 = new S3({ region: 'us-east-1' });
+    const s3 = new S3({ region: this.commonService.env().VIDEO_BUCKET_REGION });
     const url = await s3.getSignedUrlPromise('putObject', {
       Key: `assets01/${key}.mp4`,
       Bucket: this.commonService.env().VIDEO_BUCKET_SOURCE,

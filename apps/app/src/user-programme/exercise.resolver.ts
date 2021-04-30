@@ -1,3 +1,4 @@
+import { CloudFront } from 'aws-sdk';
 import { CommonService } from '@lib/common';
 import { DownloadQuality } from '@lib/power';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
@@ -5,7 +6,6 @@ import { Exercise } from '@lib/power/exercise';
 import { ConfigService } from '@nestjs/config';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { User } from '../context';
-
 @Resolver('Exercise')
 export class ExerciseResolver {
   constructor(
@@ -83,17 +83,30 @@ export class ExerciseResolver {
   }
 
   private getVideoDownloadUrl(key: string, downloadQuality: DownloadQuality) {
-    const { bucket, region } = this.configService.get('storage.videos');
-
-    // Expire the link after 1 week. In reality the link expires along with the lambda IAM credentials
-    // but one week is the theoretical max using sigv4.
-    const ONE_WEEK = 60 * 24 * 7;
-
     const qualitySpecificKey =
       downloadQuality === DownloadQuality.HIGH
         ? `${key}_1080.mp4`
         : `${key}_480.mp4`;
 
+    const cloudfront = this.configService.get('cloudfront');
+    if (cloudfront?.enabled) {
+      const { url, privateKey, keypairId } = cloudfront;
+      const signer = new CloudFront.Signer(keypairId, privateKey);
+
+      const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+      return signer.getSignedUrl({
+        url: `${url}/${qualitySpecificKey}`,
+        expires: Math.floor((new Date().getTime() + ONE_WEEK_MS) / 1000),
+      });
+    }
+
+    // Cloudfront not configured, use S3 direct
+
+    // Expire the link after 1 week. In reality the link expires along with the lambda IAM credentials
+    // but one week is the theoretical max using sigv4.
+    const ONE_WEEK = 60 * 24 * 7;
+
+    const { bucket, region } = this.configService.get('storage.videos');
     return this.commonService.getPresignedUrl(
       qualitySpecificKey,
       bucket,
