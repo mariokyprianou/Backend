@@ -141,7 +141,7 @@ export class ProgrammeResolver {
       key,
       contentType: input.contentType,
       uploadUrl: await this.commonService.getPresignedUrl(
-        input.key,
+        key,
         this.commonService.env().FILES_BUCKET,
         'putObject',
         'ap-south-1',
