@@ -1,6 +1,5 @@
 import { S3 } from 'aws-sdk';
 import { format } from 'date-fns';
-import { GraphQLError } from 'graphql';
 import { v4 as uuid } from 'uuid';
 import * as mime from 'mime';
 import { Injectable } from '@nestjs/common';
@@ -12,10 +11,16 @@ import { TransformationImage } from './transformation-image.model';
 
 @Injectable()
 export class TransformationImageService {
+  private readonly s3: S3;
+  private readonly bucket: string;
   constructor(
     private commonService: CommonService,
-    private readonly configService: ConfigService,
-  ) {}
+    configService: ConfigService,
+  ) {
+    const { bucket, region } = configService.get('storage.files');
+    this.s3 = new S3({ region });
+    this.bucket = bucket;
+  }
 
   public async generateUploadUrl(accountId: string) {
     const id = uuid();
@@ -36,7 +41,24 @@ export class TransformationImageService {
   }
 
   public async getUserImages(accountId: string) {
-    return TransformationImage.query().where('account_id', accountId);
+    const images = await TransformationImage.query()
+      .where('account_id', accountId)
+      .orderBy('taken_on', 'DESC')
+      .debug();
+
+    return images.map((image) => this.toDto(image));
+  }
+
+  private toDto(image: TransformationImage) {
+    return {
+      id: image.id,
+      takenOn: image.takenOn,
+      url: this.s3.getSignedUrlPromise('getObject', {
+        Bucket: this.bucket,
+        Key: image.imageKey,
+      }),
+      createdAt: image.createdAt,
+    };
   }
 
   public async getImage(params: {
@@ -44,19 +66,15 @@ export class TransformationImageService {
     transformationImageId: string;
     createdAt: Date;
   }) {
-    const url = await this.commonService.getPresignedUrl(
-      `transformations/${params.accountId}/${params.transformationImageId}`,
-      this.commonService.env().FILES_BUCKET,
-    );
+    const image = await TransformationImage.query()
+      .findById(params.transformationImageId)
+      .where('account_id', params.accountId);
 
-    if (!url) {
-      throw new GraphQLError('Could not generate url');
+    if (!image) {
+      return null;
     }
-    return {
-      url,
-      id: params.transformationImageId,
-      createdAt: params.createdAt, // ??
-    };
+
+    return this.toDto(image);
   }
 
   public async deleteImage(params: {
@@ -78,16 +96,15 @@ export class TransformationImageService {
     accountId: string,
     params: UploadProgressImageDto,
   ) {
-    const { bucket, region } = this.configService.get('storage.files');
-    const s3 = new S3({ region });
+    const key = `transformations/${accountId}/${format(
+      params.takenOn,
+      'yyyy-MM-dd',
+    )}.${mime.getExtension(params.contentType)}`;
 
     return {
-      uploadUrl: await s3.getSignedUrlPromise('putObject', {
-        Bucket: bucket,
-        Key: `transformations/${accountId}/${format(
-          params.date,
-          'yyyy-MM-dd',
-        )}.${mime.getExtension(params.contentType)}`,
+      uploadUrl: await this.s3.getSignedUrlPromise('putObject', {
+        Bucket: this.bucket,
+        Key: key,
       }),
     };
   }

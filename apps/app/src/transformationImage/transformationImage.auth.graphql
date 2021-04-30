@@ -22,8 +22,8 @@ extend type Query {
 }
 
 input UploadProgressImageInput {
-  contentType: String
-  date: Date
+  contentType: String!
+  takenOn: Date!
 }
 
 type UploadProgressImageResponse {

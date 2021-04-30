@@ -51,6 +51,6 @@ export class TransformationImageResolver {
 
 export interface ProgressImage {
   id: string;
-  url?: string;
+  url?: string | Promise<string>;
   createdAt?: Date;
 }

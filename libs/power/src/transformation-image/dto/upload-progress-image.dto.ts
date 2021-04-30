@@ -8,5 +8,5 @@ export class UploadProgressImageDto {
   contentType: string;
 
   @IsDate()
-  date: Date;
+  takenOn: Date;
 }
