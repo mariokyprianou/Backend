@@ -1,4 +1,4 @@
-import { SetType } from '@lib/power';
+import { SetType } from '../../workout';
 import { ArgsType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
