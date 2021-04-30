@@ -176,11 +176,8 @@ export class ExerciseResolver {
   }
 
   @Mutation('requestVideoUpload')
-  async requestVideoUpload(): Promise<{
-    key: string;
-    url: string;
-  }> {
-    const key = `${uuid()}`;
+  async requestVideoUpload(): Promise<{ key: string; url: string }> {
+    const key = uuid();
 
     const s3 = new S3({ region: this.commonService.env().VIDEO_BUCKET_REGION });
     const url = await s3.getSignedUrlPromise('putObject', {
