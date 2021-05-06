@@ -26,7 +26,7 @@ export class WorkoutFeedbackService {
     params: CompleteWorkoutDto,
   ) {
     const workoutInfo = await this.findWorkoutInfo({
-      workoutId: params.workoutId,
+      userWorkoutId: params.workoutId,
       accountId: accountId,
     });
     await WorkoutFeedback.query().insert({
@@ -45,7 +45,7 @@ export class WorkoutFeedbackService {
   }
 
   private async findWorkoutInfo(params: {
-    workoutId: string;
+    userWorkoutId: string;
     accountId: string;
   }) {
     type WorkoutInfoRecord = {
@@ -68,6 +68,11 @@ export class WorkoutFeedbackService {
         'user_workout_week.week_number as workoutWeekNumber',
       )
       .from('user_workout')
+      .leftJoin(
+        'user_workout_week',
+        'user_workout.user_workout_week_id',
+        'user_workout_week.id',
+      )
       .join('workout', 'user_workout.workout_id', 'workout.id')
       .join(
         'training_programme',
@@ -82,7 +87,7 @@ export class WorkoutFeedbackService {
         this.on('user_workout.workout_id', '=', 'workout_tr.workout_id');
         this.on('workout_tr.language', '=', db.raw('?', ['en']));
       })
-      .where('workout.id', params.workoutId)
+      .where('user_workout.id', params.userWorkoutId)
       .first<WorkoutInfoRecord>();
   }
 
