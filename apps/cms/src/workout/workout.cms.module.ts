@@ -2,6 +2,7 @@ import { CommonModule } from '@lib/common';
 import {
   ExerciseModule,
   OnDemandWorkoutModule,
+  ProgrammeModule,
   ScheduledWorkoutModule,
   TrainerModule,
   WorkoutModule,
@@ -22,6 +23,7 @@ import { WorkoutCmsResolver } from './workout.cms.resolver';
     ExerciseModule,
     ExerciseCMSModule,
     WorkoutModule,
+    ProgrammeModule,
   ],
   providers: [
     OnDemandWorkoutCmsResolver,

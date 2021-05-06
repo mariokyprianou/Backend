@@ -13,6 +13,7 @@ import {
   UpdateOnDemandWorkoutDto,
   OnDemandWorkoutFilter,
   OnDemandWorkout,
+  ProgrammeLoaders,
 } from '@lib/power';
 import { CmsParams, CommonService } from '@lib/common';
 import { ParseUUIDPipe } from '@nestjs/common';
@@ -27,6 +28,7 @@ export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorko
     exerciseLoaders: ExerciseCmsLoaders,
     private workoutService: OnDemandWorkoutCmsService,
     private workoutLoaders: WorkoutLoaders,
+    private programmeLoaders: ProgrammeLoaders,
   ) {
     super(commonService, exerciseLoaders);
   }
@@ -89,6 +91,13 @@ export class OnDemandWorkoutCmsResolver extends WorkoutCmsResolver<OnDemandWorko
   async getTagIds(@Parent() onDemandWorkout: OnDemandWorkout) {
     return this.workoutLoaders.findWorkoutTagIdsByWorkoutId.load(
       onDemandWorkout.workout.id,
+    );
+  }
+
+  @ResolveField('programme')
+  async getProgramme(@Parent() onDemandWorkout: OnDemandWorkout) {
+    return this.programmeLoaders.findById.load(
+      onDemandWorkout.trainingProgrammeId,
     );
   }
 }

@@ -140,9 +140,12 @@ export class ScheduledWorkoutService {
       const workout = await this.workoutService.createWorkout(params, {
         transaction,
       });
-      await ScheduledWorkout.query(transaction)
-        .findById(id)
-        .update({ workoutId: workout.id });
+      await ScheduledWorkout.query(transaction).findById(id).patch({
+        trainingProgrammeId: params.programme,
+        weekNumber: params.weekNumber,
+        orderIndex: params.orderIndex,
+        workoutId: workout.id,
+      });
     });
 
     return this.findById(id);
