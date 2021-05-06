@@ -1,8 +1,26 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { SubscriptionService, SubscriptionPlatform } from '@td/subscriptions';
+import {
+  SubscriptionService,
+  SubscriptionPlatform,
+  SubscriptionAlreadyRegisteredError,
+} from '@td/subscriptions';
 import { User } from '../context';
 import { RegisterAppStoreSubscriptionDto } from './register-app-store-subscription.dto copy';
 import { RegisterGooglePlaySubscriptionDto } from './register-google-play-subscription.dto';
+
+function convertError(error): { path: string; message: string } {
+  if (error instanceof SubscriptionAlreadyRegisteredError) {
+    return {
+      message: error.message,
+      path: 'input',
+    };
+  }
+
+  return {
+    path: '',
+    message: 'An unknown error occurred.',
+  };
+}
 
 @Resolver('Subscription')
 export class SubscriptionResolver {
@@ -32,7 +50,7 @@ export class SubscriptionResolver {
         accountId: user.id,
         providerToken: input,
       });
-      return { success: true, subscription };
+      return { success: true, userErrors: [], subscription };
     } catch (error) {
       console.log(
         'registerSubscription',
@@ -40,7 +58,7 @@ export class SubscriptionResolver {
         JSON.stringify({ accountId: user.id, input }),
         error,
       );
-      return { success: false };
+      return { success: false, userErrors: [convertError(error)] };
     }
   }
 
@@ -55,7 +73,7 @@ export class SubscriptionResolver {
         accountId: user.id,
         providerToken: { receipt: input.receiptData },
       });
-      return { success: true, subscription };
+      return { success: true, userErrors: [], subscription };
     } catch (error) {
       console.log(
         'registerSubscription',
@@ -63,7 +81,7 @@ export class SubscriptionResolver {
         JSON.stringify({ accountId: user.id, input }),
         error,
       );
-      return { success: false };
+      return { success: false, userErrors: [convertError(error)] };
     }
   }
 }

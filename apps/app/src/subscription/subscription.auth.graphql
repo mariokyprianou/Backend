@@ -17,6 +17,7 @@ input RegisterAppStoreSubscriptionInput {
 
 type RegisterAppStoreSubscriptionResponse {
   success: Boolean!
+  userErrors: [UserError!]!
   subscription: Subscription
 }
 

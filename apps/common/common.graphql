@@ -41,6 +41,11 @@ scalar Void
 scalar Locale
 scalar ISOLanguage
 
+type UserError {
+  message: String!
+  path: String!
+}
+
 enum SortOrder {
   ASC
   DESC

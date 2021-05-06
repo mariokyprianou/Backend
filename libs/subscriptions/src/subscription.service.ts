@@ -6,6 +6,7 @@ import { GooglePlayToken } from './google-play';
 import { ManualToken } from './manual/manual.interface';
 import { SubscriptionModel } from './model';
 import { SubscriptionPlatform } from './subscription.constants';
+import { SubscriptionAlreadyRegisteredError } from './subscription.errors';
 import { Subscription, SubscriptionProvider } from './subscription.interface';
 
 export class SubscriptionService {
@@ -89,8 +90,19 @@ export class SubscriptionService {
     );
 
     const existingSubscription = await SubscriptionModel.query().findOne({
+      provider: params.platform,
       transaction_id: subscription.transactionId,
     });
+
+    if (
+      existingSubscription &&
+      existingSubscription.accountId !== params.accountId
+    ) {
+      throw new SubscriptionAlreadyRegisteredError(
+        params.platform,
+        existingSubscription.accountId,
+      );
+    }
 
     await this.upsertSubscription(
       params.accountId,

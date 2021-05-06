@@ -10,3 +10,7 @@ export enum SubscriptionPlatform {
   AppStore = 'APP_STORE',
   ManualOverride = 'MANUAL_OVERRIDE',
 }
+
+export enum SubscriptionErrorCode {
+  AlreadyRegistered = 'ALREADY_REGISTERED',
+}

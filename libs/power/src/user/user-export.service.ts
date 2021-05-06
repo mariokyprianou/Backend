@@ -40,6 +40,7 @@ export class UserExportService {
       Key: key,
       ContentType: 'text/csv',
       ContentEncoding: 'gzip',
+      ContentDisposition: 'attachment',
     };
     return {
       promise: this.s3.upload(params).promise(),
