@@ -1,3 +1,3 @@
 .env.development filter=git-crypt diff=git-crypt
 .env.qa filter=git-crypt diff=git-crypt
-.env.production filter=git-crypt diff=git-crypt
+.env.prod filter=git-crypt diff=git-crypt

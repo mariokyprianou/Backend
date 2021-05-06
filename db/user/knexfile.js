@@ -1,4 +1,4 @@
-const STAGES = ['development', 'qa', 'production'];
+const STAGES = ['development', 'qa', 'prod'];
 
 const DEFAULT = {
   client: 'pg',
@@ -28,6 +28,14 @@ const knexConfiguration = STAGES.reduce((config, stage) => {
         directory: './migration',
       },
     };
+
+    if (stage === 'prod') {
+      // Special case for prod as we expect DB access via an SSH Tunnel
+      config[stage].connection.host = 'localhost';
+      config[stage].connection.port = 38081;
+    }
+
+    console.log(JSON.stringify(config, null, 2));
 
     return config;
   } catch (e) {

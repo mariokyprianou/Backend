@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SubscriptionUpdatedEvent } from '../event/subscription-updated.event';
 import { SubscriptionModel } from '../model';
 import { toSubscriptionModelData } from '../subscription.service';

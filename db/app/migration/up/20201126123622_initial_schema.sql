@@ -132,7 +132,7 @@ CREATE TYPE intesity_enum AS ENUM ('LOW', 'MOD', 'HIGH');
 CREATE TABLE workout (
   id uuid CONSTRAINT pk_workout PRIMARY KEY DEFAULT uuid_generate_v4(),
   training_programme_id uuid NOT NULL,
-  is_continuous: boolean NOT NULL DEFAULT false,
+  is_continuous boolean NOT NULL DEFAULT false,
   overview_image_key text NULL,
   intensity intesity_enum NOT NULL,
   duration int NOT NULL,

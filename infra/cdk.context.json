@@ -25,5 +25,11 @@
     "ap-south-1a",
     "ap-south-1b",
     "ap-south-1c"
+  ],
+  "ami:account=818488431356:filters.image-type.0=machine:filters.name.0=amzn-ami-vpc-nat-*:filters.state.0=available:owners.0=amazon:region=ap-south-1": "ami-050270b110b539f40",
+  "availability-zones:account=520157165658:region=ap-south-1": [
+    "ap-south-1a",
+    "ap-south-1b",
+    "ap-south-1c"
   ]
 }

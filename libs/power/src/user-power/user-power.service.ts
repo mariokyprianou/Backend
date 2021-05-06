@@ -366,7 +366,9 @@ export class UserPowerService {
           accountId,
           params,
         );
-      } catch (e) {}
+      } catch (e) {
+        console.log('completeWorkout', 'feedback', 'error', e);
+      }
 
       return true;
     } catch (error) {

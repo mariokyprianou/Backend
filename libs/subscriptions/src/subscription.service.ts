@@ -1,4 +1,4 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PartialModelObject } from 'objection';
 import { AppStoreToken } from './app-store';
 import { SubscriptionUpdatedEvent } from './event/subscription-updated.event';

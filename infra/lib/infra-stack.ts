@@ -8,6 +8,7 @@ import * as sqs from '@aws-cdk/aws-sqs';
 import { CfnOutput, Duration, RemovalPolicy } from '@aws-cdk/core';
 import { DeploymentStage } from './interface';
 import * as _ from 'lodash';
+import { SecurityGroup, SubnetType } from '@aws-cdk/aws-ec2';
 
 export interface InfraStackPropsVpcConfig {
   /**
@@ -21,6 +22,7 @@ export interface InfraStackPropsVpcConfig {
    * If 0 is specified then this will deploy into every az in the region.
    */
   maxAzs?: number;
+  allowAccessFrom: ec2.IPeer[];
 }
 
 export interface InfraStackDatabaseConfig {
@@ -28,6 +30,8 @@ export interface InfraStackDatabaseConfig {
    * The instance type - defaults to t3.micro
    */
   instanceType?: ec2.InstanceType;
+  createRdsProxy?: boolean;
+  snapshotIdentifier?: string;
 }
 
 export interface InfraStackCognitoConfig {
@@ -39,6 +43,7 @@ export interface InfraStackProps extends cdk.StackProps {
   stage: DeploymentStage;
   vpc?: InfraStackPropsVpcConfig;
   database?: InfraStackDatabaseConfig;
+  userDatabase?: InfraStackDatabaseConfig;
   userPool?: InfraStackCognitoConfig;
   cmsUserPool?: InfraStackCognitoConfig;
 }
@@ -47,7 +52,9 @@ export class InfraStack extends cdk.Stack {
   public readonly stage: DeploymentStage;
   public readonly resourcePrefix: string;
   public readonly vpc?: ec2.Vpc;
+  public readonly bastionHost?: ec2.BastionHostLinux;
   public readonly database?: rds.DatabaseInstance;
+  public readonly userDatabase?: rds.DatabaseInstance;
   public readonly userPool?: cognito.CfnUserPool;
   public readonly cmsUserPool?: cognito.CfnUserPool;
 
@@ -61,10 +68,75 @@ export class InfraStack extends cdk.Stack {
 
     if (props.vpc) {
       this.vpc = this.addVpc(props.vpc);
-    }
 
-    if (props.database) {
-      this.database = this.addPostgres(props.database);
+      if (this.isProduction) {
+        // Creates a Bastion instance to allow secure access over SSH
+        this.bastionHost = this.createBastionHost(this.vpc);
+
+        if (props.vpc.allowAccessFrom) {
+          this.bastionHost.allowSshAccessFrom(...props.vpc.allowAccessFrom);
+        }
+      }
+
+      // Security Group to contain Lambda Functions, allowing them network access to the DB instances
+      // const lambdaSecurityGroup = new SecurityGroup(
+      //   this,
+      //   'LambdaSecurityGroup',
+      //   {
+      //     vpc: this.vpc,
+      //     description: 'Security Group for lambda functions',
+      //     securityGroupName: `${this.resourcePrefix}-lambda-sg`,
+      //   },
+      // );
+
+      // this.addOutput(
+      //   this,
+      //   `LambdaSecurityGroupId`,
+      //   lambdaSecurityGroup.securityGroupId,
+      // );
+
+      // if (props.database) {
+      //   const dbSecurityGroup = new ec2.SecurityGroup(
+      //     this,
+      //     'DatabaseSecurityGroup',
+      //     {
+      //       vpc: this.vpc,
+      //       allowAllOutbound: false,
+      //       securityGroupName: `${this.resourcePrefix}-db-sg`,
+      //       description: 'Security Group for Database Instances',
+      //     },
+      //   );
+
+      //   // Allow lambda access
+      //   dbSecurityGroup.addIngressRule(lambdaSecurityGroup, ec2.Port.tcp(5432));
+
+      //   // Allow Bastion access
+      //   if (this.bastionHost) {
+      //     dbSecurityGroup.addIngressRule(
+      //       this.bastionHost.connections.securityGroups[0],
+      //       ec2.Port.tcp(5432),
+      //     );
+      //   }
+
+      //   // Allow access to any other supplied resources
+      //   (props.vpc.allowAccessFrom ?? []).forEach((peer) => {
+      //     dbSecurityGroup.addIngressRule(peer, ec2.Port.tcp(5432));
+      //   });
+
+      //   this.database = this.addPostgres(
+      //     props.database,
+      //     'Postgres',
+      //     dbSecurityGroup,
+      //   );
+
+      //   if (props.userDatabase) {
+      //     this.userDatabase = this.addPostgres(
+      //       props.userDatabase,
+      //       'UserPostgres',
+      //       dbSecurityGroup,
+      //     );
+      //   }
+      // }
     }
 
     if (props.userPool) {
@@ -75,15 +147,14 @@ export class InfraStack extends cdk.Stack {
       this.cmsUserPool = this.addCognitoCmsUserPool(props.cmsUserPool);
     }
 
-    const assetsBucket = this.addS3Bucket('Assets');
     this.addS3Bucket('Reports');
 
     this.addQueue('IncomingWebhooks');
 
+    const assetsBucket = this.addS3Bucket('Assets');
     const transformationImageQueue = this.addQueue(
       'IncomingTransformationImages',
     );
-
     assetsBucket.addEventNotification(
       s3.EventType.OBJECT_CREATED_PUT,
       new s3n.SqsDestination(transformationImageQueue),
@@ -115,50 +186,106 @@ export class InfraStack extends cdk.Stack {
       }
     }
 
-    const vpc = new ec2.Vpc(this, 'VPC', {
+    const oldVpc = new ec2.Vpc(this, 'VPC', {
       maxAzs: config.maxAzs,
       natGateways: config.natGateways,
       natGatewayProvider: natProvider,
     });
 
+    const vpc = new ec2.Vpc(this, 'Vpc', {
+      maxAzs: config.maxAzs,
+      natGateways: config.natGateways,
+      natGatewayProvider: natProvider,
+      cidr: '10.16.0.0/16',
+      subnetConfiguration: [
+        {
+          subnetType: SubnetType.PUBLIC,
+          name: `Public`,
+          cidrMask: 20,
+        },
+        {
+          subnetType: SubnetType.PRIVATE,
+          name: `Application`,
+          cidrMask: 20,
+        },
+        {
+          subnetType: this.isProduction
+            ? SubnetType.ISOLATED
+            : SubnetType.PUBLIC,
+          name: `Database`,
+          cidrMask: 20,
+        },
+      ],
+    });
+
     if (config.natGateways ?? 0 > 0) {
       // S3 Gateway - allows access to S3 from within a private subnet
       new ec2.GatewayVpcEndpoint(this, 'S3GatewayVpcEndpoint', {
-        vpc,
+        vpc: vpc,
         service: ec2.GatewayVpcEndpointAwsService.S3,
       });
 
       // Dynamo Gateway - allows access to S3 from within a private subnet
       new ec2.GatewayVpcEndpoint(this, 'DynamoDbGatewayVpcEndpoint', {
-        vpc,
+        vpc: vpc,
         service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
       });
     }
 
     this.addOutput(this, 'VpcId', vpc.vpcId);
 
-    vpc.publicSubnets.forEach((subnet, idx) =>
-      this.addOutput(this, `VpcPublicSubnet${idx + 1}Id`, subnet.subnetId),
-    );
-    vpc.privateSubnets.forEach((subnet, idx) =>
-      this.addOutput(this, `VpcPrivateSubnet${idx + 1}Id`, subnet.subnetId),
-    );
-    vpc.isolatedSubnets.forEach((subnet, idx) =>
-      this.addOutput(this, `VpcIsolatedSubnet${idx + 1}Id`, subnet.subnetId),
-    );
+    vpc
+      .selectSubnets({ subnetGroupName: 'Public' })
+      .subnets.forEach((subnet, idx) =>
+        this.addOutput(this, `VpcPublicSubnet${idx + 1}Id`, subnet.subnetId),
+      );
+
+    vpc
+      .selectSubnets({ subnetGroupName: 'Application' })
+      .subnets.forEach((subnet, idx) =>
+        this.addOutput(
+          this,
+          `VpcApplicationSubnet${idx + 1}Id`,
+          subnet.subnetId,
+        ),
+      );
+
+    vpc
+      .selectSubnets({ subnetGroupName: 'Database' })
+      .subnets.forEach((subnet, idx) =>
+        this.addOutput(this, `VpcDatabaseSubnet${idx + 1}Id`, subnet.subnetId),
+      );
 
     return vpc;
   }
 
-  private addPostgres(config: InfraStackDatabaseConfig) {
-    const dbName = 'Postgres';
+  private createBastionHost(vpc: ec2.Vpc) {
+    const bastion = new ec2.BastionHostLinux(this, 'BastionHost', {
+      vpc,
+      subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
+    });
 
+    this.addOutput(this, 'BastionId', bastion.instanceId);
+    this.addOutput(this, 'BastionHostname', bastion.instancePublicDnsName);
+    return bastion;
+  }
+
+  private addPostgres(
+    config: InfraStackDatabaseConfig,
+    dbName: string,
+    securityGroup: ec2.ISecurityGroup,
+  ) {
     const vpc =
       this.vpc ?? ec2.Vpc.fromLookup(this, 'DefaultVpc', { isDefault: true });
 
-    const instance = new rds.DatabaseInstance(this, dbName, {
+    const params:
+      | rds.DatabaseInstanceProps
+      | rds.DatabaseInstanceFromSnapshotProps = {
       engine: rds.DatabaseInstanceEngine.postgres({
-        version: rds.PostgresEngineVersion.VER_12,
+        // Use 11 as RDS proxy does not yet support 12
+        version: this.isProduction
+          ? rds.PostgresEngineVersion.VER_11
+          : rds.PostgresEngineVersion.VER_12,
       }),
       instanceType:
         config.instanceType ??
@@ -170,16 +297,38 @@ export class InfraStack extends cdk.Stack {
       allocatedStorage: 5,
       backupRetention: Duration.days(0),
       vpc,
+      securityGroups: [securityGroup],
       vpcSubnets: {
-        subnetType: this.isProduction
-          ? ec2.SubnetType.ISOLATED
-          : ec2.SubnetType.PUBLIC,
+        subnetGroupName: 'Database',
       },
-    });
+      publiclyAccessible: this.isProduction ? false : true,
+    };
 
-    instance.connections.securityGroups.forEach((sg) => {
-      instance.connections.allowFrom(sg, ec2.Port.tcp(5432));
-    });
+    let instance: rds.DatabaseInstance;
+    if (config.snapshotIdentifier) {
+      instance = new rds.DatabaseInstanceFromSnapshot(this, dbName, {
+        snapshotIdentifier: config.snapshotIdentifier,
+        ...params,
+      } as rds.DatabaseInstanceFromSnapshotProps);
+    } else {
+      instance = new rds.DatabaseInstance(
+        this,
+        dbName,
+        params as rds.DatabaseInstanceProps,
+      );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const secret = instance.secret!;
+
+    if (config.createRdsProxy) {
+      instance.addProxy(`${this.resourcePrefix}-rds-proxy`, {
+        borrowTimeout: cdk.Duration.seconds(30),
+        vpc,
+        maxConnectionsPercent: 90,
+        secrets: [secret],
+      });
+    }
 
     this.addOutput(this, `${dbName}Host`, instance.instanceEndpoint.hostname);
     this.addOutput(
@@ -187,7 +336,10 @@ export class InfraStack extends cdk.Stack {
       `${dbName}Address`,
       instance.instanceEndpoint.socketAddress,
     );
-    this.addOutput(this, `${dbName}SecretArn`, instance.secret!.secretArn);
+
+    if (secret) {
+      this.addOutput(this, `${dbName}SecretArn`, secret.secretArn);
+    }
 
     return instance;
   }
@@ -198,7 +350,6 @@ export class InfraStack extends cdk.Stack {
     };
 
     // The set up for a user pool that requires email verification through a link.
-    // TODO: Configure a domain
     const userPool = new cognito.CfnUserPool(this, 'UserPool', {
       adminCreateUserConfig: {
         // allowAdminCreateUserOnly: true,

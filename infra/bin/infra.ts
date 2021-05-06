@@ -4,6 +4,12 @@ import * as cdk from '@aws-cdk/core';
 import { InfraStack, InfraStackProps } from '../lib/infra-stack';
 import * as packageJson from '../../package.json';
 import { DeploymentStage } from '../lib/interface';
+import {
+  InstanceClass,
+  InstanceSize,
+  InstanceType,
+  Peer,
+} from '@aws-cdk/aws-ec2';
 
 const app = new cdk.App();
 
@@ -15,8 +21,12 @@ const baseConfig: Pick<InfraStackProps, 'project'> &
     region: 'ap-south-1',
   },
   vpc: {
-    natGateways: 0,
-    maxAzs: 3
+    natGateways: 1,
+    maxAzs: 3,
+    allowAccessFrom: [
+      Peer.ipv4('92.21.103.3/32'), // MJ Home
+      Peer.ipv4('188.65.101.202/32'), // The Distance Office
+    ],
   },
   database: {},
   userPool: {},
@@ -26,6 +36,10 @@ const baseConfig: Pick<InfraStackProps, 'project'> &
 const devConfig: InfraStackProps = {
   ...baseConfig,
   stage: DeploymentStage.DEVELOPMENT,
+  database: {
+    snapshotIdentifier:
+      'power-dev-infra-snapshot-postgres9dc8bb04-sij935jkzz0v',
+  },
 };
 
 const qaConfig: InfraStackProps = {
@@ -40,8 +54,15 @@ const uatConfig: InfraStackProps = {
 
 const productionConfig: InfraStackProps = {
   ...baseConfig,
-  stackName: 'prod',
   stage: DeploymentStage.PRODUCTION,
+  database: {
+    instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MEDIUM),
+    createRdsProxy: false,
+  },
+  userDatabase: {
+    instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
+    createRdsProxy: false,
+  },
 };
 
 function createStack(props: InfraStackProps) {

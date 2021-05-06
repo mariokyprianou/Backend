@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AppStoreSubscriptionModule } from './app-store/app-store.module';
 import { AppStoreSubscriptionProvider } from './app-store/app-store.provider';
 import { GooglePlaySubscriptionProvider } from './google-play';

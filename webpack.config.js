@@ -5,7 +5,7 @@ const nodeExternals = require('webpack-node-externals');
 const CopyPlugin = require('copy-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
-const isDevelopment = ['development'].includes(
+const isDevelopment = ['development', 'qa'].includes(
   slsw.lib.serverless.service.provider.stage,
 );
 

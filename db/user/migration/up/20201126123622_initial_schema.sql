@@ -14,6 +14,7 @@ CREATE TABLE country (
   id uuid CONSTRAINT pk_country PRIMARY KEY DEFAULT uuid_generate_v4(),
   code text NOT NULL,
   name text NOT NULL,
+  order_index INTEGER NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW()
 );
