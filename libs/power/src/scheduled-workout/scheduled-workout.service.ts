@@ -50,6 +50,7 @@ export class ScheduledWorkoutService {
   public async findAll(params: FindAllWorkoutsParams) {
     const query = this.baseQuery(params);
     applyPagination(query, params);
+    query.orderBy(['programme.trainer_id', 'programme.id', 'week_number']);
     return await query;
   }
 

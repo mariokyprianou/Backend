@@ -1,5 +1,11 @@
 import { CommonService } from '@lib/common';
-import { ExerciseLoaders, ProgrammeLoaders, Workout } from '@lib/power';
+import {
+  ExerciseLoaders,
+  OnDemandWorkout,
+  ProgrammeLoaders,
+  Workout,
+} from '@lib/power';
+import { subWeeks } from 'date-fns';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
 export abstract class AbstractWorkoutResolver<T> {
@@ -68,17 +74,31 @@ export class WorkoutResolver extends AbstractWorkoutResolver<Workout> {
     super(commonService, programmeLoaders);
   }
 
-  protected getWorkoutModel(parent: Workout): Workout {
-    return parent;
+  protected getWorkoutModel(parent: Workout | OnDemandWorkout): Workout {
+    if (parent instanceof OnDemandWorkout) {
+      return parent.workout;
+    } else {
+      return parent;
+    }
   }
 
   @ResolveField('id')
-  public async getId(@Parent() workout: Workout) {
+  public async getId(@Parent() workout: Workout | OnDemandWorkout) {
     return workout.id;
   }
 
+  @ResolveField('isNew')
+  public isNew(@Parent() parent: Workout | OnDemandWorkout): boolean {
+    if (parent instanceof OnDemandWorkout) {
+      const cutoff = subWeeks(new Date(), 2);
+      return cutoff < parent.createdAt;
+    }
+
+    return false;
+  }
+
   @ResolveField('exercises')
-  public async getExercises(@Parent() workout: Workout) {
+  public async getExercises(@Parent() workout: Workout | OnDemandWorkout) {
     return this.exerciseLoaders.findByWorkoutId.load(workout.id);
   }
 }

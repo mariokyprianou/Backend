@@ -1,7 +1,12 @@
 import { ParseUUIDPipe } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Connection } from '@lib/common';
-import { AuthContext, OnDemandWorkoutService, Workout } from '@lib/power';
+import {
+  AuthContext,
+  OnDemandWorkout,
+  OnDemandWorkoutService,
+  Workout,
+} from '@lib/power';
 import { CompleteWorkoutDto } from '@lib/power/user-power/dto/complete-workout.dto';
 
 @Resolver()
@@ -14,7 +19,7 @@ export class OnDemandWorkoutAppResolver {
   async getOnDemandWorkout(
     @Args('id', ParseUUIDPipe) id: string,
     @Context('language') language: string,
-  ): Promise<Workout> {
+  ): Promise<OnDemandWorkout> {
     return this.onDemandWorkoutService.findById(id, { language });
   }
 
@@ -22,7 +27,7 @@ export class OnDemandWorkoutAppResolver {
   async getOnDemandWorkouts(
     @Context('language') language: string,
     @Args('tagIds') tagIds?: string[],
-  ): Promise<Connection<Workout>> {
+  ): Promise<Connection<OnDemandWorkout>> {
     const onDemandWorkouts = await this.onDemandWorkoutService.findAll({
       tagIds,
       language,

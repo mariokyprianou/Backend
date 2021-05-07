@@ -24,23 +24,21 @@ export class OnDemandWorkoutService {
   public async findById(
     id: string,
     opts: { language?: string } = {},
-  ): Promise<Workout> {
-    const workout = await this.baseQuery(opts).findById(id);
-    return workout?.workout;
+  ): Promise<OnDemandWorkout> {
+    return this.baseQuery(opts).findById(id);
   }
 
   public async findAll(
     opts: { language?: string; tagIds?: string[] } = {},
-  ): Promise<Workout[]> {
+  ): Promise<OnDemandWorkout[]> {
     const query = this.baseQuery(opts);
     if (opts.tagIds) {
       query.whereExists(
         Workout.relatedQuery('tags').whereIn('tags.id', opts.tagIds),
       );
     }
-    const workouts = await query.orderBy(ref('created_at'), 'DESC');
 
-    return workouts.map((w) => w.workout);
+    return query.orderBy(ref('created_at'), 'DESC');
   }
 
   public async completeOnDemandWorkout(
