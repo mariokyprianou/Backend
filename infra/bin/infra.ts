@@ -45,6 +45,10 @@ const devConfig: InfraStackProps = {
 const qaConfig: InfraStackProps = {
   ...baseConfig,
   stage: DeploymentStage.QA,
+  database: {
+    snapshotIdentifier:
+      'power-qa-infra-snapshot-postgres9dc8bb04-13z0v5zcwwva6',
+  },
 };
 
 const uatConfig: InfraStackProps = {

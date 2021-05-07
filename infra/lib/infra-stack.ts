@@ -68,75 +68,65 @@ export class InfraStack extends cdk.Stack {
 
     if (props.vpc) {
       this.vpc = this.addVpc(props.vpc);
-
       if (this.isProduction) {
         // Creates a Bastion instance to allow secure access over SSH
         this.bastionHost = this.createBastionHost(this.vpc);
-
         if (props.vpc.allowAccessFrom) {
           this.bastionHost.allowSshAccessFrom(...props.vpc.allowAccessFrom);
         }
       }
-
       // Security Group to contain Lambda Functions, allowing them network access to the DB instances
-      // const lambdaSecurityGroup = new SecurityGroup(
-      //   this,
-      //   'LambdaSecurityGroup',
-      //   {
-      //     vpc: this.vpc,
-      //     description: 'Security Group for lambda functions',
-      //     securityGroupName: `${this.resourcePrefix}-lambda-sg`,
-      //   },
-      // );
-
-      // this.addOutput(
-      //   this,
-      //   `LambdaSecurityGroupId`,
-      //   lambdaSecurityGroup.securityGroupId,
-      // );
-
-      // if (props.database) {
-      //   const dbSecurityGroup = new ec2.SecurityGroup(
-      //     this,
-      //     'DatabaseSecurityGroup',
-      //     {
-      //       vpc: this.vpc,
-      //       allowAllOutbound: false,
-      //       securityGroupName: `${this.resourcePrefix}-db-sg`,
-      //       description: 'Security Group for Database Instances',
-      //     },
-      //   );
-
-      //   // Allow lambda access
-      //   dbSecurityGroup.addIngressRule(lambdaSecurityGroup, ec2.Port.tcp(5432));
-
-      //   // Allow Bastion access
-      //   if (this.bastionHost) {
-      //     dbSecurityGroup.addIngressRule(
-      //       this.bastionHost.connections.securityGroups[0],
-      //       ec2.Port.tcp(5432),
-      //     );
-      //   }
-
-      //   // Allow access to any other supplied resources
-      //   (props.vpc.allowAccessFrom ?? []).forEach((peer) => {
-      //     dbSecurityGroup.addIngressRule(peer, ec2.Port.tcp(5432));
-      //   });
-
-      //   this.database = this.addPostgres(
-      //     props.database,
-      //     'Postgres',
-      //     dbSecurityGroup,
-      //   );
-
-      //   if (props.userDatabase) {
-      //     this.userDatabase = this.addPostgres(
-      //       props.userDatabase,
-      //       'UserPostgres',
-      //       dbSecurityGroup,
-      //     );
-      //   }
-      // }
+      const lambdaSecurityGroup = new SecurityGroup(
+        this,
+        'LambdaSecurityGroup',
+        {
+          vpc: this.vpc,
+          description: 'Security Group for lambda functions',
+          securityGroupName: `${this.resourcePrefix}-lambda-sg`,
+        },
+      );
+      this.addOutput(
+        this,
+        `LambdaSecurityGroupId`,
+        lambdaSecurityGroup.securityGroupId,
+      );
+      if (props.database) {
+        const dbSecurityGroup = new ec2.SecurityGroup(
+          this,
+          'DatabaseSecurityGroup',
+          {
+            vpc: this.vpc,
+            allowAllOutbound: false,
+            securityGroupName: `${this.resourcePrefix}-db-sg`,
+            description: 'Security Group for Database Instances',
+          },
+        );
+        // Allow lambda access
+        dbSecurityGroup.addIngressRule(lambdaSecurityGroup, ec2.Port.tcp(5432));
+        // Allow Bastion access
+        if (this.bastionHost) {
+          dbSecurityGroup.addIngressRule(
+            this.bastionHost.connections.securityGroups[0],
+            ec2.Port.tcp(5432),
+          );
+        }
+        // Allow access to any other supplied resources
+        (props.vpc.allowAccessFrom ?? []).forEach((peer) => {
+          dbSecurityGroup.addIngressRule(peer, ec2.Port.tcp(5432));
+        });
+        this.database = this.addPostgres(
+          props.database,
+          'Postgres',
+          dbSecurityGroup,
+        );
+        if (props.userDatabase) {
+          this.userDatabase = this.addPostgres(
+            props.userDatabase,
+            'UserPostgres',
+            dbSecurityGroup,
+          );
+        }
+      }
     }
 
     if (props.userPool) {
@@ -185,12 +175,6 @@ export class InfraStack extends cdk.Stack {
         });
       }
     }
-
-    const oldVpc = new ec2.Vpc(this, 'VPC', {
-      maxAzs: config.maxAzs,
-      natGateways: config.natGateways,
-      natGatewayProvider: natProvider,
-    });
 
     const vpc = new ec2.Vpc(this, 'Vpc', {
       maxAzs: config.maxAzs,
