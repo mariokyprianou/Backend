@@ -56,6 +56,7 @@ provider:
         identitySource: $request.header.Authorization
         issuerUrl: https://cognito-idp.${self:provider.region}.amazonaws.com/${self:provider.environment.USERPOOL_ID}
         audience:
+          - ${env:APP_BACKEND_CLIENT}
           - ${env:APP_FRONTEND_CLIENT}
       cmsServiceAuthorizer:
         identitySource: $request.header.Authorization
@@ -99,7 +100,7 @@ provider:
         - Sid: 'AllowSSMCredentialAccess'
           Effect: 'Allow'
           Action: 'ssm:GetParametersByPath'
-          Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/power/${self:provider.region}/*
+          Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/power/${self:provider.stage}/*
 plugins:
   - serverless-prune-plugin
   - serverless-webpack
