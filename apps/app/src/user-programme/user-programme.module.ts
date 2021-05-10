@@ -16,6 +16,7 @@ import { UserWorkoutWeekResolver } from './user-workout-week.resolver';
 import { UserWorkoutResolver } from './user-workout.resolver';
 import { UserWorkoutExerciseResolver } from './user-workout-exercise.resolver';
 import { ExerciseResolver } from './exercise.resolver';
+import { CompleteWorkoutResponseResolver } from './complete-workout-response.resolver';
 
 @Module({
   imports: [
@@ -30,12 +31,13 @@ import { ExerciseResolver } from './exercise.resolver';
     WorkoutModule,
   ],
   providers: [
+    CompleteWorkoutResponseResolver,
+    ExerciseResolver,
     UserProgrammeQueryResolver,
     UserProgrammeResolver,
-    UserWorkoutWeekResolver,
-    UserWorkoutResolver,
     UserWorkoutExerciseResolver,
-    ExerciseResolver,
+    UserWorkoutResolver,
+    UserWorkoutWeekResolver,
   ],
 })
 export class UserProgrammeAuthModule {}

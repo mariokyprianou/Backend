@@ -1,8 +1,7 @@
-import { CommonService, ReadOnlyObjectStore } from '@lib/common';
+import { ReadOnlyObjectStore } from '@lib/common';
 import { DownloadQuality } from '@lib/power';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { Exercise } from '@lib/power/exercise';
-import { ConfigService } from '@nestjs/config';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { User } from '../context';
 import { Inject } from '@nestjs/common';
@@ -10,8 +9,6 @@ import { Inject } from '@nestjs/common';
 export class ExerciseResolver {
   constructor(
     @Inject('VIDEO_CDN') private readonly objectStore: ReadOnlyObjectStore,
-    private readonly commonService: CommonService,
-    private readonly configService: ConfigService,
     private readonly accountLoaders: AccountLoaders,
   ) {}
 

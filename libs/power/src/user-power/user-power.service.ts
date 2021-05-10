@@ -333,7 +333,7 @@ export class UserPowerService {
       .throwIfNotFound({ id: params.workoutId });
 
     if (workout.completedAt !== null) {
-      return true;
+      return { success: true };
     }
 
     try {
@@ -378,10 +378,10 @@ export class UserPowerService {
         console.log('completeWorkout', 'feedback', 'error', e);
       }
 
-      return true;
+      return { success: true };
     } catch (error) {
       console.log(error);
-      return false;
+      return { success: false };
     }
   }
 

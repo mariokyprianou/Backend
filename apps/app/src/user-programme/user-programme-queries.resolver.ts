@@ -50,7 +50,7 @@ export class UserProgrammeQueryResolver {
   async completeWorkout(
     @Args('input') input: CompleteWorkoutDto,
     @User() user: User,
-  ) {
+  ): Promise<{ success: boolean }> {
     return this.userPowerService.completeWorkout(user.id, input);
   }
 

@@ -16,6 +16,11 @@ type UserProgramme implements Programme {
   nextWeek: UserWorkoutWeek
 }
 
+type CompleteWorkoutResponse {
+  success: Boolean!
+  programme: UserProgramme
+}
+
 type UserWorkoutWeek {
   weekNumber: Int!
   startedAt: DateTime
@@ -113,7 +118,7 @@ extend type Query {
 
 extend type Mutation {
   updateOrder(input: [WorkoutOrderInput]): Boolean!
-  completeWorkout(input: CompleteWorkoutInput!): Boolean!
+  completeWorkout(input: CompleteWorkoutInput!): CompleteWorkoutResponse!
   completeWorkoutWeek: Boolean!
   updateExerciseNote(input: ExerciseNoteInput!): ExerciseNote!
   continueProgramme(input: ProgrammeSwitchInput): Boolean!

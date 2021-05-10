@@ -37,7 +37,7 @@ export class UserPowerLoaders {
       .alias('userWorkout')
       .withGraphJoined('workout.localisations')
       .for(workoutWeekIds as string[])
-      .orderBy(['userWorkout.id', 'userWorkout.order_index']);
+      .orderBy(['userWorkout.user_workout_week_id', 'userWorkout.order_index']);
     return workoutWeekIds.map((id) =>
       workouts.filter((workout) => workout.userWorkoutWeekId === id),
     );
