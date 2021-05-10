@@ -160,32 +160,6 @@ export class AuthService {
       return false;
     }
   }
-
-  public async allCompletedUserWorkouts(authContext: AuthContext) {
-    // Todo this I need the profile
-    // User training programmes
-    // Workout weeks
-    // Workouts where 'completed_at' is not null
-    const profile = await this.userService.findBySub(authContext.sub);
-    const allUserTrariningProgrammes = await this.userProgrammeService
-      .findAll()
-      .where('account_id', profile.id);
-    const allUserWorkoutWeeks = await this.userWorkoutWeekService
-      .findAll()
-      .whereIn(
-        'user_training_programme_id',
-        allUserTrariningProgrammes.map((each) => each.id),
-      );
-    const allCompletedWorkouts = await this.userWorkoutService
-      .findAll()
-      .whereIn(
-        'user_workout_week_id',
-        allUserWorkoutWeeks.map((each) => each.id),
-      )
-      .andWhereNot('completed_at', null);
-
-    return allCompletedWorkouts.length;
-  }
 }
 
 const generateProfile = (profile) => ({

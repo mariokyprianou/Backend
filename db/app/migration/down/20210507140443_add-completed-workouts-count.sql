@@ -1,0 +1,1 @@
+alter table account drop workouts_completed;

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PartialModelObject, ref } from 'objection';
+import { Account } from '../account';
 import { WorkoutFeedbackService } from '../feedback';
 import { UserExerciseHistory } from '../user-exercise-history';
 import { CompleteWorkoutDto } from '../user-power/dto/complete-workout.dto';
@@ -39,6 +40,15 @@ export class OnDemandWorkoutService {
     }
 
     return query.orderBy(ref('created_at'), 'DESC');
+  }
+
+  public async startOnDemandWorkout(accountId: string) {
+    const { workoutsCompleted } = await Account.query()
+      .findById(accountId)
+      .increment('workouts_completed', 1)
+      .returning(['id', 'workouts_completed']);
+
+    return { workoutsCompleted };
   }
 
   public async completeOnDemandWorkout(

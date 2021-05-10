@@ -6,6 +6,7 @@ import {
   UserProfileInput,
   ChangeDevice,
 } from '@lib/power';
+import { AccountLoaders } from '@lib/power/account/account.loaders';
 import {
   Query,
   Context,
@@ -18,11 +19,15 @@ import { User } from '../context';
 
 @Resolver('UserProfile')
 export class ProfileResolver {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private readonly accountLoaders: AccountLoaders,
+    private readonly authService: AuthService,
+  ) {}
 
   @ResolveField('completedWorkouts')
-  async getCompletedWorkouts(@Context('authContext') authContext: AuthContext) {
-    return this.authService.allCompletedUserWorkouts(authContext);
+  async getCompletedWorkouts(@User() user: User) {
+    const account = await this.accountLoaders.findById.load(user.id);
+    return account.workoutsCompleted;
   }
 
   @Mutation('ping')

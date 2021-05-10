@@ -21,7 +21,19 @@ input CompleteOnDemandWorkoutInput {
   weightsUsed: [WorkoutSetWeightInput!]
 }
 
+input StartOnDemandWorkoutInput {
+  workoutId: ID!
+}
+
+type StartOnDemandWorkoutResponse {
+  success: Boolean!
+  workoutsCompleted: Int
+}
+
 extend type Mutation {
+  startOnDemandWorkout(
+    input: StartOnDemandWorkoutInput!
+  ): StartOnDemandWorkoutResponse
   completeOnDemandWorkout(
     input: CompleteOnDemandWorkoutInput!
   ): CompleteOnDemandWorkoutResponse

@@ -18,6 +18,7 @@ export class Account extends BaseModel {
   updatedAt: Date;
   deletedAt?: Date;
   weightPreference: WeightPreference;
+  workoutsCompleted: number;
 
   trainingProgramme: UserProgramme;
 

@@ -1,0 +1,2 @@
+alter table account add workouts_completed integer default 0 CHECK (workouts_completed >= 0);
+update account set workouts_completed = (select count(*) from user_workout where account_id = account.id and user_workout.completed_at is null);

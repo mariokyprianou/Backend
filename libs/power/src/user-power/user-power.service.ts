@@ -338,6 +338,10 @@ export class UserPowerService {
 
     try {
       await UserWorkout.transaction(async (trx) => {
+        const incrementCompletedWorkouts = Account.query(trx)
+          .findById(accountId)
+          .increment('workouts_completed', 1);
+
         const updateWorkout = workout
           .$query(trx)
           .findById(params.workoutId)
@@ -358,7 +362,11 @@ export class UserPowerService {
           weightsUsed,
         );
 
-        await Promise.all([updateWorkout, updateWeightHistory]);
+        await Promise.all([
+          incrementCompletedWorkouts,
+          updateWorkout,
+          updateWeightHistory,
+        ]);
       });
 
       try {

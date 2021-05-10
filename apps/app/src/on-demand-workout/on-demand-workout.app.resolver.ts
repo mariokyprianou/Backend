@@ -1,13 +1,9 @@
 import { ParseUUIDPipe } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Connection } from '@lib/common';
-import {
-  AuthContext,
-  OnDemandWorkout,
-  OnDemandWorkoutService,
-  Workout,
-} from '@lib/power';
+import { OnDemandWorkout, OnDemandWorkoutService } from '@lib/power';
 import { CompleteWorkoutDto } from '@lib/power/user-power/dto/complete-workout.dto';
+import { User } from '../context';
 
 @Resolver()
 export class OnDemandWorkoutAppResolver {
@@ -44,9 +40,22 @@ export class OnDemandWorkoutAppResolver {
     };
   }
 
+  @Mutation('startOnDemandWorkout')
+  async startOnDemandWorkout(@User() user: User) {
+    try {
+      const {
+        workoutsCompleted,
+      } = await this.onDemandWorkoutService.startOnDemandWorkout(user.id);
+      return { success: true, workoutsCompleted };
+    } catch (error) {
+      console.log(error);
+      return { success: true };
+    }
+  }
+
   @Mutation('completeOnDemandWorkout')
   async completeOnDemandWorkout(
-    @Context('authContext') user: AuthContext,
+    @User() user: User,
     @Args('input') params: CompleteWorkoutDto,
   ) {
     await this.onDemandWorkoutService.completeOnDemandWorkout(user.id, params);
