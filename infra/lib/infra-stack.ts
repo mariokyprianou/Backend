@@ -413,6 +413,19 @@ export class InfraStack extends cdk.Stack {
     backendUserPoolClient.applyRemovalPolicy(RemovalPolicy.RETAIN);
     this.addOutput(this, 'BackendUserPoolClientId', backendUserPoolClient.ref);
 
+    new cognito.CfnUserPoolUICustomizationAttachment(
+      this,
+      'UserPoolUICustomizationAttachment',
+      {
+        clientId: 'ALL',
+        userPoolId: userPool.ref,
+        css: fs.readFileSync(
+          path.join(__dirname, '../templates/cognito-styles.css'),
+          'utf-8',
+        ),
+      },
+    );
+
     return userPool;
   }
 
