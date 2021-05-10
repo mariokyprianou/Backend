@@ -9,6 +9,8 @@ import { CfnOutput, Duration, RemovalPolicy } from '@aws-cdk/core';
 import { DeploymentStage } from './interface';
 import * as _ from 'lodash';
 import { SecurityGroup, SubnetType } from '@aws-cdk/aws-ec2';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface InfraStackPropsVpcConfig {
   /**
@@ -362,6 +364,10 @@ export class InfraStack extends cdk.Stack {
       },
       verificationMessageTemplate: {
         defaultEmailOption: 'CONFIRM_WITH_LINK',
+        emailMessageByLink: fs.readFileSync(
+          path.join(__dirname, '../templates/email-verification.html'),
+          'utf-8',
+        ),
       },
     });
     userPool.applyRemovalPolicy(RemovalPolicy.RETAIN);
