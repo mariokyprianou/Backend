@@ -98,7 +98,8 @@ export class WorkoutResolver extends AbstractWorkoutResolver<Workout> {
   }
 
   @ResolveField('exercises')
-  public async getExercises(@Parent() workout: Workout | OnDemandWorkout) {
+  public async getExercises(@Parent() parent: Workout | OnDemandWorkout) {
+    const workout = this.getWorkoutModel(parent);
     return this.exerciseLoaders.findByWorkoutId.load(workout.id);
   }
 }
