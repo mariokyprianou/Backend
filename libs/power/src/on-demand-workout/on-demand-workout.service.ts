@@ -55,17 +55,20 @@ export class OnDemandWorkoutService {
     accountId: string,
     params: CompleteWorkoutDto,
   ): Promise<void> {
-    await OnDemandWorkout.query()
-      .select(1)
-      .findOne('workout_id', params.workoutId)
-      .throwIfNotFound({ id: params.workoutId });
+    // The id passed up as actually specific to the on_demand table, not the workout.
+    const { workoutId: onDemandWorkoutId } = params;
+
+    const { workoutId } = await OnDemandWorkout.query()
+      .select('workout_id')
+      .findById(onDemandWorkoutId)
+      .throwIfNotFound({ id: onDemandWorkoutId });
 
     await UserWorkout.transaction(async (trx) => {
       await UserWorkout.query(trx).insert({
         accountId,
         type: WorkoutType.ON_DEMAND,
         completedAt: new Date(),
-        workoutId: params.workoutId,
+        workoutId,
         orderIndex: 0,
       });
 
