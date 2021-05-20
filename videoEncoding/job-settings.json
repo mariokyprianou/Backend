@@ -162,7 +162,7 @@
         "OutputGroupSettings": {
           "Type": "FILE_GROUP_SETTINGS",
           "FileGroupSettings": {
-            "Destination": "s3://destinationbucket/"
+            "Destination": "s3://power-video-encoding-destination920a3c57-1uxvveroae3jv/"
           }
         }
       }
