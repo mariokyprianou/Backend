@@ -144,14 +144,11 @@ export class InfraStack extends cdk.Stack {
     this.addQueue('IncomingWebhooks');
 
     const assetsBucket = this.addS3Bucket('Assets');
-    const transformationImageQueue = this.addQueue(
-      'IncomingTransformationImages',
-    );
-    assetsBucket.addEventNotification(
-      s3.EventType.OBJECT_CREATED_PUT,
-      new s3n.SqsDestination(transformationImageQueue),
-      { prefix: 'transformations/' },
-    );
+    assetsBucket.addLifecycleRule({
+      enabled: true,
+      prefix: 'user-uploads/',
+      expiration: cdk.Duration.days(1),
+    });
   }
 
   get isProduction() {

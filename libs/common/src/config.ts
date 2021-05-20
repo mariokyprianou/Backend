@@ -11,9 +11,16 @@ export default () => {
     FILES_BUCKET: envalid.str(),
 
     VIDEO_CLOUDFRONT_ENABLED: envalid.bool({ default: false }),
+
+    JWT_ISSUER: envalid.url(),
+    JWT_SECRET: envalid.str(),
   });
 
   return {
+    jwt: {
+      issuer: env.JWT_ISSUER,
+      secret: env.JWT_SECRET,
+    },
     storage: {
       files: {
         region: env.FILES_BUCKET_REGION,

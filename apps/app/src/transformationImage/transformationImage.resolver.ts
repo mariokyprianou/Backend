@@ -1,27 +1,14 @@
-import { TransformationImageService, UploadProgressImageDto } from '@lib/power';
-import { ParseUUIDPipe } from '@nestjs/common';
+import {
+  ConfirmUploadProgressImageDto,
+  TransformationImageService,
+  UploadProgressImageDto,
+} from '@lib/power';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '../context';
 
 @Resolver('ProgressImage')
 export class TransformationImageResolver {
   constructor(private transformationService: TransformationImageService) {}
-
-  @Mutation('uploadUrl')
-  async uploadUrl(@User() user: User): Promise<ProgressImage> {
-    return this.transformationService.generateUploadUrl(user.id);
-  }
-
-  @Mutation('uploadFailed')
-  async uploadFailed(
-    @User() user: User,
-    @Args('id', ParseUUIDPipe) imageId: string,
-  ): Promise<boolean> {
-    return this.transformationService.deleteImage({
-      accountId: user.id,
-      transformationImageId: imageId,
-    });
-  }
 
   @Query('progressImages')
   async progressImages(@User() user: User): Promise<ProgressImage[]> {
@@ -46,6 +33,18 @@ export class TransformationImageResolver {
     @Args('input') input: UploadProgressImageDto,
   ) {
     return this.transformationService.getUploadDetails(user.id, input);
+  }
+
+  @Mutation('confirmUploadProgressImage')
+  async confirmUploadProgressImage(
+    @User() user: User,
+    @Args('input') input: ConfirmUploadProgressImageDto,
+  ) {
+    const progressImage = await this.transformationService.confirmUploadDetails(
+      user.id,
+      input.token,
+    );
+    return { success: true, progressImage };
   }
 }
 

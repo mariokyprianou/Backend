@@ -27,23 +27,24 @@ input UploadProgressImageInput {
 }
 
 type UploadProgressImageResponse {
+  token: String!
   uploadUrl: URL!
+}
+
+input ConfirmUploadProgressImageInput {
+  token: String!
+}
+
+type ConfirmUploadProgressImageResponse {
+  success: Boolean!
+  progressImage: ProgressImage
 }
 
 extend type Mutation {
   uploadProgressImage(
     input: UploadProgressImageInput!
   ): UploadProgressImageResponse
-}
-
-# Deprecated
-type UploadImage {
-  id: ID!
-  url: String!
-}
-
-# Deprecated
-extend type Mutation {
-  uploadUrl: UploadImage!
-  uploadFailed(id: ID!): Boolean!
+  confirmUploadProgressImage(
+    input: ConfirmUploadProgressImageInput!
+  ): ConfirmUploadProgressImageResponse
 }

@@ -48,6 +48,8 @@ provider:
     TRANSFORMATION_IMAGE_QUEUE_ARN: ${env:TRANSFORMATION_IMAGE_QUEUE_ARN}
     WEBHOOK_QUEUE_URL: ${env:WEBHOOK_QUEUE_URL}
     WEBHOOK_QUEUE_ARN: ${env:WEBHOOK_QUEUE_ARN}
+    JWT_ISSUER: ${env:JWT_ISSUER}
+    JWT_SECRET: ${env:JWT_SECRET}
   httpApi:
     payload: '1.0'
     cors: true
@@ -163,13 +165,6 @@ functions:
     events:
       - sqs:
           arn: ${env:WEBHOOK_QUEUE_ARN}
-          batchSize: 1
-
-  processTransformationImage:
-    handler: apps/process-transformation-image/src/handler.default
-    events:
-      - sqs:
-          arn: ${env:TRANSFORMATION_IMAGE_QUEUE_ARN}
           batchSize: 1
 
 custom:
