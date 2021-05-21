@@ -145,8 +145,9 @@ export class InfraStack extends cdk.Stack {
 
     const assetsBucket = this.addS3Bucket('Assets');
     assetsBucket.addLifecycleRule({
+      id: 'tmp-incoming-uploads',
       enabled: true,
-      prefix: 'user-uploads/',
+      prefix: 'incoming/',
       expiration: cdk.Duration.days(1),
     });
   }

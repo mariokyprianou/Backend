@@ -73,7 +73,7 @@ export class TransformationImageService {
   ) {
     const payload = {
       sub: accountId,
-      key: `uploads/${uuid.v4()}.${mime.getExtension(params.contentType)}`,
+      key: `incoming/${uuid.v4()}.${mime.getExtension(params.contentType)}`,
       takenOn: format(params.takenOn, 'yyyy-MM-dd'),
       contentType: params.contentType,
     };
