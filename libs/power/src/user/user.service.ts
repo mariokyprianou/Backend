@@ -66,7 +66,7 @@ export class UserService {
       deviceUdid: input.deviceUDID,
       dateOfBirth: input.dateOfBirth,
       gender: input.gender,
-      deviceChange: addDays(new Date(), 30),
+      deviceChange: new Date(),
     });
   }
 

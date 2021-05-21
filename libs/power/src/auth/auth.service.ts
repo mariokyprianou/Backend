@@ -14,9 +14,6 @@ import {
 } from '../types';
 import { User, UserService } from '../user';
 import { UserPowerService } from '../user-power';
-import { UserProgrammeService } from '../user-programme';
-import { UserWorkoutCmsService } from '../user-workout';
-import { UserWorkoutWeekService } from '../user-workout-week';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +21,6 @@ export class AuthService {
     @Inject('USER') private authProvider: AuthProviderService,
     private accountService: AccountService,
     private userService: UserService,
-    private userWorkoutService: UserWorkoutCmsService,
-    private userWorkoutWeekService: UserWorkoutWeekService,
-    private userProgrammeService: UserProgrammeService,
     private userPowerService: UserPowerService,
   ) {}
 
@@ -90,7 +84,6 @@ export class AuthService {
   public async delete(accountId: string) {
     const user = await this.userService.delete(accountId);
     const account = await this.accountService.delete(accountId);
-    console.log({ account });
     await this.authProvider.delete(account.cognitoUsername);
     return user;
   }
