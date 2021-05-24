@@ -84,8 +84,11 @@ provider:
             - arn:aws:s3:::${env:VIDEO_BUCKET_SOURCE}/*
             - arn:aws:s3:::${env:VIDEO_BUCKET_DESTINATION}/*
           Action:
+            - 's3:HeadObject'
             - 's3:GetObject'
             - 's3:PutObject'
+            - 's3:CopyObject'
+            - 's3:DeleteObject'
         - Sid: 'GrantCognitoAccess'
           Effect: 'Allow'
           Resource:
