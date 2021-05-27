@@ -63,14 +63,16 @@ export class OnDemandWorkoutService {
       .findById(onDemandWorkoutId)
       .throwIfNotFound({ id: onDemandWorkoutId });
 
-    await UserWorkout.transaction(async (trx) => {
-      await UserWorkout.query(trx).insert({
-        accountId,
-        type: WorkoutType.ON_DEMAND,
-        completedAt: new Date(),
-        workoutId,
-        orderIndex: 0,
-      });
+    const userWorkoutId = await UserWorkout.transaction(async (trx) => {
+      const userWorkout = await UserWorkout.query(trx)
+        .insert({
+          accountId,
+          type: WorkoutType.ON_DEMAND,
+          completedAt: new Date(),
+          workoutId,
+          orderIndex: 0,
+        })
+        .returning('id');
 
       const weightsUsed = (params.weightsUsed ?? []).map<
         PartialModelObject<UserExerciseHistory>
@@ -84,10 +86,15 @@ export class OnDemandWorkoutService {
         completedAt: record.completedAt ?? params.date,
       }));
       await UserExerciseHistory.query(trx).insert(weightsUsed);
+
+      return userWorkout.id;
     });
 
     try {
+      params.workoutId = userWorkoutId;
       await this.workoutFeedbackService.saveWorkoutFeedback(accountId, params);
-    } catch (e) {}
+    } catch (e) {
+      console.log('saveFeedback', 'error', e);
+    }
   }
 }

@@ -5,7 +5,7 @@ import {
   SubscriptionAlreadyRegisteredError,
 } from '@td/subscriptions';
 import { User } from '../context';
-import { RegisterAppStoreSubscriptionDto } from './register-app-store-subscription.dto copy';
+import { RegisterAppStoreSubscriptionDto } from './register-app-store-subscription.dto';
 import { RegisterGooglePlaySubscriptionDto } from './register-google-play-subscription.dto';
 
 function convertError(error): { path: string; message: string } {
