@@ -13,6 +13,7 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
+      "apollo-cache-control": ["node_modules/apollo-cache-control"],
       "@lib/common": ["libs/common/src"],
       "@lib/common/*": ["libs/common/src/*"],
       "@lib/database": ["libs/database/src"],

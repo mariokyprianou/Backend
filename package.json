@@ -13,7 +13,7 @@
     "@types/ramda": "^0.27.34",
     "@willsoto/nestjs-objection": "^4.0.2",
     "accept-language": "^3.0.18",
-    "apollo-server-express": "^2.22.2",
+    "apollo-server-express": "^2.24.1",
     "aws-sdk": "^2.798.0",
     "aws-serverless-express": "^3.3.8",
     "axios": "^0.21.1",
