@@ -6,7 +6,7 @@ export class WorkoutExerciseTranslation extends BaseModel {
   id: string;
   workoutExerciseId: string;
   language: string;
-  coachingTips: string;
+  coachingTips?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -25,7 +25,7 @@ export interface IWorkoutExercise {
 
 export interface IWorkoutExerciseLocalisation {
   language: string;
-  coachingTips: string;
+  coachingTips?: string;
 }
 
 export interface IWorkoutSet {

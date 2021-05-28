@@ -28,7 +28,7 @@ type ProgrammeWorkout {
 type Exercise {
   id: ID!
   name: String!
-  coachingTips: String!
+  coachingTips: String
   weight: Boolean!
   video: URL!
   videoEasy: URL

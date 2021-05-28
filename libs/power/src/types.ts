@@ -49,7 +49,7 @@ export interface TrainerLocalisation {
 export interface ExerciseLocalisation {
   language: string;
   name: string;
-  coachingTips: string;
+  coachingTips?: string;
 }
 
 export interface IExercise {

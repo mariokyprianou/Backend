@@ -42,10 +42,10 @@ input WorkoutLocalisationInput {
 type WorkoutExerciseLocalisation {
   id: ID
   language: ISOLanguage!
-  coachingTips: String!
+  coachingTips: String
 }
 
 input WorkoutExerciseLocalisationInput {
   language: ISOLanguage!
-  coachingTips: String!
+  coachingTips: String
 }

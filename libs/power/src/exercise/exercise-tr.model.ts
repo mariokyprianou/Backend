@@ -8,5 +8,5 @@ export class ExerciseTranslation extends BaseModel {
   exerciseId: string;
   language: string;
   name: string;
-  coachingTips: string;
+  coachingTips?: string;
 }
