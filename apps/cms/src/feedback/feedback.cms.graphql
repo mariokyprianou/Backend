@@ -6,7 +6,7 @@ type Feedback {
   timeTaken: Int
   trainerName: String
   userEmail: String!
-  week: Int!
+  week: Int
   workoutIntensity: Int
   workoutName: String!
 }
