@@ -131,10 +131,11 @@ export class HmcQuestionService {
     // If no match, return a random programme from the matching environment
     if (!programmeId) {
       const programme = await Programme.query()
-        .select('id')
-        .where('environment', environment)
-        .where('trainingProgramme.status', PublishStatus.PUBLISHED)
-        .whereNull('trainingProgramme.deleted_at')
+        .alias('tp')
+        .select('tp.id')
+        .where('tp.environment', environment)
+        .where('tp.status', PublishStatus.PUBLISHED)
+        .whereNull('tp.deleted_at')
         .orderByRaw('RANDOM()')
         .limit(1)
         .first();
@@ -145,9 +146,10 @@ export class HmcQuestionService {
     // If _still_ no match, return any random programme
     if (!programmeId) {
       const programme = await Programme.query()
-        .select('id')
-        .where('trainingProgramme.status', PublishStatus.PUBLISHED)
-        .whereNull('trainingProgramme.deleted_at')
+        .alias('tp')
+        .select('tp.id')
+        .where('tp.status', PublishStatus.PUBLISHED)
+        .whereNull('tp.deleted_at')
         .orderByRaw('RANDOM()')
         .limit(1)
         .first();

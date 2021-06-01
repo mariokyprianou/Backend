@@ -9,6 +9,7 @@ provider:
   stage: ${opt:stage, 'development'}
   profile: power
   lambdaHashingVersion: '20201221'
+  timeout: 20
   vpc:
     securityGroupIds:
       - ${env:VPC_SECURITY_GROUP_ID}
@@ -162,7 +163,6 @@ functions:
             name: googleAuthorizer
 
   processWebhooks:
-    timeout: 20
     reservedConcurrency: 5
     handler: apps/webhook/src/handler.default
     events:

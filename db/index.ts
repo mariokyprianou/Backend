@@ -5,9 +5,9 @@ import { SecretsManager } from 'aws-sdk';
 const Pg = require('pg');
 
 // Prevent pg from parsing simple "date" columns into full JS dates and causing timezone headaches
-Pg.types.setTypeParser(1082, text => text);
+Pg.types.setTypeParser(1082, (text) => text);
 // Parse timestamps as dates
-Pg.types.setTypeParser(1184, text => new Date(text));
+Pg.types.setTypeParser(1184, (text) => new Date(text));
 
 let userDb = null;
 export const createUserDb = async () => {
@@ -39,7 +39,6 @@ export const createUserDb = async () => {
   }
 
   userDb = knex({
-    debug: true,
     client: 'pg',
     connection: {
       host: USER_DB_HOSTNAME,
