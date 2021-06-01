@@ -1,7 +1,7 @@
-import { AuthContext } from '@lib/power';
 import { UserPowerLoaders } from '@lib/power/user-power/user-power.loaders';
 import { WorkoutExercise } from '@lib/power/workout/workout-exercise.model';
-import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { User } from '../context';
 
 @Resolver('UserWorkoutExercise')
 export class UserWorkoutExerciseResolver {
@@ -35,10 +35,10 @@ export class UserWorkoutExerciseResolver {
   @ResolveField('notes')
   public async getNotes(
     @Parent() exercise: WorkoutExercise,
-    @Context('authContext') context: AuthContext,
+    @User() user: User,
   ) {
     const note = await this.userPowerLoaders.findUserNoteByAccountAndExercise.load(
-      [context.id, exercise.id],
+      [user.id, exercise.exerciseId],
     );
     return note?.note;
   }
