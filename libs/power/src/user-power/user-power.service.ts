@@ -142,12 +142,13 @@ export class UserPowerService {
     );
 
     const isProgrammeChanged =
-      trainingProgrammeId &&
-      currentProgramme.trainingProgrammeId !== trainingProgrammeId;
+      params.trainingProgrammeId &&
+      params.trainingProgrammeId !== currentProgramme.trainingProgrammeId;
 
     const isWeekChanged =
       isProgrammeChanged ||
-      (weekNumber != null && weekNumber !== currentProgramme.weekNumber);
+      (params.weekNumber != null &&
+        params.weekNumber !== currentProgramme.weekNumber);
 
     if (!opts.forceUpdate && !(isProgrammeChanged || isWeekChanged)) {
       // Nothing to do
@@ -169,20 +170,17 @@ export class UserPowerService {
       throw new Error('Unable to determine training programme id.');
     }
 
-    // If no week specified, resume the most recent week the user
-    let isResuming: boolean;
-    let userTrainingProgrammeId: string;
+    // If no week was specified, see if we can resume the user's progress on the programme.
+    // If not then we can start them on week 1
+    let isResumingProgramme = false;
     if (!weekNumber) {
       const week = await findMostRecentWeek(accountId, trainingProgrammeId, {
         transaction: opts.transaction,
       });
       if (week) {
-        isResuming = true;
-        userTrainingProgrammeId = week.userTrainingProgrammeId;
+        isResumingProgramme = true;
         weekNumber = week.weekNumber;
       } else {
-        isResuming = false;
-        userTrainingProgrammeId = null;
         weekNumber = 1;
       }
     }
@@ -194,25 +192,27 @@ export class UserPowerService {
 
     try {
       // Assign user to new programme (if required)
+      let userTrainingProgrammeId = currentProgramme.userTrainingProgrammeId;
       if (isProgrammeChanged) {
-        userTrainingProgrammeId = await this.assignUserProgramme(
+        userTrainingProgrammeId = await this.findOrCreateUserProgramme(
           trx,
           accountId,
           trainingProgrammeId,
-          userTrainingProgrammeId,
         );
+        await Account.query(trx)
+          .findById(accountId)
+          .patch({ userTrainingProgrammeId });
       }
 
-      if (!isResuming) {
-        // If not resuming an existing programme then we need to populate the newly created programme with workouts.
-        // Get the new current and next week's workout.
+      if (!isResumingProgramme) {
+        // If user is not resuming an existing programme we need to populate new programme with workouts.
         const workouts = await this.getProgrammeWorkouts(
           trainingProgrammeId,
           weekNumber,
           { transaction: trx },
         );
 
-        // Populate week with workouts (if week exists)
+        // Populate week with workouts
         if (workouts.length) {
           const now = new Date();
           await UserWorkoutWeek.query(trx).insertGraph({
@@ -451,27 +451,30 @@ export class UserPowerService {
     return week;
   }
 
-  private async assignUserProgramme(
+  private async findOrCreateUserProgramme(
     trx: Knex,
     accountId: string,
     trainingProgrammeId: string,
-    userTrainingProgrammeId?: string,
   ) {
-    if (!userTrainingProgrammeId) {
-      const userProgramme = await UserProgramme.query(trx)
+    let programme = await UserProgramme.query(trx)
+      .where({
+        account_id: accountId,
+        training_programme_id: trainingProgrammeId,
+      })
+      .orderBy('created_at', 'desc')
+      .limit(1)
+      .first();
+
+    if (!programme) {
+      programme = await UserProgramme.query(trx)
         .insert({
           id: uuid.v4(),
           trainingProgrammeId,
           accountId,
         })
         .returning('id');
-      userTrainingProgrammeId = userProgramme.id;
     }
 
-    await Account.query(trx)
-      .findById(accountId)
-      .patch({ userTrainingProgrammeId });
-
-    return userTrainingProgrammeId;
+    return programme.id;
   }
 }
