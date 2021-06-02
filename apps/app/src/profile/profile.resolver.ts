@@ -36,17 +36,13 @@ export class ProfileResolver {
   }
 
   @Query('profile')
-  async profile(
-    @Context('authContext') authContext: AuthContext,
-  ): Promise<UserProfile> {
-    return this.authService.profile(authContext);
+  async profile(@User() user: User): Promise<UserProfile> {
+    return this.authService.profile(user.id);
   }
 
   @Query('preferences')
-  async preferences(
-    @Context('authContext') authContext: AuthContext,
-  ): Promise<UserPreference> {
-    return this.authService.preference(authContext);
+  async preferences(@User() user: User): Promise<UserPreference> {
+    return this.authService.preference(user.id);
   }
 
   @Mutation('updateProfile')

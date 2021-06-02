@@ -97,13 +97,13 @@ export class AuthService {
     };
   }
 
-  public async profile(context: AuthContext) {
-    const profile = await this.userService.findBySub(context.sub);
+  public async profile(userId: string) {
+    const profile = await this.userService.findById(userId);
     return generateProfile(profile);
   }
 
-  public async preference(context: AuthContext) {
-    return this.accountService.findBySub(context.sub);
+  public async preference(accountId: string) {
+    return this.accountService.findById(accountId);
   }
 
   public async updateProfile(

@@ -133,6 +133,8 @@ functions:
       - httpApi:
           method: POST
           path: /auth
+          authorizer:
+            name: serviceAuthorizer
   cms:
     handler: apps/cms/src/handler.default
     events:
@@ -144,6 +146,8 @@ functions:
       - httpApi:
           method: POST
           path: /cms
+          authorizer:
+            name: cmsServiceAuthorizer
 
   cognitoCustomMessage:
     handler: apps/cognitoTriggers/src/customMessage.default
