@@ -21,6 +21,13 @@ async function bootstrap(module: any): Promise<Server> {
   const expressApp = express();
 
   const app = await createApp(expressApp, module);
+  app.use(express.json({ limit: '1MB' }));
+  app.use(
+    express.urlencoded({
+      limit: '1MB',
+      extended: true,
+    }),
+  );
   app.useGlobalPipes(new ValidationPipe());
 
   app.use(eventContext());
