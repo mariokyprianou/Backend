@@ -1,0 +1,1 @@
+ALTER TABLE share_media_image DROP CONSTRAINT uq_share_media_image_programme_type
