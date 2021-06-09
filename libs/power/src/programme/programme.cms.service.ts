@@ -243,14 +243,17 @@ export class ProgrammeService {
       );
   }
 
-  public findShareMedia(programmeId: string, type: ShareMediaEnum) {
+  public async findShareMedia(programmeId: string, type: ShareMediaEnum) {
     // Search only 'en' language as this function is for the un-localized
     // version of share media ie. not programme start
-    return ShareMedia.query()
-      .first()
+    // return a randomly selected share media image
+    const result = await ShareMedia.query()
       .where('training_programme_id', programmeId)
       .andWhere('type', type)
+      .orderByRaw('random()')
       .withGraphJoined('localisations')
-      .modifyGraph('localisations', (qb) => qb.where('language', 'en'));
+      .modifyGraph('localisations', (qb) => qb.where('language', 'en'))
+      .limit(1);
+    return result[0];
   }
 }
