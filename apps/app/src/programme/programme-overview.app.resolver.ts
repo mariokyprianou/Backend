@@ -7,18 +7,19 @@ import {
   ProgrammeLoaders,
 } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { CommonService } from '@lib/common';
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import { AbstractProgrammeResolver } from './programme.app.resolver';
+import { Inject } from '@nestjs/common';
 
 @Resolver('ProgrammeOverview')
 export class ProgrammeOverviewResolver extends AbstractProgrammeResolver {
   constructor(
     workoutService: ScheduledWorkoutService,
-    commonService: CommonService,
     trainerLoaders: TrainerLoaders,
     programmeLoaders: ProgrammeLoaders,
+    @Inject(IMAGE_CDN) private imageStore: ImageHandlerObjectStore,
   ) {
-    super(workoutService, commonService, trainerLoaders, programmeLoaders);
+    super(workoutService, trainerLoaders, programmeLoaders, imageStore);
   }
 
   @ResolveField('numberOfWeeks')
@@ -55,11 +56,12 @@ export class ProgrammeOverviewResolver extends AbstractProgrammeResolver {
 
     if (image && image.imageKey) {
       return {
-        url: this.commonService.getPresignedUrl(
-          image.imageKey,
-          this.commonService.env().FILES_BUCKET,
-          'getObject',
-        ),
+        url: this.imageStore.getSignedUrl(image.imageKey, {
+          expiresIn: 60 * 7 * 24,
+          resize: {
+            width: 720,
+          },
+        }),
         colour: image.colour,
       };
     }

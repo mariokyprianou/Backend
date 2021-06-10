@@ -1,7 +1,7 @@
 import { Programme } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { ScheduledWorkoutService } from '@lib/power/scheduled-workout';
-import { CommonService } from '@lib/common';
+import { CommonService, ImageHandlerObjectStore } from '@lib/common';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 
@@ -18,12 +18,12 @@ export class ProgrammeResolver {
   // }
 }
 
-export class AbstractProgrammeResolver {
+export abstract class AbstractProgrammeResolver {
   constructor(
     protected workoutService: ScheduledWorkoutService,
-    protected commonService: CommonService,
     protected trainerLoaders: TrainerLoaders,
     protected programmeLoaders: ProgrammeLoaders,
+    private imageCdn: ImageHandlerObjectStore,
   ) {}
 
   @ResolveField('id')
@@ -79,11 +79,31 @@ export class AbstractProgrammeResolver {
     );
 
     if (primaryProgrammeImage) {
-      return this.commonService.getPresignedUrl(
-        primaryProgrammeImage.imageKey,
-        this.commonService.env().FILES_BUCKET,
-        'getObject',
-      );
+      return this.imageCdn.getSignedUrl(primaryProgrammeImage.imageKey, {
+        expiresIn: 60 * 24 * 7,
+        resize: {
+          width: 720,
+        },
+      });
+    }
+  }
+
+  @ResolveField('programmeImageThumbnail')
+  public async getProgrammeImageThumbnail(@Parent() programme: Programme) {
+    const images = await this.programmeLoaders.findImagesByProgrammeId.load(
+      programme.id,
+    );
+    const primaryProgrammeImage = images.find(
+      (image) => image.orderIndex === 0,
+    );
+
+    if (primaryProgrammeImage) {
+      return this.imageCdn.getSignedUrl(primaryProgrammeImage.imageKey, {
+        expiresIn: 60 * 24 * 7,
+        resize: {
+          width: 200,
+        },
+      });
     }
   }
 }

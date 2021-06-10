@@ -1,24 +1,25 @@
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { isNil } from 'lodash';
 import { AuthContext, Programme, ScheduledWorkoutService } from '@lib/power';
-import { CommonService } from '@lib/common';
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import { AbstractProgrammeResolver } from '../programme/programme.app.resolver';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 import { UserPowerLoaders } from '@lib/power/user-power/user-power.loaders';
 import { WorkoutLoaders } from '@lib/power/workout/workout.loaders';
+import { Inject } from '@nestjs/common';
 
 @Resolver('UserProgramme')
 export class UserProgrammeResolver extends AbstractProgrammeResolver {
   constructor(
     workoutService: ScheduledWorkoutService,
-    commonService: CommonService,
     trainerLoaders: TrainerLoaders,
     programmeLoaders: ProgrammeLoaders,
     private readonly userPowerLoaders: UserPowerLoaders,
     private readonly workoutLoaders: WorkoutLoaders,
+    @Inject(IMAGE_CDN) imageStore: ImageHandlerObjectStore,
   ) {
-    super(workoutService, commonService, trainerLoaders, programmeLoaders);
+    super(workoutService, trainerLoaders, programmeLoaders, imageStore);
   }
 
   @ResolveField('isComplete')

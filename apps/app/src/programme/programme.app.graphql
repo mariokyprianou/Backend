@@ -8,6 +8,7 @@ interface Programme {
   wellness: Int!
   description: String!
   programmeImage: URL
+  programmeImageThumbnail: URL
 }
 
 type ProgrammeShareImage {
@@ -31,6 +32,7 @@ type ProgrammeOverview implements Programme {
   wellness: Int!
   description: String!
   programmeImage: URL
+  programmeImageThumbnail: URL
 
   # ProgrammeOverview fields
   progressStartShareMediaImage: ProgrammeShareImage

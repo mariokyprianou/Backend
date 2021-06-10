@@ -9,6 +9,7 @@ export default () => {
     VIDEO_BUCKET_DESTINATION: envalid.str(),
     FILES_BUCKET_REGION: envalid.str({ default: process.env.REGION }),
     FILES_BUCKET: envalid.str(),
+    FILES_BUCKET_CLOUDFRONT_DISTRIBUTION_NAME: envalid.str(),
 
     VIDEO_CLOUDFRONT_ENABLED: envalid.bool({ default: false }),
 
@@ -25,6 +26,7 @@ export default () => {
       files: {
         region: env.FILES_BUCKET_REGION,
         bucket: env.FILES_BUCKET,
+        distributionName: env.FILES_BUCKET_CLOUDFRONT_DISTRIBUTION_NAME,
       },
       videos: {
         cdn: env.VIDEO_CLOUDFRONT_ENABLED ? 'cloudfront' : 's3',

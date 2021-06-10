@@ -1,12 +1,13 @@
-import { CommonService } from '@lib/common';
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import { Account, AuthContext, ProgrammeService } from '@lib/power';
+import { Inject } from '@nestjs/common';
 import { Args, Context, Query, Resolver } from '@nestjs/graphql';
 
 @Resolver('ProgrammeShareImage')
 export class ShareMediaResolver {
   constructor(
     private programmeService: ProgrammeService,
-    private common: CommonService,
+    @Inject(IMAGE_CDN) private imageStore: ImageHandlerObjectStore,
   ) {}
 
   @Query('shareMedia')
@@ -33,11 +34,10 @@ export class ShareMediaResolver {
     const locale = shareMedia.localisations.find((e) => e.language === 'en');
 
     return {
-      url: await this.common.getPresignedUrl(
-        locale.imageKey,
-        this.common.env().FILES_BUCKET,
-        'getObject',
-      ),
+      url: await this.imageStore.getSignedUrl(locale.imageKey, {
+        expiresIn: 60 * 24 * 7,
+        resize: { width: 720 },
+      }),
       colour: locale.colour,
     };
   }

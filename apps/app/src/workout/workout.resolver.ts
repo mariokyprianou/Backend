@@ -1,4 +1,4 @@
-import { CommonService } from '@lib/common';
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import {
   ExerciseLoaders,
   OnDemandWorkout,
@@ -7,10 +7,11 @@ import {
 } from '@lib/power';
 import { subWeeks } from 'date-fns';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { Inject } from '@nestjs/common';
 
 export abstract class AbstractWorkoutResolver<T> {
   constructor(
-    private readonly commonService: CommonService,
+    private readonly imageStore: ImageHandlerObjectStore,
     private readonly programmeLoaders: ProgrammeLoaders,
   ) {}
 
@@ -35,11 +36,27 @@ export abstract class AbstractWorkoutResolver<T> {
       return null;
     }
 
-    return this.commonService.getPresignedUrl(
-      workout.overviewImageKey,
-      this.commonService.env().FILES_BUCKET,
-      'getObject',
-    );
+    return this.imageStore.getSignedUrl(workout.overviewImageKey, {
+      expiresIn: 60 * 24 * 7,
+      resize: {
+        width: 720,
+      },
+    });
+  }
+
+  @ResolveField('overviewImageThumbnail')
+  public async getOverviewImageThumbnail(@Parent() parent: T) {
+    const workout = this.getWorkoutModel(parent);
+    if (!workout.overviewImageKey) {
+      return null;
+    }
+
+    return this.imageStore.getSignedUrl(workout.overviewImageKey, {
+      expiresIn: 60 * 24 * 7,
+      resize: {
+        width: 200,
+      },
+    });
   }
 
   @ResolveField('intensity')
@@ -67,11 +84,11 @@ export abstract class AbstractWorkoutResolver<T> {
 @Resolver('Workout')
 export class WorkoutResolver extends AbstractWorkoutResolver<Workout> {
   constructor(
-    commonService: CommonService,
+    @Inject(IMAGE_CDN) imageStore: ImageHandlerObjectStore,
     programmeLoaders: ProgrammeLoaders,
     private readonly exerciseLoaders: ExerciseLoaders,
   ) {
-    super(commonService, programmeLoaders);
+    super(imageStore, programmeLoaders);
   }
 
   protected getWorkoutModel(parent: Workout | OnDemandWorkout): Workout {

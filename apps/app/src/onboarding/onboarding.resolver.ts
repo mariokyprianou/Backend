@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CommonService } from '@lib/common';
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import { Onboarding } from '@lib/power/onboarding';
+import { Inject } from '@nestjs/common';
 import {
   Context,
   Parent,
@@ -14,7 +15,7 @@ import { OnboardingService } from '../../../../libs/power/src/onboarding/onboard
 export class OnboardingResolver {
   constructor(
     private onboardingService: OnboardingService,
-    private common: CommonService,
+    @Inject(IMAGE_CDN) private imageStore: ImageHandlerObjectStore,
   ) {}
 
   @Query('onboardingScreens')
@@ -46,13 +47,6 @@ export class OnboardingResolver {
     @Context('language') language: string,
   ) {
     const key = onboarding.getTranslation(language)?.imageKey;
-    return (
-      key &&
-      this.common.getPresignedUrl(
-        key,
-        this.common.env().FILES_BUCKET,
-        'getObject',
-      )
-    );
+    return this.imageStore.getSignedUrl(key, { expiresIn: 60 * 24 * 7 });
   }
 }

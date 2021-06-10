@@ -49,3 +49,38 @@ export class CloudfrontObjectStore implements ReadOnlyObjectStore {
     });
   }
 }
+
+export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
+  private readonly baseUrl: string;
+  private readonly bucket: string;
+
+  constructor(params: { bucket: string; distributionName: string }) {
+    this.baseUrl = `https://${params.distributionName}.cloudfront.net`;
+    this.bucket = params.bucket;
+  }
+
+  public async getSignedUrl(
+    key: string,
+    opts: {
+      expiresIn: number;
+      resize?: {
+        width: number;
+      };
+    },
+  ) {
+    const token = JSON.stringify({
+      bucket: this.bucket,
+      key,
+      edits: {
+        resize: opts.resize
+          ? {
+              width: opts.resize.width,
+              fit: 'inside',
+            }
+          : undefined,
+      },
+    });
+
+    return `${this.baseUrl}/${Buffer.from(token, 'utf8').toString('base64')}`;
+  }
+}

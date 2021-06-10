@@ -1,17 +1,18 @@
-import { CommonService } from '@lib/common';
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import { ProgrammeLoaders, UserWorkout } from '@lib/power';
 import { UserPowerLoaders } from '@lib/power/user-power/user-power.loaders';
+import { Inject } from '@nestjs/common';
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { AbstractWorkoutResolver } from '../workout/workout.resolver';
 
 @Resolver('UserWorkout')
 export class UserWorkoutResolver extends AbstractWorkoutResolver<UserWorkout> {
   constructor(
-    commonService: CommonService,
+    @Inject(IMAGE_CDN) imageStore: ImageHandlerObjectStore,
     programmeLoaders: ProgrammeLoaders,
     private readonly userPowerLoaders: UserPowerLoaders,
   ) {
-    super(commonService, programmeLoaders);
+    super(imageStore, programmeLoaders);
   }
 
   getWorkoutModel(parent: UserWorkout) {

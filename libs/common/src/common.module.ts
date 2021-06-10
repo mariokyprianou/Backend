@@ -1,6 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CloudfrontConfig, CloudfrontObjectStore, S3ObjectStore } from './cdn';
+import {
+  CloudfrontConfig,
+  CloudfrontObjectStore,
+  ImageHandlerObjectStore,
+  S3ObjectStore,
+} from './cdn';
+import { IMAGE_CDN } from './common.constants';
 import { CommonService } from './common.service';
 import { Lazy } from './lazy';
 import { getSSMConfig } from './ssm';
@@ -28,7 +34,18 @@ const VIDEO_CDN = 'VIDEO_CDN';
         }
       },
     },
+    {
+      provide: IMAGE_CDN,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const config = configService.get('storage.files');
+        return new ImageHandlerObjectStore({
+          bucket: config.bucket,
+          distributionName: config.distributionName,
+        });
+      },
+    },
   ],
-  exports: [CommonService, VIDEO_CDN],
+  exports: [CommonService, IMAGE_CDN, VIDEO_CDN],
 })
 export class CommonModule {}

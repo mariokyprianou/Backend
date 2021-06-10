@@ -8,14 +8,14 @@ import {
 } from '@nestjs/graphql';
 import { ChallengeService, IChallenge, IChallengeHistory } from '@lib/power';
 import { User } from '../context';
-import { ConfigService } from '@nestjs/config';
-import { S3 } from 'aws-sdk';
+import { IMAGE_CDN, ImageHandlerObjectStore } from '@lib/common';
+import { Inject } from '@nestjs/common';
 
 @Resolver('Challenge')
 export class ChallengeResolver {
   constructor(
     private challengeService: ChallengeService,
-    private configService: ConfigService,
+    @Inject(IMAGE_CDN) private imageStore: ImageHandlerObjectStore,
   ) {}
 
   @Query('challenges')
@@ -54,12 +54,25 @@ export class ChallengeResolver {
       return null;
     }
 
-    const { bucket, region } = this.configService.get('storage.files');
-    const s3 = new S3({ region });
-    return s3.getSignedUrlPromise('getObject', {
-      Bucket: bucket,
-      Key: challenge.imageKey,
-      Expires: 60 * 60,
+    return this.imageStore.getSignedUrl(challenge.imageKey, {
+      expiresIn: 60 * 24 * 7,
+      resize: {
+        width: 720,
+      },
+    });
+  }
+
+  @ResolveField('imageThumbnailUrl')
+  getImageThumbnailUrl(@Parent() challenge: IChallenge) {
+    if (!challenge.imageKey) {
+      return null;
+    }
+
+    return this.imageStore.getSignedUrl(challenge.imageKey, {
+      expiresIn: 60 * 24 * 7,
+      resize: {
+        width: 200,
+      },
     });
   }
 }

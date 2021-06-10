@@ -9,6 +9,7 @@ type UserProgramme implements Programme {
   wellness: Int!
   description: String!
   programmeImage: URL
+  programmeImageThumbnail: URL
 
   # UserProgramme Fields
   isComplete: Boolean
@@ -37,6 +38,7 @@ type UserWorkout {
   isContinuous: Boolean!
   name: String!
   overviewImage: URL
+  overviewImageThumbnail: URL
 
   # UserWorkout fields
   orderIndex: Int!

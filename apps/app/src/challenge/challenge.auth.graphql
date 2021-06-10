@@ -20,6 +20,7 @@ type Challenge {
   duration: Int
   unitType: ChallengeUnitType
   imageUrl: URL
+  imageThumbnailUrl: URL
 }
 
 input ChallengeResponseInput {

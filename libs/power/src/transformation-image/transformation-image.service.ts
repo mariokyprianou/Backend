@@ -5,7 +5,6 @@ import * as uuid from 'uuid';
 import * as mime from 'mime';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CommonService } from '@lib/common';
 
 import { UploadProgressImageDto } from './dto';
 import { TransformationImage } from './transformation-image.model';
@@ -19,10 +18,7 @@ export class TransformationImageService {
   private readonly jwtIssuer: string;
   private readonly jwtSecret: string;
 
-  constructor(
-    private commonService: CommonService,
-    configService: ConfigService,
-  ) {
+  constructor(configService: ConfigService) {
     const { bucket, region } = configService.get('storage.files');
     this.s3 = new S3({ region });
     this.bucket = bucket;
