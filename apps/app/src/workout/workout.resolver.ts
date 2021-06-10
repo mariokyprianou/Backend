@@ -8,11 +8,13 @@ import {
 import { subWeeks } from 'date-fns';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
+import { WorkoutTagLoaders } from '../workout-tags/workout-tag.app.loaders';
 
 export abstract class AbstractWorkoutResolver<T> {
   constructor(
     private readonly imageStore: ImageHandlerObjectStore,
     private readonly programmeLoaders: ProgrammeLoaders,
+    private readonly workoutTagLoaders: WorkoutTagLoaders,
   ) {}
 
   protected abstract getWorkoutModel(parent: T): Workout;
@@ -79,6 +81,12 @@ export abstract class AbstractWorkoutResolver<T> {
     const workout = this.getWorkoutModel(parent);
     return workout.getTranslation(language)?.name;
   }
+
+  @ResolveField('tags')
+  public async getTage(@Parent() parent: T) {
+    const workout = this.getWorkoutModel(parent);
+    return this.workoutTagLoaders.findTagsByWorkoutId.load(workout.id);
+  }
 }
 
 @Resolver('Workout')
@@ -86,9 +94,10 @@ export class WorkoutResolver extends AbstractWorkoutResolver<Workout> {
   constructor(
     @Inject(IMAGE_CDN) imageStore: ImageHandlerObjectStore,
     programmeLoaders: ProgrammeLoaders,
+    workoutTagLoaders: WorkoutTagLoaders,
     private readonly exerciseLoaders: ExerciseLoaders,
   ) {
-    super(imageStore, programmeLoaders);
+    super(imageStore, programmeLoaders, workoutTagLoaders);
   }
 
   protected getWorkoutModel(parent: Workout | OnDemandWorkout): Workout {

@@ -3,6 +3,7 @@ import { ProgrammeLoaders, UserWorkout } from '@lib/power';
 import { UserPowerLoaders } from '@lib/power/user-power/user-power.loaders';
 import { Inject } from '@nestjs/common';
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { WorkoutTagLoaders } from '../workout-tags/workout-tag.app.loaders';
 import { AbstractWorkoutResolver } from '../workout/workout.resolver';
 
 @Resolver('UserWorkout')
@@ -11,8 +12,9 @@ export class UserWorkoutResolver extends AbstractWorkoutResolver<UserWorkout> {
     @Inject(IMAGE_CDN) imageStore: ImageHandlerObjectStore,
     programmeLoaders: ProgrammeLoaders,
     private readonly userPowerLoaders: UserPowerLoaders,
+    workoutTagLoaders: WorkoutTagLoaders,
   ) {
-    super(imageStore, programmeLoaders);
+    super(imageStore, programmeLoaders, workoutTagLoaders);
   }
 
   getWorkoutModel(parent: UserWorkout) {

@@ -117,6 +117,7 @@ plugins:
 functions:
   app:
     handler: apps/app/src/handler.default
+    provisionedConcurrency: ${env:LAMBDA_PROVISIONED_CONCURRENCY, 0}
     events:
       - httpApi:
           method: GET
@@ -126,6 +127,7 @@ functions:
           path: /graphql
   auth:
     handler: apps/app/src/authHandler.default
+    provisionedConcurrency: ${env:LAMBDA_PROVISIONED_CONCURRENCY, 0}
     events:
       - httpApi:
           method: GET

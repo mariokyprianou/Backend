@@ -9,6 +9,7 @@ type Workout {
   overviewImage: URL
   overviewImageThumbnail: URL
   isNew: Boolean!
+  tags: [WorkoutTag!]!
 }
 
 type WorkoutExercise {

@@ -17,6 +17,7 @@ import { UserWorkoutResolver } from './user-workout.resolver';
 import { UserWorkoutExerciseResolver } from './user-workout-exercise.resolver';
 import { ExerciseResolver } from './exercise.resolver';
 import { CompleteWorkoutResponseResolver } from './complete-workout-response.resolver';
+import { WorkoutTagAppModule } from '../workout-tags/workout-tag.app.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CompleteWorkoutResponseResolver } from './complete-workout-response.res
     ScheduledWorkoutModule,
     TrainerModule,
     WorkoutModule,
+    WorkoutTagAppModule,
   ],
   providers: [
     CompleteWorkoutResponseResolver,

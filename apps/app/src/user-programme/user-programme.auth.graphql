@@ -39,6 +39,7 @@ type UserWorkout {
   name: String!
   overviewImage: URL
   overviewImageThumbnail: URL
+  tags: [WorkoutTag!]!
 
   # UserWorkout fields
   orderIndex: Int!
