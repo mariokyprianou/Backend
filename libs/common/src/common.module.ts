@@ -3,45 +3,58 @@ import { ConfigService } from '@nestjs/config';
 import {
   CloudfrontConfig,
   CloudfrontObjectStore,
+  CloudfrontSigner,
   ImageHandlerObjectStore,
-  S3ObjectStore,
 } from './cdn';
-import { IMAGE_CDN } from './common.constants';
+import {
+  CLOUDFRONT_CONFIG,
+  CLOUDFRONT_SIGNER,
+  IMAGE_CDN,
+  VIDEO_CDN,
+} from './common.constants';
 import { CommonService } from './common.service';
 import { Lazy } from './lazy';
 import { getSSMConfig } from './ssm';
 
-const VIDEO_CDN = 'VIDEO_CDN';
 @Module({
   providers: [
     CommonService,
     {
+      provide: CLOUDFRONT_CONFIG,
+      useFactory: () => {
+        return new Lazy<CloudfrontConfig>(async () => {
+          const { cloudfront } = await getSSMConfig(process.env.STAGE);
+          return cloudfront;
+        });
+      },
+    },
+    {
+      provide: CLOUDFRONT_SIGNER,
+      inject: [CLOUDFRONT_CONFIG],
+      useFactory: (config: CloudfrontConfig) => {
+        return new CloudfrontSigner(config);
+      },
+    },
+    {
       provide: VIDEO_CDN,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const config = configService.get('storage.videos');
-        if (config.cdn === 'cloudfront') {
-          const config = new Lazy<CloudfrontConfig>(async () => {
-            const { cloudfront } = await getSSMConfig(process.env.STAGE);
-            return cloudfront;
-          });
-          return new CloudfrontObjectStore(config);
-        } else {
-          return new S3ObjectStore({
-            bucket: config.bucket,
-            region: config.region,
-          });
-        }
+      inject: [ConfigService, CLOUDFRONT_SIGNER],
+      useFactory: (
+        configService: ConfigService,
+        cfSigner: CloudfrontSigner,
+      ) => {
+        const { distributionUrl } = configService.get('storage.videos');
+        return new CloudfrontObjectStore(distributionUrl, cfSigner);
       },
     },
     {
       provide: IMAGE_CDN,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const config = configService.get('storage.files');
+      inject: [ConfigService, CLOUDFRONT_SIGNER],
+      useFactory: (configService: ConfigService, signer: CloudfrontSigner) => {
+        const { bucket, distributionUrl } = configService.get('storage.files');
         return new ImageHandlerObjectStore({
-          bucket: config.bucket,
-          distributionName: config.distributionName,
+          bucket: bucket,
+          distributionUrl: distributionUrl,
+          signer,
         });
       },
     },

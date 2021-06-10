@@ -39,10 +39,7 @@ export class TransformationImageService {
     return {
       id: image.id,
       takenOn: image.takenOn,
-      url: this.s3.getSignedUrlPromise('getObject', {
-        Bucket: this.bucket,
-        Key: image.imageKey,
-      }),
+      imageKey: image.imageKey,
       createdAt: image.createdAt,
     };
   }

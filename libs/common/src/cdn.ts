@@ -1,6 +1,10 @@
 import { CloudFront, S3 } from 'aws-sdk';
 import { Lazy } from './lazy';
 
+export interface Signer {
+  sign(url: string, opts: { expiresIn: number }): Promise<string>;
+}
+
 export interface ReadOnlyObjectStore {
   getSignedUrl(key: string, opts: { expiresIn: number }): Promise<string>;
 }
@@ -30,6 +34,21 @@ export type CloudfrontConfig = {
 };
 
 export class CloudfrontObjectStore implements ReadOnlyObjectStore {
+  constructor(
+    private readonly distributionUrl: string,
+    private readonly signer?: CloudfrontSigner,
+  ) {}
+
+  public async getSignedUrl(key: string, opts: { expiresIn: number }) {
+    const url = `${this.distributionUrl}/${key}`;
+    if (!this.signer) {
+      return url;
+    }
+    return this.signer.sign(url, { expiresIn: opts.expiresIn });
+  }
+}
+
+export class CloudfrontSigner implements Signer {
   private config: Lazy<CloudfrontConfig>;
 
   constructor(params: CloudfrontConfig | Lazy<CloudfrontConfig>) {
@@ -40,23 +59,30 @@ export class CloudfrontObjectStore implements ReadOnlyObjectStore {
     }
   }
 
-  public async getSignedUrl(key: string, opts: { expiresIn: number }) {
-    const { url, privateKey, keypairId } = await this.config.get();
-
+  public async sign(url: string, opts: { expiresIn?: number }) {
+    const { privateKey, keypairId } = await this.config.get();
     return new CloudFront.Signer(keypairId, privateKey).getSignedUrl({
-      url: `${url}/${key}`,
-      expires: Math.floor(new Date().getTime() / 1000 + opts.expiresIn),
+      url: url,
+      expires: Math.floor(
+        new Date().getTime() / 1000 + opts.expiresIn ?? 60 * 24,
+      ),
     });
   }
 }
 
 export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
-  private readonly baseUrl: string;
+  private readonly distributionUrl: string;
   private readonly bucket: string;
+  private readonly signer?: CloudfrontSigner;
 
-  constructor(params: { bucket: string; distributionName: string }) {
-    this.baseUrl = `https://${params.distributionName}.cloudfront.net`;
+  constructor(params: {
+    bucket: string;
+    distributionUrl: string;
+    signer?: CloudfrontSigner;
+  }) {
+    this.distributionUrl = params.distributionUrl;
     this.bucket = params.bucket;
+    this.signer = params.signer;
   }
 
   public async getSignedUrl(
@@ -81,6 +107,14 @@ export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
       },
     });
 
-    return `${this.baseUrl}/${Buffer.from(token, 'utf8').toString('base64')}`;
+    const url = `${this.distributionUrl}/${Buffer.from(token, 'utf8').toString(
+      'base64',
+    )}`;
+
+    if (this.signer) {
+      return this.signer.sign(url, { expiresIn: opts.expiresIn });
+    } else {
+      return url;
+    }
   }
 }

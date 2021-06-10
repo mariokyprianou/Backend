@@ -7,9 +7,10 @@ export default () => {
     REPORTS_BUCKET: envalid.str(),
     VIDEO_BUCKET_REGION: envalid.str({ default: process.env.REGION }),
     VIDEO_BUCKET_DESTINATION: envalid.str(),
+    VIDEO_BUCKET_CLOUDFRONT_DISTRIBUTION_URL: envalid.str(),
     FILES_BUCKET_REGION: envalid.str({ default: process.env.REGION }),
     FILES_BUCKET: envalid.str(),
-    FILES_BUCKET_CLOUDFRONT_DISTRIBUTION_NAME: envalid.str(),
+    FILES_BUCKET_CLOUDFRONT_DISTRIBUTION_URL: envalid.str(),
 
     VIDEO_CLOUDFRONT_ENABLED: envalid.bool({ default: false }),
 
@@ -26,12 +27,12 @@ export default () => {
       files: {
         region: env.FILES_BUCKET_REGION,
         bucket: env.FILES_BUCKET,
-        distributionName: env.FILES_BUCKET_CLOUDFRONT_DISTRIBUTION_NAME,
+        distributionUrl: env.FILES_BUCKET_CLOUDFRONT_DISTRIBUTION_URL,
       },
       videos: {
-        cdn: env.VIDEO_CLOUDFRONT_ENABLED ? 'cloudfront' : 's3',
         region: env.VIDEO_BUCKET_REGION,
         bucket: env.VIDEO_BUCKET_DESTINATION,
+        distributionUrl: env.VIDEO_BUCKET_CLOUDFRONT_DISTRIBUTION_URL,
       },
       reports: {
         region: env.REPORTS_BUCKET_REGION,

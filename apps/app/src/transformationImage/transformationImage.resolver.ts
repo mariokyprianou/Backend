@@ -1,14 +1,26 @@
+import { ImageHandlerObjectStore, IMAGE_CDN } from '@lib/common';
 import {
   ConfirmUploadProgressImageDto,
   TransformationImageService,
   UploadProgressImageDto,
 } from '@lib/power';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Inject } from '@nestjs/common';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { User } from '../context';
 
 @Resolver('ProgressImage')
 export class TransformationImageResolver {
-  constructor(private transformationService: TransformationImageService) {}
+  constructor(
+    private transformationService: TransformationImageService,
+    @Inject(IMAGE_CDN) private imageStore: ImageHandlerObjectStore,
+  ) {}
 
   @Query('progressImages')
   async progressImages(@User() user: User): Promise<ProgressImage[]> {
@@ -46,10 +58,24 @@ export class TransformationImageResolver {
     );
     return { success: true, progressImage };
   }
+
+  @ResolveField('url')
+  async getUrl(@Parent() progressImage: ProgressImage) {
+    return this.imageStore.getSignedUrl(progressImage.imageKey, {
+      expiresIn: 60 * 24 * 7,
+      resize: {
+        width: 720,
+      },
+    });
+    // this.s3.getSignedUrlPromise('getObject', {
+    //   Bucket: this.bucket,
+    //   Key: ,
+    // }),
+  }
 }
 
 export interface ProgressImage {
   id: string;
-  url?: string | Promise<string>;
+  imageKey: string;
   createdAt?: Date;
 }

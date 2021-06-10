@@ -1,4 +1,4 @@
-import { ReadOnlyObjectStore } from '@lib/common';
+import { ReadOnlyObjectStore, VIDEO_CDN } from '@lib/common';
 import { DownloadQuality } from '@lib/power';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { Exercise } from '@lib/power/exercise';
@@ -8,7 +8,7 @@ import { Inject } from '@nestjs/common';
 @Resolver('Exercise')
 export class ExerciseResolver {
   constructor(
-    @Inject('VIDEO_CDN') private readonly objectStore: ReadOnlyObjectStore,
+    @Inject(VIDEO_CDN) private readonly objectStore: ReadOnlyObjectStore,
     private readonly accountLoaders: AccountLoaders,
   ) {}
 
