@@ -98,6 +98,9 @@ export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
       bucket: this.bucket,
       key,
       edits: {
+        jpeg: {
+          quality: 95,
+        },
         resize: opts.resize
           ? {
               width: opts.resize.width,
