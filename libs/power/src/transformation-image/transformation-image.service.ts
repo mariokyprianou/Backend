@@ -75,7 +75,7 @@ export class TransformationImageService {
       algorithm: 'HS256',
       issuer: this.jwtIssuer,
       audience: this.jwtAudience,
-      expiresIn: '15 minutes',
+      expiresIn: '1 hour',
     });
 
     return {
@@ -131,7 +131,7 @@ export class TransformationImageService {
     // Copy image to new location
     const Key = `transformations/${accountId}/${
       payload.takenOn
-    }.${mime.getExtension(payload.contentType)}`;
+    }-${uuid.v4().substring(0, 4)}.${mime.getExtension(payload.contentType)}`;
     await this.s3
       .copyObject({
         CopySource: `${this.bucket}/${payload.key}`,
