@@ -56,7 +56,7 @@ export abstract class AbstractWorkoutResolver<T> {
     return this.imageStore.getSignedUrl(workout.overviewImageKey, {
       expiresIn: 60 * 24 * 7,
       resize: {
-        width: 200,
+        width: 400,
       },
     });
   }

@@ -101,7 +101,7 @@ export abstract class AbstractProgrammeResolver {
       return this.imageCdn.getSignedUrl(primaryProgrammeImage.imageKey, {
         expiresIn: 60 * 24 * 7,
         resize: {
-          width: 200,
+          width: 400,
         },
       });
     }

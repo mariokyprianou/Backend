@@ -71,7 +71,7 @@ export class ChallengeResolver {
     return this.imageStore.getSignedUrl(challenge.imageKey, {
       expiresIn: 60 * 24 * 7,
       resize: {
-        width: 200,
+        width: 400,
       },
     });
   }
