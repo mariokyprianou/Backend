@@ -54,7 +54,9 @@ export class ProgrammeLoaders {
       const programmes = await this.baseQuery()
         .whereIn('trainer_id', trainerIds as string[])
         .andWhere('status', PublishStatus.PUBLISHED)
-        .whereNull('deleted_at');
+        .whereNull('deleted_at')
+        .orderBy('trainer_id', 'ASC')
+        .orderBy('environment', 'DESC');
 
       return trainerIds.map((trainerId) =>
         programmes.filter((programme) => programme.trainerId === trainerId),
