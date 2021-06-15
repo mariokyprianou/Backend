@@ -55,8 +55,8 @@ export class ProgrammeLoaders {
         .whereIn('trainer_id', trainerIds as string[])
         .andWhere('status', PublishStatus.PUBLISHED)
         .whereNull('deleted_at')
-        .orderBy('trainer_id', 'ASC')
-        .orderBy('environment', 'DESC');
+        .orderBy('trainer_id')
+        .orderBy('environment');
 
       return trainerIds.map((trainerId) =>
         programmes.filter((programme) => programme.trainerId === trainerId),
