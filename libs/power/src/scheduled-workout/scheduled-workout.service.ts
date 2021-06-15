@@ -44,7 +44,7 @@ export class ScheduledWorkoutService {
       query.whereIn('week_number', params.weeks);
     }
 
-    return query;
+    return query.orderBy('order_index');
   }
 
   public async findAll(params: FindAllWorkoutsParams) {
