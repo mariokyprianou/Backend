@@ -94,20 +94,23 @@ export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
       };
     },
   ) {
+    const edits = {} as any;
+
+    if (opts.resize) {
+      edits.resize = {
+        width: opts.resize.width,
+        fit: 'inside',
+      };
+    }
+
+    if (key.match(/\.(jpeg|jpg)$/i)) {
+      edits.jpeg = { quality: 95 };
+    }
+
     const token = JSON.stringify({
       bucket: this.bucket,
       key,
-      edits: {
-        jpeg: {
-          quality: 95,
-        },
-        resize: opts.resize
-          ? {
-              width: opts.resize.width,
-              fit: 'inside',
-            }
-          : undefined,
-      },
+      edits: edits,
     });
 
     const url = `${this.distributionUrl}/${Buffer.from(token, 'utf8').toString(

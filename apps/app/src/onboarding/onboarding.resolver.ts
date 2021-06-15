@@ -47,6 +47,9 @@ export class OnboardingResolver {
     @Context('language') language: string,
   ) {
     const key = onboarding.getTranslation(language)?.imageKey;
-    return this.imageStore.getSignedUrl(key, { expiresIn: 60 * 24 * 7 });
+    return this.imageStore.getSignedUrl(key, {
+      resize: { width: 720 },
+      expiresIn: 60 * 24 * 7,
+    });
   }
 }
