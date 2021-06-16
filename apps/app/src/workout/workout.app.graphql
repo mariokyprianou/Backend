@@ -13,10 +13,12 @@ type Workout {
 }
 
 type WorkoutExercise {
+  id: ID!
   exercise: Exercise!
   setType: SetType!
   sets: [WorkoutSet]
   orderIndex: Int!
+  notes: String
 }
 
 type ProgrammeWorkout {

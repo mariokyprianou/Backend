@@ -33,7 +33,7 @@ type UserWorkout {
   id: ID!
   programme: ProgrammeOverview
   duration: Int!
-  exercises: [UserWorkoutExercise]
+  exercises: [WorkoutExercise]
   intensity: IntensityEnum!
   isContinuous: Boolean!
   name: String!
@@ -44,18 +44,6 @@ type UserWorkout {
   # UserWorkout fields
   orderIndex: Int!
   completedAt: DateTime
-}
-
-type UserWorkoutExercise {
-  # WorkoutExercise fields
-  exercise: Exercise!
-  setType: SetType!
-  sets: [WorkoutSet]
-  orderIndex: Int!
-
-  # UserWorkoutExercise fields
-  id: ID!
-  notes: String
 }
 
 input WorkoutOrderInput {

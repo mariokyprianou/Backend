@@ -69,8 +69,7 @@ export class TaxonomyService {
       )
       .whereIn(`${joinTable.tableName}.${joinTable.modelIdColumn}`, ids)
       .orderBy(raw('COALESCE(tr.name, tr_fallback.name, terms.key)'), 'ASC')
-      .toKnexQuery<ITaxonomyTerm & { modelId: string }>()
-      .debug(true);
+      .toKnexQuery<ITaxonomyTerm & { modelId: string }>();
 
     return _.groupBy(results, (row) => row.modelId);
   }

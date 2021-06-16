@@ -3,8 +3,8 @@ import { WorkoutExercise } from '@lib/power/workout/workout-exercise.model';
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { User } from '../context';
 
-@Resolver('UserWorkoutExercise')
-export class UserWorkoutExerciseResolver {
+@Resolver('WorkoutExercise')
+export class WorkoutExerciseResolver {
   constructor(private readonly userPowerLoaders: UserPowerLoaders) {}
 
   @ResolveField('id')
@@ -37,6 +37,10 @@ export class UserWorkoutExerciseResolver {
     @Parent() exercise: WorkoutExercise,
     @User() user: User,
   ) {
+    if (!user) {
+      return null;
+    }
+
     const note = await this.userPowerLoaders.findUserNoteByAccountAndExercise.load(
       [user.id, exercise.exerciseId],
     );

@@ -14,7 +14,6 @@ import {
 import { CommonModule } from '@lib/common';
 import { UserWorkoutWeekResolver } from './user-workout-week.resolver';
 import { UserWorkoutResolver } from './user-workout.resolver';
-import { UserWorkoutExerciseResolver } from './user-workout-exercise.resolver';
 import { ExerciseResolver } from './exercise.resolver';
 import { CompleteWorkoutResponseResolver } from './complete-workout-response.resolver';
 import { WorkoutTagAppModule } from '../workout-tags/workout-tag.app.module';
@@ -37,7 +36,6 @@ import { WorkoutTagAppModule } from '../workout-tags/workout-tag.app.module';
     ExerciseResolver,
     UserProgrammeQueryResolver,
     UserProgrammeResolver,
-    UserWorkoutExerciseResolver,
     UserWorkoutResolver,
     UserWorkoutWeekResolver,
   ],
