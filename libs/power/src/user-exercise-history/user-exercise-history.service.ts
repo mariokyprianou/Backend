@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Exercise } from '../exercise';
+import { Exercise } from '../exercise/exercise.model';
 import { UserExerciseHistory } from './user-exercise-history.model';
 
 @Injectable()
