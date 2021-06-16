@@ -8,7 +8,7 @@ export class TrainerService {
       .where('localisations.language', params.language)
       .whereNull('trainer.deleted_at')
       .withGraphJoined('localisations')
-      .orderBy('localisations.name');
+      .orderBy('trainer.order_index');
 
     return query;
   }

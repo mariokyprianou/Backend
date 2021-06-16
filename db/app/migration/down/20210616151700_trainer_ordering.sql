@@ -1,0 +1,1 @@
+ALTER TABLE trainer DROP order_index;
