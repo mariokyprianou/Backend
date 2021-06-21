@@ -6,6 +6,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { CountryService, Country } from '@lib/power/country';
+import { count } from 'console';
 
 @Resolver('Country')
 export class CountryResolver {
@@ -21,9 +22,16 @@ export class CountryResolver {
     @Context('language') language: string,
     @Context('ipAddress') ipAddress: string,
   ) {
+    let country: Country = null;
     if (ipAddress) {
-      return this.service.findByIpAddress(ipAddress, language);
+      country = await this.service.findByIpAddress(ipAddress, language);
     }
+
+    if (!country) {
+      country = await this.service.findByCode('IN', language);
+    }
+
+    return country;
   }
 
   @ResolveField('country')

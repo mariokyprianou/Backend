@@ -44,6 +44,16 @@ export class CountryService {
     return Country.query().findById(id).delete();
   }
 
+  public async findByCode(countryCode: string, language = 'en') {
+    return Country.query()
+      .findOne('code', countryCode)
+      .select('country.id', 'localisations.name as name', 'code')
+      .withGraphJoined('localisations')
+      .modifyGraph('localisations', (qb) =>
+        qb.where(ref('language'), language),
+      );
+  }
+
   public async findByIpAddress(ipAddress: string, language = 'en') {
     try {
       const response = await axios.get(
@@ -51,13 +61,7 @@ export class CountryService {
       );
       const { countryCode } = response.data;
 
-      return Country.query()
-        .findOne('code', countryCode)
-        .select('country.id', 'localisations.name as name', 'code')
-        .withGraphJoined('localisations')
-        .modifyGraph('localisations', (qb) =>
-          qb.where(ref('language'), language),
-        );
+      return await this.findByCode(countryCode, language);
     } catch (e) {
       return null;
     }
