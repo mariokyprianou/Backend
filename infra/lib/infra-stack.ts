@@ -3,7 +3,6 @@ import * as cognito from '@aws-cdk/aws-cognito';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as rds from '@aws-cdk/aws-rds';
 import * as s3 from '@aws-cdk/aws-s3';
-import * as s3n from '@aws-cdk/aws-s3-notifications';
 import * as sqs from '@aws-cdk/aws-sqs';
 import { CfnOutput, Duration, RemovalPolicy } from '@aws-cdk/core';
 import { DeploymentStage } from './interface';
@@ -341,10 +340,10 @@ export class InfraStack extends cdk.Stack {
       policies: {
         passwordPolicy: {
           minimumLength: 8,
-          requireLowercase: true,
+          requireLowercase: false,
           requireNumbers: true,
-          requireUppercase: true,
-          requireSymbols: true,
+          requireUppercase: false,
+          requireSymbols: false,
         },
       },
       autoVerifiedAttributes: ['email'],
