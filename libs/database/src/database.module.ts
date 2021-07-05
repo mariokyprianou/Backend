@@ -4,11 +4,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import Knex from 'knex';
 import { BaseModel } from './base.model';
 import { UserModel } from './user.model';
+import { POWER_DB, USER_DB } from './database.constants';
 
 @Module({
   imports: [
     ObjectionModule.registerAsync({
-      name: 'Power',
+      name: POWER_DB,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -20,7 +21,7 @@ import { UserModel } from './user.model';
       },
     }),
     ObjectionModule.registerAsync({
-      name: 'User',
+      name: USER_DB,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {

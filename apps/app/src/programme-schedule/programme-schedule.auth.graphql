@@ -1,0 +1,20 @@
+extend type Query {
+  programmeSchedule: ProgrammeSchedule
+}
+
+type ProgrammeSchedule {
+  weeks: [ProgrammeWeekSummary!]!
+}
+
+type ProgrammeWeekSummary {
+  weekNumber: Int!
+  startedAt: DateTime
+  workouts: [ProgrammeWorkoutSummary!]!
+}
+
+type ProgrammeWorkoutSummary {
+  name: String!
+  orderIndex: Int!
+  duration: Int!
+  completedAt: DateTime
+}

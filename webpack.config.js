@@ -40,6 +40,11 @@ module.exports = {
   externals: [nodeExternals()],
   module: {
     rules: [
+      // Load SQL files as plain text
+      {
+        test: /\.sql$/i,
+        type: 'asset/source',
+      },
       // all files with a `.gql` or `.graphql` extension will be handled by `graphql-tag`
       {
         test: /\.(graphql|gql)$/,
