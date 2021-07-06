@@ -14,6 +14,7 @@ type User {
   createdAt: DateTime!
   updatedAt: DateTime!
   isManuallySubscribed: Boolean!
+  isBlocked: Boolean!
 }
 
 enum SubscriptionPlatform {
@@ -81,4 +82,5 @@ extend type Mutation {
   updateEmail(id: ID!, email: EmailAddress!): User
   deleteUser(id: ID!): User
   exportUsers: ExportUsersResponse
+  unblockUser(id: ID!): User
 }

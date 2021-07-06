@@ -18,6 +18,11 @@ import { ParseUUIDPipe } from '@nestjs/common';
 import { AccountLoaders } from '@lib/power/account/account.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 import { SubscriptionLoaders, SubscriptionPlatform } from '@td/subscriptions';
+import {
+  ScreenshotLoaders,
+  ScreenshotService,
+  SCREENSHOT_LIMIT,
+} from '@lib/power';
 
 @Resolver('User')
 export class UserResolver {
@@ -28,6 +33,8 @@ export class UserResolver {
     private readonly accountLoaders: AccountLoaders,
     private readonly programmeLoaders: ProgrammeLoaders,
     private readonly subscriptionLoaders: SubscriptionLoaders,
+    private readonly screenshotLoaders: ScreenshotLoaders,
+    private readonly screenshotService: ScreenshotService,
   ) {}
 
   @Query('allUsers')
@@ -108,6 +115,15 @@ export class UserResolver {
     return false;
   }
 
+  @ResolveField('isBlocked')
+  async isBlocked(@Parent() user: User) {
+    const screenshotsTaken = await this.screenshotLoaders.screenshotsByAccountId.load(
+      user.id,
+    );
+
+    return screenshotsTaken >= SCREENSHOT_LIMIT;
+  }
+
   @ResolveField('emailMarketing')
   async getEmailMarketing(@Parent() user: User) {
     const account = await this.accountLoaders.findById.load(user.id);
@@ -159,5 +175,11 @@ export class UserResolver {
     return {
       downloadUrl: res.downloadUrl,
     };
+  }
+
+  @Mutation('unblockUser')
+  async unblockUser(@Args('id', ParseUUIDPipe) id: string): Promise<User> {
+    await this.screenshotService.clearScreenshots(id);
+    return this.userService.findById(id);
   }
 }
