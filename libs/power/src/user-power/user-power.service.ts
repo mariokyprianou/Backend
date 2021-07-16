@@ -269,6 +269,7 @@ export class UserPowerService {
       )
       .where('account.id', accountId)
       .whereNull('user_workout_week.completed_at')
+      .orderBy('user_workout_week.created_at', 'desc')
       .first();
   }
 
@@ -443,7 +444,12 @@ export class UserPowerService {
       .alias('week')
       .joinRelated('userTrainingProgramme')
       .whereNull('week.completed_at')
-      .andWhere('userTrainingProgramme.account_id', accountId)
+      .where(
+        'week.user_training_programme_id',
+        Account.query()
+          .findById(accountId)
+          .select('user_training_programme_id'),
+      )
       .orderBy('week.created_at', 'DESC')
       .limit(1)
       .first();
