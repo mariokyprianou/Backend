@@ -1,5 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 import {
   AdminCreateUserRequest,
@@ -10,45 +9,41 @@ import {
 @Injectable()
 export class AuthProviderService {
   cognito: CognitoIdentityServiceProvider;
-  UserPoolId: string;
-  ClientId: string;
+  userPoolId: string;
+  clientId: string;
 
-  constructor(
-    @Inject('AUTH_OPTIONS')
-    private options: {
-      regionKey: string;
-      userpoolKey: string;
-      clientId?: string;
-    },
-    private config: ConfigService,
-  ) {
+  constructor(cognitoSettings: {
+    region: string;
+    userpoolId: string;
+    clientId?: string;
+  }) {
     this.cognito = new CognitoIdentityServiceProvider({
-      region: this.config.get(this.options.regionKey),
+      region: cognitoSettings.region,
     });
-    this.UserPoolId = this.config.get(this.options.userpoolKey);
-    this.ClientId = this.config.get(this.options.clientId);
+    this.userPoolId = cognitoSettings.userpoolId;
+    this.clientId = cognitoSettings.clientId;
   }
 
   public async register(
-    Username: string,
-    Password?: string,
+    username: string,
+    password?: string,
     options?: Partial<AdminCreateUserRequest>,
   ) {
-    // Use aws sdk to register a user as admin
-    const ap = {
-      UserPoolId: this.UserPoolId,
-      Username,
-      ...options,
-    };
-    const user = await this.cognito.adminCreateUser(ap).promise();
+    const user = await this.cognito
+      .adminCreateUser({
+        UserPoolId: this.userPoolId,
+        Username: username,
+        ...options,
+      })
+      .promise();
 
-    if (Password) {
+    if (password) {
       // Set the users password
       await this.cognito
         .adminSetUserPassword({
-          Password,
-          UserPoolId: this.UserPoolId,
+          UserPoolId: this.userPoolId,
           Username: user.User.Username,
+          Password: password,
           Permanent: true,
         })
         .promise();
@@ -62,32 +57,34 @@ export class AuthProviderService {
     Password: string,
     options?: Partial<CognitoIdentityServiceProvider.SignUpRequest>,
   ) {
-    return this.cognito
+    const response = await this.cognito
       .signUp({
-        ClientId: this.ClientId,
+        ClientId: this.clientId,
         Password,
         Username,
-        ...options,
+        ...(options ?? {}),
       })
       .promise();
+
+    return response.UserSub;
   }
 
-  public async resendEmailVerificationLink(Username: string) {
+  public async resendEmailVerificationLink(username: string) {
     return this.cognito
       .resendConfirmationCode({
-        ClientId: this.ClientId,
-        Username,
+        ClientId: this.clientId,
+        Username: username,
       })
       .promise();
   }
 
-  public async delete(Username: string) {
-    const user = await this.getUser(Username);
+  public async delete(username: string) {
+    const user = await this.getUser(username);
 
     await this.cognito
       .adminDeleteUser({
-        Username,
-        UserPoolId: this.UserPoolId,
+        Username: username,
+        UserPoolId: this.userPoolId,
       })
       .promise();
 
@@ -101,7 +98,7 @@ export class AuthProviderService {
     await this.cognito
       .adminUpdateUserAttributes({
         Username,
-        UserPoolId: this.UserPoolId,
+        UserPoolId: this.userPoolId,
         UserAttributes,
       })
       .promise();
@@ -111,7 +108,7 @@ export class AuthProviderService {
 
   public async getUser(Username: string): Promise<AdminGetUserResponse> {
     return this.cognito
-      .adminGetUser({ UserPoolId: this.UserPoolId, Username })
+      .adminGetUser({ UserPoolId: this.userPoolId, Username })
       .promise();
   }
 
@@ -125,7 +122,7 @@ export class AuthProviderService {
     } = {},
   ): Promise<ListUsersResponse> {
     const params = {
-      UserPoolId: this.UserPoolId,
+      UserPoolId: this.userPoolId,
       ...props,
     };
     return this.cognito.listUsers(params).promise();
@@ -134,8 +131,8 @@ export class AuthProviderService {
   public async login(USERNAME: string, PASSWORD: string) {
     const params = {
       AuthParameters: { USERNAME, PASSWORD },
-      UserPoolId: this.UserPoolId,
-      ClientId: this.ClientId,
+      UserPoolId: this.userPoolId,
+      ClientId: this.clientId,
       AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
     };
 

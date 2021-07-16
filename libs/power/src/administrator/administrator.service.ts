@@ -4,6 +4,7 @@ import {
   GetUserResponse,
   UserType,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import { ADMIN_AUTH_PROVIDER } from './administrator.constants';
 
 const isUserType = (admin: GetUserResponse | UserType): admin is UserType => {
   return (admin as UserType).Attributes !== undefined;
@@ -12,7 +13,7 @@ const isUserType = (admin: GetUserResponse | UserType): admin is UserType => {
 @Injectable()
 export class AdministratorService {
   constructor(
-    @Inject('ADMIN') private adminAuthProvider: AuthProviderService,
+    @Inject(ADMIN_AUTH_PROVIDER) private adminAuthProvider: AuthProviderService,
   ) {}
 
   public async findAll(

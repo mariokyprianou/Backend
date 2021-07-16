@@ -1,13 +1,6 @@
-import { Module } from '@nestjs/common';
+import { FactoryProvider, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthProviderService } from './auth-provider.service';
-
-// @Module({
-//   imports: [ConfigModule],
-//   providers: [AuthProviderService],
-//   exports: [AuthProviderService],
-// })
-// export class AuthProviderModule {}
 
 @Module({})
 export class AuthProviderModule {
@@ -22,15 +15,17 @@ export class AuthProviderModule {
       import: [ConfigModule],
       providers: [
         {
-          provide: 'AUTH_OPTIONS',
-          useValue: options,
-        },
-        {
           provide: options.name,
-          useClass: AuthProviderService,
-        },
+          inject: [ConfigService],
+          useFactory: (configService: ConfigService) => {
+            return new AuthProviderService({
+              region: configService.get(options.regionKey),
+              userpoolId: configService.get(options.userpoolKey),
+              clientId: configService.get(options.clientId),
+            });
+          },
+        } as FactoryProvider,
       ],
-      inject: [AuthProviderService, ConfigService],
       exports: [options.name],
     };
   }

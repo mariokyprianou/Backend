@@ -14,11 +14,12 @@ import {
 } from '../types';
 import { User, UserService } from '../user';
 import { UserPowerService } from '../user-power';
+import { USER_AUTH_PROVIDER } from '../administrator';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('USER') private authProvider: AuthProviderService,
+    @Inject(USER_AUTH_PROVIDER) private authProvider: AuthProviderService,
     private accountService: AccountService,
     private userService: UserService,
     private userPowerService: UserPowerService,
@@ -31,14 +32,13 @@ export class AuthService {
     }
 
     // register with the auth provider
-    const res = await this.authProvider.registerWithEmailVerificationLink(
+    const cognitoSub = await this.authProvider.registerWithEmailVerificationLink(
       input.email,
       input.password,
-      {},
     );
 
     // add to the user table
-    const user = await this.userService.create(input, res.UserSub);
+    const user = await this.userService.create(input, cognitoSub);
 
     const transaction = await Account.startTransaction();
     try {
@@ -49,7 +49,7 @@ export class AuthService {
       const account = await Account.query(transaction)
         .insert({
           id: user.id,
-          cognitoUsername: res.UserSub,
+          cognitoUsername: cognitoSub,
           userTrainingProgrammeId,
         })
         .returning('*');
