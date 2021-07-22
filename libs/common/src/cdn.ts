@@ -89,6 +89,7 @@ export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
     key: string,
     opts: {
       expiresIn: number;
+      quality?: number;
       resize?: {
         width: number;
       };
@@ -104,7 +105,7 @@ export class ImageHandlerObjectStore implements ReadOnlyObjectStore {
     }
 
     if (key.match(/\.(jpeg|jpg)$/i)) {
-      edits.jpeg = { quality: 95 };
+      edits.jpeg = { quality: opts.quality ?? 95 };
     }
 
     const token = JSON.stringify({

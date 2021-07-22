@@ -1,7 +1,7 @@
 import { Programme } from '@lib/power';
 import { Context, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { ScheduledWorkoutService } from '@lib/power/scheduled-workout';
-import { CommonService, ImageHandlerObjectStore } from '@lib/common';
+import { ImageHandlerObjectStore } from '@lib/common';
 import { TrainerLoaders } from '@lib/power/trainer/trainer.loaders';
 import { ProgrammeLoaders } from '@lib/power/programme/programme.loaders';
 
@@ -82,7 +82,7 @@ export abstract class AbstractProgrammeResolver {
       return this.imageCdn.getSignedUrl(primaryProgrammeImage.imageKey, {
         expiresIn: 60 * 24 * 7,
         resize: {
-          width: 720,
+          width: 1280,
         },
       });
     }
